@@ -23,13 +23,13 @@ fit_MSA(
 \item{parameters}{List of parameters, e.g., returned by \code{\link[=make_parameters]{make_parameters()}} and validated by \code{\link[=check_parameters]{check_parameters()}}.}
 
 \item{map}{List of parameters indicated whether they are fixed and how they are shared, e.g., returned by \code{\link[=make_parameters]{make_parameters()}}.
-See \code{\link[TMB:MakeADFun]{TMB::MakeADFun()}}.}
+See \code{\link[RTMB:TMB-interface]{RTMB::MakeADFun()}}.}
 
 \item{random}{Character vector indicating the parameters that are random effects, e.g., returned by \code{\link[=make_parameters]{make_parameters()}}.}
 
 \item{run_model}{Logical, whether to fit the model through \code{\link[stats:nlminb]{stats::nlminb()}}.}
 
-\item{do_sd}{Logical, whether to calculate the standard errors with \code{\link[TMB:sdreport]{TMB::sdreport()}}.}
+\item{do_sd}{Logical, whether to calculate the standard errors with \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}.}
 
 \item{report}{Logical, whether to return the report list with \code{obj$report(obj$env$last.par.best)}.}
 
@@ -37,7 +37,7 @@ See \code{\link[TMB:MakeADFun]{TMB::MakeADFun()}}.}
 
 \item{control}{Passed to \code{\link[stats:nlminb]{stats::nlminb()}}}
 
-\item{...}{Other arguments to \code{\link[TMB:MakeADFun]{TMB::MakeADFun()}}.}
+\item{...}{Other arguments to \code{\link[RTMB:TMB-interface]{RTMB::MakeADFun()}}.}
 }
 \value{
 A \linkS4class{MSAassess} object.

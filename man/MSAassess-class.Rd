@@ -14,7 +14,7 @@ S4 object that returns output from MSA model
 
 \item{\code{opt}}{List returned by \code{\link[stats:nlminb]{stats::nlminb()}}}
 
-\item{\code{SD}}{List returned by \code{\link[TMB:sdreport]{TMB::sdreport()}}}
+\item{\code{SD}}{List returned by \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}}
 
 \item{\code{report}}{List of model output at the parameter estimates, returned by \code{obj$report(obj$env$last.par.best)}}
 

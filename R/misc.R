@@ -112,7 +112,7 @@ conv_mat <- function(x, na) {
 #' @details
 #' Argument `restart` allows for recursive model fitting to obtain convergence, through the following procedure:
 #' 1. Optimize model with [stats::nlminb()].
-#' 2. Determine convergence, defined by [TMB::sdreport()] by whether the Cholesky decomposition of the covariance matrix is possible.
+#' 2. Determine convergence, defined by [RTMB::sdreport()] by whether the Cholesky decomposition of the covariance matrix is possible.
 #' 3. If convergence is not achieved, jitter parameter estimates with multiplicative factor `rlnorm(mean = 0, sd = 1e-3)` and return to step 1.
 #' @importFrom stats nlminb rnorm
 #' @seealso [get_sdreport()]
@@ -160,9 +160,9 @@ check_det <- function(h, abs_val = 0.1, is_null = TRUE) {
 #' A wrapper function to return standard errors. Various numerical techniques are employed to obtain
 #' a positive-definite covariance matrix.
 #' @inheritParams optimize_RTMB
-#' @param getReportCovariance Logical, passed to [TMB::sdreport()]
+#' @param getReportCovariance Logical, passed to [RTMB::sdreport()]
 #' @param silent Logical, whether to report progress to console. See details.
-#' @param ... Other arguments to [TMB::sdreport()] besides `par.fixed, hessian.fixed, getReportCovariance`
+#' @param ... Other arguments to [RTMB::sdreport()] besides `par.fixed, hessian.fixed, getReportCovariance`
 #' @details
 #' In marginal cases where the determinant of the Hessian matrix is less than 0.1, several steps are utilized to
 #' obtain a positive-definite covariance matrix, in the following order:
@@ -171,7 +171,7 @@ check_det <- function(h, abs_val = 0.1, is_null = TRUE) {
 #' 3. Invert hessian returned by `h <- numDeriv::jacobian(obj$gr, obj$env.last.par.best)`
 #' 4. Calculate covariance matrix from `chol2inv(chol(h))`
 #' @return
-#' Object returned by [TMB::sdreport()]. A correlation matrix is generated and stored in: `get_sdreport(obj)$env$corr.fixed`
+#' Object returned by [RTMB::sdreport()]. A correlation matrix is generated and stored in: `get_sdreport(obj)$env$corr.fixed`
 #' @importFrom stats optimHess
 #' @export
 get_sdreport <- function(obj, getReportCovariance = FALSE, silent = FALSE, ...) {

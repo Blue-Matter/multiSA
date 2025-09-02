@@ -141,7 +141,7 @@ setOldClass("sdreport")
 #'
 #' @slot obj RTMB object returned by [RTMB::MakeADFun()]
 #' @slot opt List returned by [stats::nlminb()]
-#' @slot SD List returned by [TMB::sdreport()]
+#' @slot SD List returned by [RTMB::sdreport()]
 #' @slot report List of model output at the parameter estimates, returned by `obj$report(obj$env$last.par.best)`
 #' @slot Misc List, miscellaneous items
 #'

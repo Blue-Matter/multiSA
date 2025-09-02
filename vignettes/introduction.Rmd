@@ -24,23 +24,23 @@ For example, the composition of fishery catches may be naively split among const
 These assumptions may not produce a defensible assessment.
 If population mixing is quite variable across seasons and years, then the error from data processing can propagate significant error into the estimation framework. 
 
-MARS (*Multi-stock Assessment with Regional Spatiotemporal dynamics*) is an age-structured model is intended to address these situations where an explicit multi-stock, seasonal, and spatial assessment model is desirable.
+MSA (*Multi-stock Assessment with Regional Spatiotemporal dynamics*) is an age-structured model is intended to address these situations where an explicit multi-stock, seasonal, and spatial assessment model is desirable.
 
-Some of the distinguishing features of MARS include:
+Some of the distinguishing features of MSA include:
 
 - Explicit modeling of seasonal and spatial dynamics, with flexible parameterizations for stock movement and distribution
 - Multi-stock modeling with fishery catches are not identified to the stock or species level. Instead, there is a separate likelihood for stock composition data to facilitate data weighting and profiling among other data types
 - Fitting to close-kin genetic data to estimate individual stock size, especially if the populations are frequently well mixed in the fishery data
 
-As a "next-generation" stock assessment package, MARS relies on state-of-the-art developments in computational power, optimization software, and along with important lessons learned from modeling mixed-stock marine fisheries, such as Atlantic bluefin tuna. 
+As a "next-generation" stock assessment package, MSA relies on state-of-the-art developments in computational power, optimization software, and along with important lessons learned from modeling mixed-stock marine fisheries, such as Atlantic bluefin tuna. 
 
-MARS is entirely written in R and uses automatic differentiation enabled by RTMB for model fitting.
+MSA is entirely written in R and uses automatic differentiation enabled by RTMB for model fitting.
 
 # Package overview
 
 ## Model fitting
 
-Model fitting first starts with a S4 object of class `MARSdata`, with various slots to specify the model structure and data. See `help("MARSdata-class")`. `check_data()` scans the object and checks if the arrays are of the correct dimension and the necessary ancillary information are provided, e.g., sample sizes for compositional data.
+Model fitting first starts with a S4 object of class `MSAdata`, with various slots to specify the model structure and data. See `help("MSAdata-class")`. `check_data()` scans the object and checks if the arrays are of the correct dimension and the necessary ancillary information are provided, e.g., sample sizes for compositional data.
 
 Once the data object is set up, we can create the parameter object for RTMB with `make_parameters()`.
 A list of starting values can be provided to override system defaults.
@@ -49,19 +49,19 @@ A list of mapped parameters can be provided to override system defaults, with ad
 
 The parameter and map set-up is finally checked with `check_parameters()` which reports the structure of the model to the console including start values and the parameters to be estimated.
 
-These objects can then be passed to `fit_MARS()` which creates and fits the model:
+These objects can then be passed to `fit_MSA()` which creates and fits the model:
 
 ```{r, eval = FALSE}
-MARSdata <- check_data(MARSdata)
-tmb_list <- make_parameters(MARSdata)
+MSAdata <- check_data(MSAdata)
+tmb_list <- make_parameters(MSAdata)
 
-parameters <- check_parameters(tmb_list$p, tmb_list$map, MARSdata = MARSdata)
+parameters <- check_parameters(tmb_list$p, tmb_list$map, MSAdata = MSAdata)
 
-fit <- fit_MARS(MARSdata, parameters, map = tmb_list$map, random = tmb_list$random)
+fit <- fit_MSA(MSAdata, parameters, map = tmb_list$map, random = tmb_list$random)
 ```
 
 ```{r fit, eval = TRUE, echo = FALSE}
-#library(MARS)
+#library(MSA)
 #fit <- readRDS("../../scratch/multiarea_model.rds")
 ```
 
@@ -81,7 +81,7 @@ knitr::include_graphics("../man/figures/intro-index-1.png")
 *Example figure that compares the fit in the observed and predicted index.*
 
 The reporting function uses a variety of `plot_*()` functions that can be accessed by the user. 
-View the options with `help("plot-MARS-data")` and `help("plot-MARS-state")`.
+View the options with `help("plot-MSA-data")` and `help("plot-MSA-state")`.
 
 ## Diagnostics
 

@@ -20,7 +20,7 @@ Imports:
     rmarkdown,
     snowfall,
     stats,
-    RTMB (>= 1.5), 
+    RTMB (>= 1.7),
     TMB,
     utils
 Suggests: 

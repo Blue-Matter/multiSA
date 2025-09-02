@@ -9,14 +9,14 @@ get_sdreport(obj, getReportCovariance = FALSE, silent = FALSE, ...)
 \arguments{
 \item{obj}{The list returned by \code{\link[RTMB:TMB-interface]{RTMB::MakeADFun()}}}
 
-\item{getReportCovariance}{Logical, passed to \code{\link[TMB:sdreport]{TMB::sdreport()}}}
+\item{getReportCovariance}{Logical, passed to \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}}
 
 \item{silent}{Logical, whether to report progress to console. See details.}
 
-\item{...}{Other arguments to \code{\link[TMB:sdreport]{TMB::sdreport()}} besides \verb{par.fixed, hessian.fixed, getReportCovariance}}
+\item{...}{Other arguments to \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}} besides \verb{par.fixed, hessian.fixed, getReportCovariance}}
 }
 \value{
-Object returned by \code{\link[TMB:sdreport]{TMB::sdreport()}}. A correlation matrix is generated and stored in: \code{get_sdreport(obj)$env$corr.fixed}
+Object returned by \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}. A correlation matrix is generated and stored in: \code{get_sdreport(obj)$env$corr.fixed}
 }
 \description{
 A wrapper function to return standard errors. Various numerical techniques are employed to obtain

@@ -7,14 +7,14 @@
 #' @param MSAdata Data object. Class [MSAdata-class], validated by [check_data()]
 #' @param parameters List of parameters, e.g., returned by [make_parameters()] and validated by [check_parameters()].
 #' @param map List of parameters indicated whether they are fixed and how they are shared, e.g., returned by [make_parameters()].
-#' See [TMB::MakeADFun()].
+#' See [RTMB::MakeADFun()].
 #' @param random Character vector indicating the parameters that are random effects, e.g., returned by [make_parameters()].
 #' @param run_model Logical, whether to fit the model through [stats::nlminb()].
-#' @param do_sd Logical, whether to calculate the standard errors with [TMB::sdreport()].
+#' @param do_sd Logical, whether to calculate the standard errors with [RTMB::sdreport()].
 #' @param report Logical, whether to return the report list with `obj$report(obj$env$last.par.best)`.
 #' @param silent Logical, whether to report progress to console. **Not passed to [TMB::MakeADFun()].**
 #' @param control Passed to [stats::nlminb()]
-#' @param ... Other arguments to [TMB::MakeADFun()].
+#' @param ... Other arguments to [RTMB::MakeADFun()].
 #' @returns A [MSAassess-class] object.
 #' @importFrom methods new
 #' @seealso [report()] [retrospective()]

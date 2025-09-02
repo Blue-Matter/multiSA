@@ -44,43 +44,6 @@ setMethod("%*%",
             colSums(x * y)
           })
 
-#' @describeIn AD Finds the maximum value using [CondExpGt()] over a loop
-#' @aliases max.advector max
-#' @param ... Objects of class advector
-#' @param na.rm Not used
-#' @export
-#' @export max.advector
-max.advector <- function(..., na.rm) {
-  oldval <- TapeConfig()["comparison"]
-  on.exit(TapeConfig(comparison = oldval))
-  TapeConfig(comparison = "allow")
-
-  dots <- list(...)
-  #c <- ADoverload(x = "c")
-  x <- do.call(c, dots)
-
-  xout <- x[1]
-  for (i in 2:length(x)) xout <- CondExpGt(xout, x[i-1], xout, x[i-1])
-  asS4(xout)
-}
-
-#' @describeIn AD Finds the minimum value using [CondExpLt()] over a loop
-#' @aliases min.advector min
-#' @export
-#' @export min.advector
-min.advector <- function(..., na.rm) {
-  oldval <- TapeConfig()["comparison"]
-  on.exit(TapeConfig(comparison = oldval))
-  TapeConfig(comparison = "allow")
-
-  dots <- list(...)
-  #c <- ADoverload(x = "c")
-  x <- do.call(c, dots)
-
-  xout <- x[1]
-  for (i in 2:length(x)) xout <- CondExpLt(xout, x[i-1], xout, x[i-1])
-  asS4(xout)
-}
 
 
 show <- function(object) methods::show(object)

@@ -43,7 +43,7 @@ A convenient function that fits a RTMB model and calculates standard errors.
 Argument \code{restart} allows for recursive model fitting to obtain convergence, through the following procedure:
 \enumerate{
 \item Optimize model with \code{\link[stats:nlminb]{stats::nlminb()}}.
-\item Determine convergence, defined by \code{\link[TMB:sdreport]{TMB::sdreport()}} by whether the Cholesky decomposition of the covariance matrix is possible.
+\item Determine convergence, defined by \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}} by whether the Cholesky decomposition of the covariance matrix is possible.
 \item If convergence is not achieved, jitter parameter estimates with multiplicative factor \code{rlnorm(mean = 0, sd = 1e-3)} and return to step 1.
 }
 }
