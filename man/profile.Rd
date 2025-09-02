@@ -2,13 +2,13 @@
 % Please edit documentation in R/profile.R
 \name{profile}
 \alias{profile}
-\alias{profile.MARSassess}
-\alias{plot.MARSprof}
-\title{Profile parameters of MARS model}
+\alias{profile.MSAassess}
+\alias{plot.MSAprof}
+\title{Profile parameters of MSA model}
 \usage{
-\method{profile}{MARSassess}(fitted, p1, v1, p2, v2, cores = 1, ...)
+\method{profile}{MSAassess}(fitted, p1, v1, p2, v2, cores = 1, ...)
 
-\method{plot}{MARSprof}(
+\method{plot}{MSAprof}(
   x,
   component = "objective",
   rel = TRUE,
@@ -20,7 +20,7 @@
 )
 }
 \arguments{
-\item{fitted}{\linkS4class{MARSassess} object returned by \code{\link[=fit_MARS]{fit_MARS()}}}
+\item{fitted}{\linkS4class{MSAassess} object returned by \code{\link[=fit_MSA]{fit_MSA()}}}
 
 \item{p1}{Character string that represents the first parameter to be profiled,
 including the parameter name and index of the vector/array. See "Parameters" section of \code{\link[=make_parameters]{make_parameters()}}.
@@ -36,7 +36,7 @@ Additionally, this function allows users to specify \code{R0_s} and \code{h_s} (
 
 \item{...}{Other argument to the base graphics function, i.e., either plot() or contour()}
 
-\item{x}{Output from \code{\link[=profile.MARSassess]{profile.MARSassess()}}}
+\item{x}{Output from \code{\link[=profile.MSAassess]{profile.MSAassess()}}}
 
 \item{component}{Character for the column in \code{x} to be plotted}
 

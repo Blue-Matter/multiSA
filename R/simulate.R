@@ -1,20 +1,20 @@
 
 
 #' @name simulate
-#' @aliases simulate.MARSassess
+#' @aliases simulate.MSAassess
 #'
 #' @title Simulate data
 #'
-#' @description Simulate data observations from fitted MARS model.
+#' @description Simulate data observations from fitted MSA model.
 #'
-#' @param object [MARSassess-class] object returned by [fit_MARS()]
+#' @param object [MSAassess-class] object returned by [fit_MSA()]
 #' @param nsim Integer, number of simulations
 #' @param seed Random number generator seed
 #' @param ... Not used
 #' @return A list of `nsim` length with data observations
 #' @importFrom stats simulate
 #' @export
-simulate.MARSassess <- function(object, nsim = 1, seed = NULL, ...) {
+simulate.MSAassess <- function(object, nsim = 1, seed = NULL, ...) {
   if (!is.null(seed)) set.seed(seed)
   sims <- lapply(1:nsim, function(...) object@obj$simulate(object@obj$env$last.par.best))
 

@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# MARS <img src="man/figures/README-hex.png" align="right" height=139 width=120 />
+# MSA <img src="man/figures/README-hex.png" align="right" height=139 width=120 />
 
 > Multi-stock assessment with RTMB
 
@@ -10,16 +10,16 @@
 [![R-CMD-check](https://github.com/Blue-Matter/MSA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Blue-Matter/MSA/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-MARS (**Multi-stock Assessment with Regional Spatiotemporal dynamics**)
+MSA (**Multi-stock Assessment with Regional Spatiotemporal dynamics**)
 is a multi-stock, spatially-explicit age-structured model.
 
-With explicit seasonal stock availability and movement, MARS is intended
+With explicit seasonal stock availability and movement, MSA is intended
 for use in mixed fisheries where stock composition can not be readily
 identified in fishery data alone, i.e., from catch and age/length
 composition. Models can also be fitted to genetic data, e.g., stock
 composition of catches and close-kin pairs.
 
-Funding for development of MARS is provided by the NOAA Fisheries
+Funding for development of MSA is provided by the NOAA Fisheries
 Bluefin Tuna Research Program
 ([BTRP](https://www.fisheries.noaa.gov/grant/bluefin-tuna-research-program)
 Grant NA23NMF4720184) in collaboration with the Ocean Foundation.
@@ -33,5 +33,5 @@ You can install the R package from GitHub with:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("Blue-Matter/MARS")
+remotes::install_github("Blue-Matter/MSA")
 ```

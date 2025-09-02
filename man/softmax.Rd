@@ -18,5 +18,5 @@ A vector equal to length of \code{eta}: \eqn{\exp(\eta)/\sum\exp(\eta)}
 Takes a vector of real numbers and returns the corresponding vector of probabilities
 }
 \details{
-Uses \code{MARS:::logspace.add} for numerical stability
+Uses \code{MSA:::logspace.add} for numerical stability
 }

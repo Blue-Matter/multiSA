@@ -15,19 +15,19 @@ sdconv <- function(m, sd) (log(1 + ((sd^2)/(m^2))))^0.5
 
 #' @name prior
 #'
-#' @title Priors for MARS model
+#' @title Priors for MSA model
 #' @description
-#' Priors in MARS are set by providing character strings which are then parsed into an expression and evaluated in the model environment
+#' Priors in MSA are set by providing character strings which are then parsed into an expression and evaluated in the model environment
 #' (see example). This provides flexibility to set a prior for any desired model parameter or variable. See list of parameters in the
 #' documentation for `[check_parameters()]` for options (note that priors for `log_rdev_ys` and `log_initrdev_as` are not needed as they're hard-coded into the model).
 #' Several functions below generate the character string for the prior for important dynamics parameters, such as natural mortality and steepness.
 #'
-#' @param MARSdata Data object. Class \linkS4class{MARSdata}
+#' @param MSAdata Data object. Class \linkS4class{MSAdata}
 #' @return Character.
 #' @examples
 #' # Add M and steepness prior to model
 #'
-#' dat <- new("MARSdata")
+#' dat <- new("MSAdata")
 #' dat@Dmodel@ns <- 1
 #' dat@Dstock@SRR_s <- "BH"
 #'
@@ -42,8 +42,8 @@ NULL
 #' @param m Mean in un-transformed space
 #' @param stdev Standard deviation in un-transformed space
 #' @export
-prior_h <- function(MARSdata, s = 1, m, stdev) {
-  SRR <- match.arg(MARSdata@Dstock@SRR_s[s], choices = c("BH", "Ricker"))
+prior_h <- function(MSAdata, s = 1, m, stdev) {
+  SRR <- match.arg(MSAdata@Dstock@SRR_s[s], choices = c("BH", "Ricker"))
 
   if (SRR == "BH") {
 
@@ -70,7 +70,7 @@ prior_h <- function(MARSdata, s = 1, m, stdev) {
 #' @param meanlog Mean of the lognormal distribution on the log scale
 #' @param sdlog Standard of the lognormal distribution on the log scale
 #' @export
-prior_M <- function(MARSdata, s = 1, meanlog, sdlog) {
+prior_M <- function(MSAdata, s = 1, meanlog, sdlog) {
   txt <- paste0("dnorm(p$log_M_s[", s, "], ", round(meanlog, 3), ", ", round(sdlog, 3), ", log = TRUE)")
   return(txt)
 }
@@ -80,7 +80,7 @@ prior_M <- function(MARSdata, s = 1, meanlog, sdlog) {
 #' @aliases prior_q
 #' @param i Integer for the corresponding index
 #' @export
-prior_q <- function(MARSdata, i = 1, meanlog, sdlog) {
+prior_q <- function(MSAdata, i = 1, meanlog, sdlog) {
   txt <- paste0("dnorm(log(q_i[", i, "]), ", round(meanlog, 3), ", ", round(sdlog, 3), ", log = TRUE) - log(q_i[", i, "])")
   return(txt)
 }

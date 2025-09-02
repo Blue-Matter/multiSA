@@ -301,7 +301,7 @@ calc_LAK <- function(len_a, sd_la, lbin, nl = length(lbin) - 1) {
 #' Calculate von Bertalanffy length-at-age
 #'
 #' Returns an array of length-at-age with seasonal dimension.
-#' Useful for [MARSdata-class] inputs.
+#' Useful for [MSAdata-class] inputs.
 #'
 #' @param Linf_s Vector by stock `s` of asymptotic length
 #' @param K_s Vector by stock `s` of the growth coefficient

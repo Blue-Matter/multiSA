@@ -5,16 +5,16 @@
 \alias{prior_h}
 \alias{prior_M}
 \alias{prior_q}
-\title{Priors for MARS model}
+\title{Priors for MSA model}
 \usage{
-prior_h(MARSdata, s = 1, m, stdev)
+prior_h(MSAdata, s = 1, m, stdev)
 
-prior_M(MARSdata, s = 1, meanlog, sdlog)
+prior_M(MSAdata, s = 1, meanlog, sdlog)
 
-prior_q(MARSdata, i = 1, meanlog, sdlog)
+prior_q(MSAdata, i = 1, meanlog, sdlog)
 }
 \arguments{
-\item{MARSdata}{Data object. Class \linkS4class{MARSdata}}
+\item{MSAdata}{Data object. Class \linkS4class{MSAdata}}
 
 \item{s}{Integer for stock}
 
@@ -32,7 +32,7 @@ prior_q(MARSdata, i = 1, meanlog, sdlog)
 Character.
 }
 \description{
-Priors in MARS are set by providing character strings which are then parsed into an expression and evaluated in the model environment
+Priors in MSA are set by providing character strings which are then parsed into an expression and evaluated in the model environment
 (see example). This provides flexibility to set a prior for any desired model parameter or variable. See list of parameters in the
 documentation for \verb{[check_parameters()]} for options (note that priors for \code{log_rdev_ys} and \code{log_initrdev_as} are not needed as they're hard-coded into the model).
 Several functions below generate the character string for the prior for important dynamics parameters, such as natural mortality and steepness.
@@ -53,7 +53,7 @@ Several functions below generate the character string for the prior for importan
 \examples{
 # Add M and steepness prior to model
 
-dat <- new("MARSdata")
+dat <- new("MSAdata")
 dat@Dmodel@ns <- 1
 dat@Dstock@SRR_s <- "BH"
 

@@ -85,7 +85,7 @@ min.advector <- function(..., na.rm) {
 
 show <- function(object) methods::show(object)
 setMethod("show",
-          signature = "MARSassess",
+          signature = "MSAassess",
           function(object) {
 
             cat("Number of parameters:", length(object@obj$par))

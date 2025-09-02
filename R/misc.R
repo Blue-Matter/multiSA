@@ -28,7 +28,7 @@ posfun <- function(x, eps) CondExpGe(x, eps, 0, 0.01 * (x - eps) * (x - eps))
 #' @param log Logical, whether to return the value of the logarithm
 #'
 #' @return A vector equal to length of `eta`: \eqn{\exp(\eta)/\sum\exp(\eta)}
-#' @details Uses `MARS:::logspace.add` for numerical stability
+#' @details Uses `MSA:::logspace.add` for numerical stability
 #' @export
 softmax <- function(eta, log = FALSE) {
   den <- Reduce(logspace.add, eta)
@@ -275,13 +275,13 @@ sdreport_int <- function(object, select = c("all", "fixed", "random", "report"),
 #' A convenient function to retrieve the data object used to fit the model. The object is embedded in an environment
 #' within the RTMB object.
 #'
-#' @param MARSassess [MARSassess-class] object returned by `fit_MARS()`
-#' @return [MARSdata-class] object
+#' @param MSAassess [MSAassess-class] object returned by `fit_MSA()`
+#' @return [MSAdata-class] object
 #' @export
-get_MARSdata <- function(MARSassess) {
-  func <- attr(MARSassess@obj$env$data, "func")
-  MARSdata <- get("MARSdata", envir = environment(func), inherits = FALSE)
-  return(MARSdata)
+get_MSAdata <- function(MSAassess) {
+  func <- attr(MSAassess@obj$env$data, "func")
+  MSAdata <- get("MSAdata", envir = environment(func), inherits = FALSE)
+  return(MSAdata)
 }
 
 make_unique_names <- function(x, select = c("fixed", "random", "report")) {

@@ -1,13 +1,13 @@
 
 #' @name profile
-#' @aliases profile.MARSassess
+#' @aliases profile.MSAassess
 #'
-#' @title Profile parameters of MARS model
+#' @title Profile parameters of MSA model
 #'
 #' @description
 #' Evaluate change in objective function and likelihood components for up to 2 parameters.
 #'
-#' @param fitted [MARSassess-class] object returned by [fit_MARS()]
+#' @param fitted [MSAassess-class] object returned by [fit_MSA()]
 #' @param p1 Character string that represents the first parameter to be profiled,
 #' including the parameter name and index of the vector/array. See "Parameters" section of [make_parameters()].
 #' Additionally, this function allows users to specify `R0_s` and `h_s` (in normal units).
@@ -28,7 +28,7 @@
 #' @importFrom stats profile
 #' @importFrom pbapply pblapply
 #' @export
-profile.MARSassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
+profile.MSAassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
 
   if (cores > 1 && !snowfall::sfIsRunning()) {
     snowfall::sfInit(parallel = TRUE, cpus = cores)
@@ -49,7 +49,7 @@ profile.MARSassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
   }
 
   prof_df <- cbind(out, do.call(rbind, prof)) %>%
-    structure(class = c("MARSprof", "data.frame"))
+    structure(class = c("MSAprof", "data.frame"))
 
   names(prof_df)[1] <- attr(prof_df, "p1") <- p1
   if (!missing(p2)) {
@@ -88,10 +88,10 @@ profile.MARSassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
 .prof <- function(fitted, pars, vals) {
   stopifnot(length(pars) == length(vals))
 
-  MARSdata <- get_MARSdata(fitted)
+  MSAdata <- get_MSAdata(fitted)
   p <- fitted@obj$env$parList()
-  map <- MARSdata@Misc$map
-  random <- MARSdata@Misc$random
+  map <- MSAdata@Misc$map
+  random <- MSAdata@Misc$random
 
   for (i in 1:length(pars)) {
     pi <- pars[i]
@@ -104,7 +104,7 @@ profile.MARSassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
     if (grepl("R0_s", pi) && !grepl("t_R0_s", pi)) {
       p_name <- "t_R0_s"
       pi <- sub("R0_s", "t_R0_s", pi)
-      vi <- log(vi/MARSdata@Dmodel@scale_s[as.integer(split_pi[2])])
+      vi <- log(vi/MSAdata@Dmodel@scale_s[as.integer(split_pi[2])])
     }
 
     # Transform vi if pi = "h_s[x]"
@@ -112,7 +112,7 @@ profile.MARSassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
       p_name <- "t_h_s"
       pi <- sub("h_s", "t_h_s", pi)
       vi <- switch(
-        MARSdata@Dstock@SRR_s[as.integer(split_pi[2])],
+        MSAdata@Dstock@SRR_s[as.integer(split_pi[2])],
         "BH" = qlogis((vi - 0.2)/0.8),
         "Ricker" = log(vi - 0.2),
       )
@@ -136,7 +136,7 @@ profile.MARSassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
     eval(parse(text = assign_p))
   }
 
-  fit <- fit_MARS(MARSdata, p, map, MARSdata@Misc$random, do_sd = FALSE, silent = TRUE)
+  fit <- fit_MSA(MSAdata, p, map, MSAdata@Misc$random, do_sd = FALSE, silent = TRUE)
   get_likelihood_components(fit)
 }
 
@@ -163,9 +163,9 @@ get_likelihood_components <- function(fit) {
 }
 
 #' @rdname profile
-#' @aliases plot.MARSprof
+#' @aliases plot.MSAprof
 #'
-#' @param x Output from [profile.MARSassess()]
+#' @param x Output from [profile.MSAassess()]
 #' @param component Character for the column in `x` to be plotted
 #' @param rel Logical, whether the relative change in `component` is plotted (TRUE) or the raw values (FALSE)
 #' @param xlab Optional character for the x-axis label
@@ -181,7 +181,7 @@ get_likelihood_components <- function(fit) {
 #' @importFrom graphics contour filled.contour
 #' @importFrom reshape2 acast
 #' @export
-plot.MARSprof <- function(x, component = "objective", rel = TRUE, xlab, ylab, main,
+plot.MSAprof <- function(x, component = "objective", rel = TRUE, xlab, ylab, main,
                           plot2d = c("contour", "filled.contour"), ...) {
 
   p1 <- attr(x, "p1")

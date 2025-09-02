@@ -1,10 +1,10 @@
 
 
-#' Fit MARS model
+#' Fit MSA model
 #'
 #' Wrapper function that calls RTMB to create the model and perform the numerical optimization
 #'
-#' @param MARSdata Data object. Class [MARSdata-class], validated by [check_data()]
+#' @param MSAdata Data object. Class [MSAdata-class], validated by [check_data()]
 #' @param parameters List of parameters, e.g., returned by [make_parameters()] and validated by [check_parameters()].
 #' @param map List of parameters indicated whether they are fixed and how they are shared, e.g., returned by [make_parameters()].
 #' See [TMB::MakeADFun()].
@@ -15,23 +15,23 @@
 #' @param silent Logical, whether to report progress to console. **Not passed to [TMB::MakeADFun()].**
 #' @param control Passed to [stats::nlminb()]
 #' @param ... Other arguments to [TMB::MakeADFun()].
-#' @returns A [MARSassess-class] object.
+#' @returns A [MSAassess-class] object.
 #' @importFrom methods new
 #' @seealso [report()] [retrospective()]
 #' @export
-fit_MARS <- function(MARSdata, parameters, map = list(), random = NULL,
+fit_MSA <- function(MSAdata, parameters, map = list(), random = NULL,
                      run_model = TRUE, do_sd = TRUE, report = TRUE, silent = FALSE,
                      control = list(iter.max = 2e+05, eval.max = 4e+05), ...) {
 
-  MARSdata@Misc$map <- map
-  MARSdata@Misc$random <- random
+  MSAdata@Misc$map <- map
+  MSAdata@Misc$random <- random
 
   old_comparison <- TapeConfig()["comparison"]
 
   on.exit(TapeConfig(comparison = old_comparison))
   TapeConfig(comparison = "tape")
 
-  func <- function(p) .MARS(p, d = MARSdata)
+  func <- function(p) .MSA(p, d = MSAdata)
 
   if (!silent) message("Building model..")
   obj <- RTMB::MakeADFun(
@@ -46,7 +46,7 @@ fit_MARS <- function(MARSdata, parameters, map = list(), random = NULL,
     if (is.na(fn)) {
       message_oops("Objective function is NA at initial values.")
       report_start <- obj$report()
-      if (MARSdata@Dmodel@condition == "catch" && any(is.na(report_start$F_ymfr))) {
+      if (MSAdata@Dmodel@condition == "catch" && any(is.na(report_start$F_ymfr))) {
         message_oops("NA's found in F array. Try increasing start value of R0.")
       }
 
@@ -62,7 +62,7 @@ fit_MARS <- function(MARSdata, parameters, map = list(), random = NULL,
     }
   }
 
-  M <- new("MARSassess", obj = obj)
+  M <- new("MSAassess", obj = obj)
 
   if (run_model) {
     m <- optimize_RTMB(obj, do_sd = do_sd, control = control, silent = silent)
@@ -76,27 +76,27 @@ fit_MARS <- function(MARSdata, parameters, map = list(), random = NULL,
 
   if (report) {
     if (!silent) message("Generating report list..")
-    M@report <- obj$report(obj$env$last.par.best) %>% update_report(MARSdata)
+    M@report <- obj$report(obj$env$last.par.best) %>% update_report(MSAdata)
   }
   if (!silent) message("Complete.")
   return(M)
 }
 
-update_report <- function(r, MARSdata) {
+update_report <- function(r, MSAdata) {
 
   if (is.null(r$F_yas)) {
-    nr <- MARSdata@Dmodel@nr
-    nm <- MARSdata@Dmodel@nm
+    nr <- MSAdata@Dmodel@nr
+    nm <- MSAdata@Dmodel@nm
 
-    ny <- MARSdata@Dmodel@ny
-    na <- MARSdata@Dmodel@na
-    ns <- MARSdata@Dmodel@ns
+    ny <- MSAdata@Dmodel@ny
+    na <- MSAdata@Dmodel@na
+    ns <- MSAdata@Dmodel@ns
 
     if (nr == 1 && nm == 1) {
       r$F_yas <- array(r$F_ymars[, 1, , 1, ], c(ny, na, ns))
     } else {
-      Fmax <- MARSdata@Dmodel@Fmax
-      nf <- MARSdata@Dfishery@nf
+      Fmax <- MSAdata@Dmodel@Fmax
+      nf <- MSAdata@Dfishery@nf
 
       r$F_yas <- sapply2(1:ns, function(s) {
         sapply(1:na, function(a) {
@@ -115,7 +115,7 @@ update_report <- function(r, MARSdata) {
   return(r)
 }
 
-.MARS <- function(p = list(), d) {
+.MSA <- function(p = list(), d) {
 
   # Dispatch method for AD variables ----
   is_ad <- any(sapply(p, inherits, "advector"))

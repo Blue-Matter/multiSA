@@ -1,5 +1,5 @@
-Package: MARS
-Title: Multi-stock Assessment with Regional Spatiotemporal dynamics
+Package: MSA
+Title: Multi-stock Assessment with Regional Spatiotemporal Dynamics
 Version: 0.0.0.9000
 Authors@R: 
     person("Quang", "Huynh", , "quang@bluematterscience.com", role = c("aut", "cre"),
@@ -31,6 +31,6 @@ LazyData: yes
 LazyLoad: yes
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
-URL: https://blue-matter.github.io/MARS/, https://github.com/Blue-Matter/MARS
-BugReports: https://github.com/Blue-Matter/MARS/issues
+RoxygenNote: 7.3.2
+URL: https://blue-matter.github.io/MSA/, https://github.com/Blue-Matter/MSA
+BugReports: https://github.com/Blue-Matter/MSA/issues

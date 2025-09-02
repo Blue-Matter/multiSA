@@ -4,9 +4,9 @@
 #'
 #' Extract residuals from fitted model
 #'
-#' @param object [MARSassess-class] object returned by `fit_MARS()`
+#' @param object [MSAassess-class] object returned by `fit_MSA()`
 #' @param vars Character vector to indicate which residuals will be calculated.
-#' Available choices from [MARSdata-class] object are:
+#' Available choices from [MSAdata-class] object are:
 #' "Cinit_mfr", "Cobs_ymfr", "CAAobs_ymafr", "CALobs_ymlfr",
 #' "Iobs_ymi", "IAAobs_ymai", "IALobs_ymli", "SC_ymafrs"
 #' @param type Character, 'response' for the `log(observed/predicted)` values or 'pearson' for calculating Z-scores.
@@ -17,14 +17,14 @@
 #' @aliases residuals
 #' @importFrom stats residuals
 #' @export
-residuals.MARSassess <- function(object, vars, type = c("response", "pearson"), ...) {
+residuals.MSAassess <- function(object, vars, type = c("response", "pearson"), ...) {
 
   vars_choices <- c("Cinit_mfr", "Cobs_ymfr", "CAAobs_ymafr", "CALobs_ymlfr",
                     "Iobs_ymi", "IAAobs_ymai", "IALobs_ymli", "SC_ymafrs", "tag_ymarrs")
   if (missing(vars)) vars <- vars_choices
   vars <- match.arg(vars, choices = vars_choices, several.ok = TRUE)
   type <- match.arg(type)
-  dat <- get_MARSdata(object)
+  dat <- get_MSAdata(object)
 
   res <- list()
 
@@ -262,7 +262,7 @@ resid_comp <- function(obs, pred, like, ...) {
 plot_resid_Cobs <- function(fit, f = 1, ...) {
   vars <- "Cobs_ymfr"
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   res <- residuals(fit, vars = vars, ...)
   x <- apply(res[[vars]][, , f, , drop = FALSE], c(1, 2, 4), identity)
@@ -285,7 +285,7 @@ plot_resid_Cobs <- function(fit, f = 1, ...) {
 plot_resid_Iobs <- function(fit, i = 1, ...) {
   vars <- "Iobs_ymi"
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   res <- residuals(fit, vars = vars, ...)[[vars]]
   if (is.null(res)) return(invisible())
@@ -308,7 +308,7 @@ plot_resid_Iobs <- function(fit, i = 1, ...) {
 plot_resid_CAA <- function(fit, f = 1, r = 1, do_hist = FALSE, ...) {
   vars <- "CAAobs_ymafr"
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   res <- residuals(fit, vars = vars, ...)[[vars]]
   if (is.null(res)) return(invisible())
@@ -331,7 +331,7 @@ plot_resid_CAA <- function(fit, f = 1, r = 1, do_hist = FALSE, ...) {
 plot_resid_CAL <- function(fit, f = 1, r = 1, do_hist = FALSE, ...) {
   vars <- "CALobs_ymlfr"
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   res <- residuals(fit, vars = vars, ...)[[vars]]
   if (is.null(res)) return(invisible())
@@ -354,7 +354,7 @@ plot_resid_CAL <- function(fit, f = 1, r = 1, do_hist = FALSE, ...) {
 plot_resid_IAA <- function(fit, i = 1, do_hist = FALSE, ...) {
   vars <- "IAAobs_ymai"
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   res <- residuals(fit, vars = vars, ...)[[vars]]
   if (is.null(res)) return(invisible())
@@ -377,7 +377,7 @@ plot_resid_IAA <- function(fit, i = 1, do_hist = FALSE, ...) {
 plot_resid_IAL <- function(fit, i = 1, do_hist = FALSE, ...) {
   vars <- "IALobs_ymli"
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   res <- residuals(fit, vars = vars, ...)[[vars]]
   if (is.null(res)) return(invisible())
@@ -399,7 +399,7 @@ plot_resid_IAL <- function(fit, i = 1, do_hist = FALSE, ...) {
 
 plot_resid_SC <- function(fit, a = 1, f = 1, r = 1, do_hist = FALSE, ...) {
   vars <- "SC_ymafrs"
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   res <- residuals(fit, vars = vars, ...)[[vars]]
   if (is.null(res)) return(invisible())
@@ -421,7 +421,7 @@ plot_resid_SC <- function(fit, a = 1, f = 1, r = 1, do_hist = FALSE, ...) {
 
 plot_resid_tagmov <- function(fit, yy = 1, aa = 1, s = 1, ...) {
   vars <- "tag_ymarrs"
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   res <- residuals(fit, vars = vars, ...)[[vars]]
   if (is.null(res)) return(invisible())

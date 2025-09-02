@@ -7,7 +7,7 @@
 \title{Make list of parameters for RTMB}
 \usage{
 make_parameters(
-  MARSdata,
+  MSAdata,
   start = list(),
   map = list(),
   est_mov = c("none", "dist_random", "gravity_fixed"),
@@ -17,7 +17,7 @@ make_parameters(
 
 make_map(
   p,
-  MARSdata,
+  MSAdata,
   map = list(),
   est_M = FALSE,
   est_h = FALSE,
@@ -28,10 +28,10 @@ make_map(
   silent = FALSE
 )
 
-check_parameters(p = list(), map, MARSdata, silent = FALSE)
+check_parameters(p = list(), map, MSAdata, silent = FALSE)
 }
 \arguments{
-\item{MARSdata}{S4 data object}
+\item{MSAdata}{S4 data object}
 
 \item{start}{An optional list of parameters. Named list of parameters with the associated dimensions and transformations below.
 Overrides default values created by \code{\link[=make_parameters]{make_parameters()}}.}
@@ -82,11 +82,11 @@ frequently, \code{log} or \code{logit}. Prefix \code{t} indicates some other cus
 Second is the parameter name, e.g., \code{M} for natural mortality, \code{rdev} for recruitment deviates, etc.
 
 Third is the dimension of the parameter variable and the indexing for the vectors, matrices, and arrays, e.g., \code{y} for year, \code{s} for stock.
-See \linkS4class{MARSdata}. Here, an additional index \code{p} represents some other number of parameters that is described below.
+See \linkS4class{MSAdata}. Here, an additional index \code{p} represents some other number of parameters that is described below.
 
 \describe{
 \item{\code{t_R0_s}}{Vector by \code{s}. Unfished recruitment, i.e., intersection of unfished replacement line and average stock recruit function,
-is represented as: \code{R0_s <- exp(t_R0_s) * MARSdata@Dmodel@scale_s}. By default, \code{t_R0_s = 3}}
+is represented as: \code{R0_s <- exp(t_R0_s) * MSAdata@Dmodel@scale_s}. By default, \code{t_R0_s = 3}}
 \item{\code{t_h_s}}{Vector by \code{s}. Steepness of the stock-recruit function. Logit space for Beverton-Holt and log space for Ricker functions.
 Default steepness value of 0.8}
 \item{\code{mat_ps}}{Matrix \verb{[2, s]}. Maturity parameters (can be estimated or specified in data object). Logistic functional form. The
@@ -94,7 +94,7 @@ parameter in the first row is the age of 50 percent maturity in logit space: \co
 In the second row is the age of 95 percent maturity as a logarithmic offset: \code{a95_s <- a50_s + exp(mat_ps[2, ])}.
 Default \code{a50_s <- 0.5 * na} and \code{a95_s <- a50_s + 1}}
 \item{\code{log_M_s}}{Vector by \code{s}. Natural logarithm of natural mortality (can be estimated or specified in data object).
-Default parameter value for all stocks: \code{M <- -log(0.05)/MARSdata@Dmodel@na}}
+Default parameter value for all stocks: \code{M <- -log(0.05)/MSAdata@Dmodel@na}}
 \item{\code{log_rdev_ys}}{Matrix \verb{[y, s]}. Log recruitment deviations. By default, all start values are at zero.}
 \item{\code{log_sdr_s}}{Vector by \code{s}. log-Standard deviation of the log recruitment deviations. Default SD = 0.4}
 \item{\code{log_q_fs}}{Matrix \verb{[f, s]}. The natural logarithm of \code{q_fs}, the relative fishing efficiency of \code{f} for stock \code{s}.
@@ -144,5 +144,5 @@ By default \code{p$mov_x_marrs} is zero. Set to -1000 for areas for which there 
 }
 
 \seealso{
-\linkS4class{MARSdata}
+\linkS4class{MSAdata}
 }

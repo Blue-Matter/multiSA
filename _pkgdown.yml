@@ -1,4 +1,4 @@
-url: https://blue-matter.github.io/MARS/
+url: https://blue-matter.github.io/MSA/
 template:
   bootstrap: 5
   bootswatch: spacelab
@@ -24,13 +24,13 @@ reference:
   - DCKMR-class
   - Dtag-class
   - Dlabel-class
-  - plot-MARS-state
-  - plot-MARS-data
+  - plot-MSA-state
+  - plot-MSA-data
 
 - title: Data
   desc: S4 objects for data setup.
   contents:
-  - MARSdata-class
+  - MSAdata-class
 
 - title: Model setup
   desc: Prepare the data and parameters, then run the model.
@@ -38,15 +38,15 @@ reference:
   - check_data
   - make_parameters
   - prior
-  - fit_MARS
-  - MARSassess-class
+  - fit_MSA
+  - MSAassess-class
 
 - title: Model evaluation
   desc: Evaluate model fit and run diagnostics.
   contents:
   - profile
   - report
-  - residuals.MARSassess
+  - residuals.MSAassess
   - retrospective
   - simulate
 
@@ -78,7 +78,7 @@ reference:
   - calc_growth
   - CondExpLt
   - conv_Sigma
-  - get_MARSdata
+  - get_MSAdata
   - get_sdreport
   - optimize_RTMB
   - posfun

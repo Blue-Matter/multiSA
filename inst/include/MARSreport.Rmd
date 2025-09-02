@@ -1,6 +1,6 @@
 
 ---
-title: "MARS assessment summary"
+title: "MSA assessment summary"
 subtitle: Tables and Figures
 date: "`r Sys.Date()`"
 output:
@@ -99,5 +99,5 @@ plot_recdist(x)
 ## About
 
 This report was generated on: `r Sys.time()`<br />
-MARS version `r packageVersion("MARS")`<br />
+MSA version `r packageVersion("MSA")`<br />
 `r R.version.string`

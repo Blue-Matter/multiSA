@@ -45,16 +45,16 @@ propplot <- function(x, cols, leg.names, xval, ylab = "Proportion", border = ife
 
 
 # State variable plots ----
-#' @name plot-MARS-state
-#' @title Plotting functions for fitted MARS model
+#' @name plot-MSA-state
+#' @title Plotting functions for fitted MSA model
 #' @description A set of functions to plot state variables (biomass, recruitment time series, etc.)
 #' @return Various base graphics plots
 NULL
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_S
 #'
-#' @param fit [MARSassess-class] object returned by [fit_MARS()]
+#' @param fit [MSAassess-class] object returned by [fit_MSA()]
 #' @param by Character to indicate dimension for multivariate plots
 #' @param s Integer for the corresponding stock
 #' @param prop Logical, whether to plot proportions (TRUE) or absolute numbers
@@ -66,7 +66,7 @@ plot_S <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
   by <- match.arg(by)
   var <- "S_yrs"
 
-  Dlabel <- get_MARSdata(fit)@Dlabel
+  Dlabel <- get_MSAdata(fit)@Dlabel
   year <- Dlabel@year
   ny <- length(year)
 
@@ -118,7 +118,7 @@ plot_S <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
 }
 
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_B
 #' @details
 #' - `plot_B` plots total biomass by stock or region (either whole numbers or proportions for the latter)
@@ -128,7 +128,7 @@ plot_B <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
   by <- match.arg(by)
   var <- "B_ymrs"
 
-  Dlabel <- get_MARSdata(fit)@Dlabel
+  Dlabel <- get_MSAdata(fit)@Dlabel
   year <- Dlabel@year
   ny <- length(year)
   nm <- max(length(Dlabel@season), 1)
@@ -184,7 +184,7 @@ plot_B <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
 
 
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_R
 #' @details
 #' - `plot_R` plots recruitment by stock
@@ -193,7 +193,7 @@ plot_B <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
 plot_R <- function(fit, s) {
   var <- "R_ys"
 
-  Dlabel <- get_MARSdata(fit)@Dlabel
+  Dlabel <- get_MSAdata(fit)@Dlabel
   year <- Dlabel@year
 
   if (missing(s)) {
@@ -216,7 +216,7 @@ plot_R <- function(fit, s) {
 }
 
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_SRR
 #' @param phi Logical, whether to plot unfished replacement line
 #' @details
@@ -224,7 +224,7 @@ plot_R <- function(fit, s) {
 #' @importFrom graphics points
 #' @export
 plot_SRR <- function(fit, s = 1, phi = TRUE) {
-  Dlabel <- get_MARSdata(fit)@Dlabel
+  Dlabel <- get_MSAdata(fit)@Dlabel
 
   S_y <- apply(fit@report$S_yrs[, , s, drop = FALSE], 1, sum)
   R_y <- fit@report$R_ys[, s]
@@ -242,7 +242,7 @@ plot_SRR <- function(fit, s = 1, phi = TRUE) {
 }
 
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_Rdev
 #' @param log Logical, whether to plot the natural logarithm of the response variable
 #' @details
@@ -251,7 +251,7 @@ plot_SRR <- function(fit, s = 1, phi = TRUE) {
 #' @export
 plot_Rdev <- function(fit, s = 1, log = TRUE) {
 
-  Dlabel <- get_MARSdata(fit)@Dlabel
+  Dlabel <- get_MSAdata(fit)@Dlabel
   year <- Dlabel@year
 
   if (log) {
@@ -282,7 +282,7 @@ plot_Rdev <- function(fit, s = 1, log = TRUE) {
   invisible()
 }
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_Fstock
 #' @details
 #' - `plot_Fstock` plots apical instantaneous fishing mortality (per year or per season) by stock
@@ -291,7 +291,7 @@ plot_Rdev <- function(fit, s = 1, log = TRUE) {
 plot_Fstock <- function(fit, s, by = c("annual", "season")) {
   by <- match.arg(by)
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
   year <- dat@Dlabel@year
   nm <- dat@Dmodel@nm
 
@@ -360,7 +360,7 @@ plot_Fstock <- function(fit, s, by = c("annual", "season")) {
 
 
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_self
 #' @param f Integer for the corresponding fleet
 #' @param type For `plot_self`, indicates whether to plot the selectivity by age or length.
@@ -370,7 +370,7 @@ plot_Fstock <- function(fit, s, by = c("annual", "season")) {
 plot_self <- function(fit, f = 1, type = c("length", "age")) {
   type <- match.arg(type)
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
   Dfishery <- dat@Dfishery
 
   sel_block <- Dfishery@sel_block_yf[, f]
@@ -432,14 +432,14 @@ plot_self <- function(fit, f = 1, type = c("length", "age")) {
   invisible()
 }
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_seli
 #' @param i Integer for the corresponding survey
 #' @details
 #' - `plot_seli` plots index selectivity
 #' @export
 plot_seli <- function(fit, i = 1) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
   sel_i <- dat@Dsurvey@sel_i[i]
   mirror_f <- suppressWarnings(as.numeric(sel_i))
 
@@ -490,7 +490,7 @@ plot_seli <- function(fit, i = 1) {
 }
 
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_selstock
 #' @param plot2d Character, plotting function for either a [contour()] or [filled.contour()] plot
 #' @param by Character to indicate whether to calculate selectivity from F per year or per season
@@ -506,7 +506,7 @@ plot_selstock <- function(fit, s = 1, by = c("annual", "season"), plot2d = c("co
   plot2d <- match.arg(plot2d)
   plot2d <- match.fun(plot2d)
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
   year <- dat@Dlabel@year
   age <- dat@Dlabel@age
 
@@ -540,7 +540,7 @@ plot_selstock <- function(fit, s = 1, by = c("annual", "season"), plot2d = c("co
   invisible()
 }
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_N
 #' @param m Integer for the corresponding season
 #' @param r Integer for the corresponding region
@@ -553,7 +553,7 @@ plot_N <- function(fit, m = 1, r, s = 1, plot2d = c("contour", "filled.contour")
   plot2d <- match.arg(plot2d)
   plot2d <- match.fun(plot2d)
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
   if (missing(r)) r <- 1:dat@Dmodel@nr
   if (length(m) > 1) stop("length(m) should be one")
   ny <- dat@Dmodel@ny
@@ -578,7 +578,7 @@ plot_N <- function(fit, m = 1, r, s = 1, plot2d = c("contour", "filled.contour")
 }
 
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_V
 #' @details
 #' - `plot_V` plots vulnerable biomass, availability to the fishery
@@ -588,7 +588,7 @@ plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE) {
 
   var <- "VB_ymfrs"
 
-  Dlabel <- get_MARSdata(fit)@Dlabel
+  Dlabel <- get_MSAdata(fit)@Dlabel
   year <- Dlabel@year
   nm <- max(length(Dlabel@season), 1)
 
@@ -620,7 +620,7 @@ plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE) {
 }
 
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_Ffleet
 #' @details
 #' - `plot_Ffleet` plots apical instantaneous fishing mortality (per season) by fleet
@@ -629,7 +629,7 @@ plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE) {
 plot_Ffleet <- function(fit, f = 1) {
   var <- "F_ymfr"
 
-  Dlabel <- get_MARSdata(fit)@Dlabel
+  Dlabel <- get_MSAdata(fit)@Dlabel
   year <- Dlabel@year
   nm <- max(length(Dlabel@season), 1)
 
@@ -650,7 +650,7 @@ plot_Ffleet <- function(fit, f = 1) {
   invisible()
 }
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_mov
 #' @param y Integer, year for plotting the movement matrix
 #' @param a Integer, corresponding age for plotting the movement matrix
@@ -660,7 +660,7 @@ plot_Ffleet <- function(fit, f = 1) {
 #' @importFrom graphics title
 plot_mov <- function(fit, s = 1, y, a) {
 
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   nm <- dat@Dmodel@nm
   nr <- dat@Dmodel@nr
@@ -697,13 +697,13 @@ plot_mov <- function(fit, s = 1, y, a) {
   invisible()
 }
 
-#' @rdname plot-MARS-state
+#' @rdname plot-MSA-state
 #' @aliases plot_recdist
 #' @details
 #' - `plot_recdist` plots the distribution of recruitment for each stock
 #' @export
 plot_recdist <- function(fit) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   nr <- dat@Dmodel@nr
 

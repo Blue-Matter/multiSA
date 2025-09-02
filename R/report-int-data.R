@@ -1,15 +1,15 @@
 
 # Data plots ----
-#' @name plot-MARS-data
-#' @title Plotting functions for data in MARS model
+#' @name plot-MSA-data
+#' @title Plotting functions for data in MSA model
 #' @description A set of functions to plot data variables and predicted values (catch, age composition, etc.)
 #' @return Various base graphics plots
 NULL
 
-#' @rdname plot-MARS-data
+#' @rdname plot-MSA-data
 #' @aliases plot_catch
 #'
-#' @param fit [MARSassess-class] object returned by [fit_MARS()]
+#' @param fit [MSAassess-class] object returned by [fit_MSA()]
 #' @param by Character to indicate dimension for multivariate plots
 #' @param f Integer for the corresponding fleet
 #' @param prop Logical, whether to plot proportions (TRUE) or absolute numbers
@@ -22,7 +22,7 @@ plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annu
   by <- match.arg(by)
   var <- "CB_ymfrs"
 
-  Dlabel <- get_MARSdata(fit)@Dlabel
+  Dlabel <- get_MSAdata(fit)@Dlabel
   year <- Dlabel@year
   nm <- max(length(Dlabel@season), 1)
 
@@ -55,7 +55,7 @@ plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annu
   invisible()
 }
 
-#' @rdname plot-MARS-data
+#' @rdname plot-MSA-data
 #' @aliases plot_index
 #' @param i Integer, indexes the survey
 #' @param zoom Logical, for `plot_index()`. If \code{TRUE}, plots a subset of years with observed data points. Otherwise, plots
@@ -64,7 +64,7 @@ plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annu
 #' - `plot_index` plots indices of abundance
 #' @export
 plot_index <- function(fit, i = 1, zoom = FALSE) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
   Dlabel <- dat@Dlabel
   year <- Dlabel@year
   nm <- max(length(Dlabel@season), 1)
@@ -103,7 +103,7 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
 }
 
 
-#' @rdname plot-MARS-data
+#' @rdname plot-MSA-data
 #' @aliases plot_CAA
 #' @param f Integer, indexes the fleet
 #' @param r Integer, indexes the region
@@ -111,7 +111,7 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
 #' - `plot_CAA` plots the fishery catch at age
 #' @export
 plot_CAA <- function(fit, f = 1, r = 1) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   if (sum(dat@Dfishery@CAAN_ymfr, na.rm = TRUE)) {
     N <- apply(dat@Dfishery@CAAN_ymfr[, , f, r, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
@@ -141,13 +141,13 @@ plot_CAA <- function(fit, f = 1, r = 1) {
   invisible()
 }
 
-#' @rdname plot-MARS-data
+#' @rdname plot-MSA-data
 #' @aliases plot_CAL
 #' @details
 #' - `plot_CAL` plots the catch at length
 #' @export
 plot_CAL <- function(fit, f = 1, r = 1) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   if (sum(dat@Dfishery@CALN_ymfr, na.rm = TRUE)) {
     N <- apply(dat@Dfishery@CALN_ymfr[, , f, r, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
@@ -178,13 +178,13 @@ plot_CAL <- function(fit, f = 1, r = 1) {
   invisible()
 }
 
-#' @rdname plot-MARS-data
+#' @rdname plot-MSA-data
 #' @aliases plot_IAA
 #' @details
 #' - `plot_IAA` plots the index age composition
 #' @export
 plot_IAA <- function(fit, i = 1) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   if (sum(dat@Dsurvey@IAAN_ymi, na.rm = TRUE)) {
     N <- apply(dat@Dsurvey@IAAN_ymi[, , i, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
@@ -214,13 +214,13 @@ plot_IAA <- function(fit, i = 1) {
   invisible()
 }
 
-#' @rdname plot-MARS-data
+#' @rdname plot-MSA-data
 #' @aliases plot_IAL
 #' @details
 #' - `plot_IAL` plots the index length composition
 #' @export
 plot_IAL <- function(fit, i = 1) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   if (sum(dat@Dsurvey@IALN_ymi, na.rm = TRUE)) {
     N <- apply(dat@Dsurvey@IALN_ymi[, , i, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
@@ -251,7 +251,7 @@ plot_IAL <- function(fit, i = 1) {
   invisible()
 }
 
-#' @rdname plot-MARS-data
+#' @rdname plot-MSA-data
 #' @param ff Integer, indexes the aggregate fleet (for stock composition data)
 #' @param aa Integer, indexes the aggregate age class (for stock composition and tag data)
 #' @aliases plot_SC
@@ -260,7 +260,7 @@ plot_IAL <- function(fit, i = 1) {
 #' @importFrom graphics matlines
 #' @export
 plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   if (dat@Dmodel@ns == 1) stop("Stock composition figure not needed.")
 
@@ -344,7 +344,7 @@ plot_composition <- function(obs, pred = NULL, xval = 1:ncol(obs), xlab = "Age",
   invisible()
 }
 
-#' @rdname plot-MARS-data
+#' @rdname plot-MSA-data
 #' @param yy Integer, indexes the aggregate years (for the tag data)
 #' @param s Integer, indexes the stock
 #' @aliases plot_tagmov
@@ -352,7 +352,7 @@ plot_composition <- function(obs, pred = NULL, xval = 1:ncol(obs), xlab = "Age",
 #' - `plot_tagmov` plots the tag movements
 #' @export
 plot_tagmov <- function(fit, s = 1, yy = 1, aa = 1) {
-  dat <- get_MARSdata(fit)
+  dat <- get_MSAdata(fit)
 
   if (dat@Dmodel@nr == 1) stop("Tag movement figure not needed.")
 

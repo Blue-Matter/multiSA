@@ -7,7 +7,7 @@
 #'
 #' These functions provide a template for the parameter and map setup that can be adjusted for alternative configurations. [check_parameters()]
 #' checks whether custom made parameter lists are of the correct dimension.
-#' @seealso [MARSdata-class]
+#' @seealso [MSAdata-class]
 #'
 #' @section Parameters:
 #'
@@ -20,11 +20,11 @@
 #' Second is the parameter name, e.g., `M` for natural mortality, `rdev` for recruitment deviates, etc.
 #'
 #' Third is the dimension of the parameter variable and the indexing for the vectors, matrices, and arrays, e.g., `y` for year, `s` for stock.
-#' See [MARSdata-class]. Here, an additional index `p` represents some other number of parameters that is described below.
+#' See [MSAdata-class]. Here, an additional index `p` represents some other number of parameters that is described below.
 #'
 #' \describe{
 #' \item{`t_R0_s`}{Vector by `s`. Unfished recruitment, i.e., intersection of unfished replacement line and average stock recruit function,
-#' is represented as: `R0_s <- exp(t_R0_s) * MARSdata@Dmodel@scale_s`. By default, `t_R0_s = 3`}
+#' is represented as: `R0_s <- exp(t_R0_s) * MSAdata@Dmodel@scale_s`. By default, `t_R0_s = 3`}
 #' \item{`t_h_s`}{Vector by `s`. Steepness of the stock-recruit function. Logit space for Beverton-Holt and log space for Ricker functions.
 #' Default steepness value of 0.8}
 #' \item{`mat_ps`}{Matrix `[2, s]`. Maturity parameters (can be estimated or specified in data object). Logistic functional form. The
@@ -32,7 +32,7 @@
 #' In the second row is the age of 95 percent maturity as a logarithmic offset: `a95_s <- a50_s + exp(mat_ps[2, ])`.
 #' Default `a50_s <- 0.5 * na` and `a95_s <- a50_s + 1`}
 #' \item{`log_M_s`}{Vector by `s`. Natural logarithm of natural mortality (can be estimated or specified in data object).
-#' Default parameter value for all stocks: `M <- -log(0.05)/MARSdata@Dmodel@na`}
+#' Default parameter value for all stocks: `M <- -log(0.05)/MSAdata@Dmodel@na`}
 #' \item{`log_rdev_ys`}{Matrix `[y, s]`. Log recruitment deviations. By default, all start values are at zero.}
 #' \item{`log_sdr_s`}{Vector by `s`. log-Standard deviation of the log recruitment deviations. Default SD = 0.4}
 #' \item{`log_q_fs`}{Matrix `[f, s]`. The natural logarithm of `q_fs`, the relative fishing efficiency of `f` for stock `s`.
@@ -65,7 +65,7 @@
 #' Users can provide `R0_s` and `h_s` in the start list. [make_parameters()] will make the appropriate transformation for the starting values
 #' of `t_R0_s` and `t_h_s`, respectively.
 #'
-#' @param MARSdata S4 data object
+#' @param MSAdata S4 data object
 #' @param start An optional list of parameters. Named list of parameters with the associated dimensions and transformations below.
 #' Overrides default values created by [make_parameters()].
 #' @param silent Logical, whether [make_map()] reports messages to the console
@@ -74,19 +74,19 @@
 #' [make_parameters()] returns a list of parameters (`"p"`) concatenated with the output of [make_map()].
 #' @importFrom stats approx
 #' @export
-make_parameters <- function(MARSdata, start = list(), map = list(),
+make_parameters <- function(MSAdata, start = list(), map = list(),
                             est_mov = c("none", "dist_random", "gravity_fixed"),
                             silent = FALSE, ...) {
   est_mov <- match.arg(est_mov)
 
-  getAllS4(MARSdata@Dmodel)
-  nf <- MARSdata@Dfishery@nf
+  getAllS4(MSAdata@Dmodel)
+  nf <- MSAdata@Dfishery@nf
 
   p <- start
 
   # Stock parameters ----
   if (!is.null(start$R0_s)) {
-    p$t_R0_s <- log(start$R0_s/MARSdata@Dmodel@scale_s)
+    p$t_R0_s <- log(start$R0_s/MSAdata@Dmodel@scale_s)
     p$R0_s <- NULL
   } else if (is.null(start$t_R0_s)) {
     p$t_R0_s <- rep(3, ns)
@@ -97,7 +97,7 @@ make_parameters <- function(MARSdata, start = list(), map = list(),
   } else {
     p$h_s <- NULL
   }
-  p$t_h_s <- ifelse(MARSdata@Dstock@SRR_s == "BH", qlogis((start$h_s - 0.2)/0.8), log(start$h_s - 0.2))
+  p$t_h_s <- ifelse(MSAdata@Dstock@SRR_s == "BH", qlogis((start$h_s - 0.2)/0.8), log(start$h_s - 0.2))
 
   if (is.null(p$mat_ps)) {
     p$mat_ps <- sapply(1:ns, function(s) {
@@ -124,9 +124,9 @@ make_parameters <- function(MARSdata, start = list(), map = list(),
     } else {
       p$mov_x_marrs <- array(0, c(nm, na, nr, nr, ns))
     }
-    if (any(!MARSdata@Dstock@presence_rs)) {
+    if (any(!MSAdata@Dstock@presence_rs)) {
       for(s in 1:ns) {
-        presence_r <- MARSdata@Dstock@presence_rs[, s]
+        presence_r <- MSAdata@Dstock@presence_rs[, s]
         if (any(!presence_r)) p$mov_x_marrs[, , presence_r, presence_r, s] <- -1000
       }
     }
@@ -158,50 +158,50 @@ make_parameters <- function(MARSdata, start = list(), map = list(),
           })
         })
       })
-      p$log_Fdev_ymfr[MARSdata@Dfishery@Cobs_ymfr < 1e-8] <- -1000
+      p$log_Fdev_ymfr[MSAdata@Dfishery@Cobs_ymfr < 1e-8] <- -1000
     } else {
       p$log_Fdev_ymfr <- array(0, c(ny, nm, nf, nr))
     }
   }
 
   if (is.null(p$sel_pf)) {
-    p$sel_pf <- sapply(unique(MARSdata@Dfishery@sel_block_yf), function(b) {
-      sel_b <- MARSdata@Dfishery@sel_f[b]
+    p$sel_pf <- sapply(unique(MSAdata@Dfishery@sel_block_yf), function(b) {
+      sel_b <- MSAdata@Dfishery@sel_f[b]
       val <- numeric(3)
-      f_yb <- MARSdata@Dfishery@sel_block_yf == b
-      if (grepl("length", sel_b) && length(MARSdata@Dfishery@CALobs_ymlfr)) {
+      f_yb <- MSAdata@Dfishery@sel_block_yf == b
+      if (grepl("length", sel_b) && length(MSAdata@Dfishery@CALobs_ymlfr)) {
         CAL <- sapply2(1:nf, function(f) {
-          sapply(1:MARSdata@Dmodel@ny, function(y) {
+          sapply(1:MSAdata@Dmodel@ny, function(y) {
             if (f_yb[y, f]) {
-              apply(MARSdata@Dfishery@CALobs_ymlfr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
+              apply(MSAdata@Dfishery@CALobs_ymlfr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
             } else {
-              rep(0,  MARSdata@Dmodel@nl)
+              rep(0,  MSAdata@Dmodel@nl)
             }
           })
         }) %>% apply(1, sum)
 
         if (sum(CAL)) {
-          LFS <- min(MARSdata@Dmodel@lmid[which.max(CAL)], 0.75 * max(MARSdata@Dmodel@lmid))
-          L5 <- approx(cumsum(CAL)/sum(CAL), MARSdata@Dmodel@lmid, 0.05)$y
+          LFS <- min(MSAdata@Dmodel@lmid[which.max(CAL)], 0.75 * max(MSAdata@Dmodel@lmid))
+          L5 <- approx(cumsum(CAL)/sum(CAL), MSAdata@Dmodel@lmid, 0.05)$y
           if (is.na(L5) || L5 > 0.99 * LFS) L5 <- 0.5 * LFS
 
-          sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(MARSdata@Dmodel@lmid)))
+          sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(MSAdata@Dmodel@lmid)))
           val[2:3] <- log(sigma_asc)
-          val[1] <- qlogis(LFS/max(0.95 * MARSdata@Dmodel@lmid))
+          val[1] <- qlogis(LFS/max(0.95 * MSAdata@Dmodel@lmid))
         }
-      } else if (grepl("age", sel_b) && length(MARSdata@Dfishery@CAAobs_ymafr)) {
+      } else if (grepl("age", sel_b) && length(MSAdata@Dfishery@CAAobs_ymafr)) {
         CAA <- sapply2(1:nf, function(f) {
-          sapply(1:MARSdata@Dmodel@ny, function(y) {
+          sapply(1:MSAdata@Dmodel@ny, function(y) {
             if (f_yb[y, f]) {
-              apply(MARSdata@Dfishery@CAAobs_ymafr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
+              apply(MSAdata@Dfishery@CAAobs_ymafr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
             } else {
-              rep(0,  MARSdata@Dmodel@na)
+              rep(0,  MSAdata@Dmodel@na)
             }
           })
         }) %>% apply(1, sum)
 
         if (sum(CAA)) {
-          age <- 1:MARSdata@Dmodel@na
+          age <- 1:MSAdata@Dmodel@na
           AFS <- min(age[which.max(CAA)], 0.75 * max(age))
           A5 <- approx(cumsum(CAA)/sum(CAA), age, 0.05)$y
           if (is.na(A5) || A5 > 0.99 * AFS) A5 <- 0.5 * AFS
@@ -223,23 +223,23 @@ make_parameters <- function(MARSdata, start = list(), map = list(),
   }
 
   # Index parameters ----
-  ni <- MARSdata@Dsurvey@ni
+  ni <- MSAdata@Dsurvey@ni
   if (ni > 0 && is.null(p$sel_pi)) {
     p$sel_pi <- sapply(1:ni, function(i) {
-      sel_i <- MARSdata@Dsurvey@sel_i[i]
+      sel_i <- MSAdata@Dsurvey@sel_i[i]
       val <- numeric(3)
-      if (grepl("length", sel_i) && length(MARSdata@Dsurvey@IALobs_ymli)) {
+      if (grepl("length", sel_i) && length(MSAdata@Dsurvey@IALobs_ymli)) {
 
-        IAL <- apply(MARSdata@Dsurvey@IALobs_ymli[, , , i, drop = FALSE], 3, sum)
+        IAL <- apply(MSAdata@Dsurvey@IALobs_ymli[, , , i, drop = FALSE], 3, sum)
 
         if (sum(IAL)) {
-          LFS <- min(MARSdata@Dmodel@lmid[which.max(IAL)], 0.75 * max(MARSdata@Dmodel@lmid))
-          L5 <- approx(cumsum(IAL)/sum(IAL), MARSdata@Dmodel@lmid, 0.05)$y
+          LFS <- min(MSAdata@Dmodel@lmid[which.max(IAL)], 0.75 * max(MSAdata@Dmodel@lmid))
+          L5 <- approx(cumsum(IAL)/sum(IAL), MSAdata@Dmodel@lmid, 0.05)$y
 
           if (L5 < LFS) {
-            sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(MARSdata@Dmodel@lmid)))
+            sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(MSAdata@Dmodel@lmid)))
             val[2:3] <- log(sigma_asc)
-            val[1] <- qlogis(LFS/max(0.95 * MARSdata@Dmodel@lmid))
+            val[1] <- qlogis(LFS/max(0.95 * MSAdata@Dmodel@lmid))
           }
         }
       }
@@ -255,15 +255,15 @@ make_parameters <- function(MARSdata, start = list(), map = list(),
 
   # Initial conditions ----
   if (is.null(p$log_initF_mfr)) {
-    p$log_initF_mfr <- ifelse(MARSdata@Dfishery@Cinit_mfr < 1e-8, -1000, log(0.1))
+    p$log_initF_mfr <- ifelse(MSAdata@Dfishery@Cinit_mfr < 1e-8, -1000, log(0.1))
   }
   if (is.null(p$log_initrdev_as)) {
     p$log_initrdev_as <- matrix(0, na, ns)
   }
 
-  do_map <- make_map(p, MARSdata, map = map, est_mov = est_mov, silent = silent, ...)
+  do_map <- make_map(p, MSAdata, map = map, est_mov = est_mov, silent = silent, ...)
   out <- c(list(p = p), do_map)
-  out$p <- check_parameters(out$p, out$map, MARSdata, silent)
+  out$p <- check_parameters(out$p, out$map, MSAdata, silent)
 
   return(out)
 }
@@ -294,17 +294,17 @@ make_parameters <- function(MARSdata, start = list(), map = list(),
 #' @return
 #' [make_map()] returns a named list containing parameter mappings (`"map"`) and a character vector of random effects (`"random"`).
 #' @export
-make_map <- function(p, MARSdata, map = list(),
+make_map <- function(p, MSAdata, map = list(),
                      est_M = FALSE, est_h = FALSE, est_mat = FALSE, est_sdr = FALSE,
                      est_mov = c("none", "dist_random", "gravity_fixed"),
                      est_qfs = FALSE,
                      silent = FALSE) {
 
   est_mov <- match.arg(est_mov)
-  getAllS4(MARSdata)
-  getAllS4(MARSdata@Dmodel)
+  getAllS4(MSAdata)
+  getAllS4(MSAdata@Dmodel)
 
-  nf <- MARSdata@Dfishery@nf
+  nf <- MSAdata@Dfishery@nf
 
   random <- NULL
   map <- lapply(map, factor)
@@ -412,14 +412,14 @@ make_map <- function(p, MARSdata, map = list(),
       map$mov_g_ymars <- array(NA, c(ny, nm, na, nr, ns))
 
       # Group parameters based on data stratification
-      if (length(MARSdata@Dtag@tag_yy) && length(MARSdata@Dtag@tag_aa)) {
+      if (length(MSAdata@Dtag@tag_yy) && length(MSAdata@Dtag@tag_aa)) {
         for (s in 1:ns) { # Estimate parameters for r = 2, ..., nr (softmax transformation)
-          r_eff <- which(MARSdata@Dstock@presence_rs[, s])[-1]
+          r_eff <- which(MSAdata@Dstock@presence_rs[, s])[-1]
           if (length(r_eff)) {
-            for (i in 1:nrow(MARSdata@Dtag@tag_yy)) {
-              yy <- which(MARSdata@Dtag@tag_yy[i, ] > 0)
-              for (j in 1:nrow(MARSdata@Dtag@tag_aa)) {
-                aa <- which(MARSdata@Dtag@tag_aa[j, ] > 0)
+            for (i in 1:nrow(MSAdata@Dtag@tag_yy)) {
+              yy <- which(MSAdata@Dtag@tag_yy[i, ] > 0)
+              for (j in 1:nrow(MSAdata@Dtag@tag_aa)) {
+                aa <- which(MSAdata@Dtag@tag_aa[j, ] > 0)
 
                 gind_strat <- expand.grid(m = 1:nm, r = r_eff, s = s, yc = i, ac = j)
                 gind_strat$par_no <- 1:nrow(gind_strat)
@@ -440,7 +440,7 @@ make_map <- function(p, MARSdata, map = list(),
         }
       } else {
         for (s in 1:ns) { # Estimate parameters for r = 2, ..., nr (softmax transformation)
-          r_eff <- which(MARSdata@Dstock@presence_rs[, s])[-1]
+          r_eff <- which(MSAdata@Dstock@presence_rs[, s])[-1]
           if (length(r_eff)) {
             gind <- as.matrix(expand.grid(y = 1:ny, m = 1:nm, a = 1:na, r = r_eff, s = s))
             if (all(is.na(map$mov_g_ymars))) {
@@ -465,14 +465,14 @@ make_map <- function(p, MARSdata, map = list(),
         map$mov_v_ymas <- array(NA, dim(p$mov_v_ymas))
 
         # Group parameters based on data stratification
-        if (length(MARSdata@Dtag@tag_yy) && length(MARSdata@Dtag@tag_aa)) {
+        if (length(MSAdata@Dtag@tag_yy) && length(MSAdata@Dtag@tag_aa)) {
           for (s in 1:ns) { # Estimate parameters for r = 2, ..., nr (softmax transformation)
-            nr_eff <- sum(MARSdata@Dstock@presence_rs[, s])
+            nr_eff <- sum(MSAdata@Dstock@presence_rs[, s])
             if (nr_eff > 1) {
-              for (i in 1:nrow(MARSdata@Dtag@tag_yy)) {
-                yy <- which(MARSdata@Dtag@tag_yy[i, ] > 0)
-                for (j in 1:nrow(MARSdata@Dtag@tag_aa)) {
-                  aa <- which(MARSdata@Dtag@tag_aa[j, ] > 0)
+              for (i in 1:nrow(MSAdata@Dtag@tag_yy)) {
+                yy <- which(MSAdata@Dtag@tag_yy[i, ] > 0)
+                for (j in 1:nrow(MSAdata@Dtag@tag_aa)) {
+                  aa <- which(MSAdata@Dtag@tag_aa[j, ] > 0)
 
                   vind_strat <- expand.grid(m = 1:nm, yc = i, ac = j)
                   vind_strat$par_no <- 1:nrow(vind_strat)
@@ -493,7 +493,7 @@ make_map <- function(p, MARSdata, map = list(),
           }
         } else {
           for (s in 1:ns) {  # Estimate parameters if nr_effective > 1
-            nr_eff <- sum(MARSdata@Dstock@presence_rs[, s])
+            nr_eff <- sum(MSAdata@Dstock@presence_rs[, s])
             if (nr_eff > 1) {
               vind <- as.matrix(expand.grid(y = 1:ny, m = 1:nm, a = 1:na, s = s))
               if (all(is.na(map$mov_v_ymas))) {
@@ -579,7 +579,7 @@ make_map <- function(p, MARSdata, map = list(),
   if (!silent) {
     message_info("Fishery selectivity setup:")
 
-    fsel_start <- conv_selpar(p$sel_pf, type = Dfishery@sel_f, maxage = Dmodel@na, maxL = 0.95 * max(MARSdata@Dmodel@lmid))
+    fsel_start <- conv_selpar(p$sel_pf, type = Dfishery@sel_f, maxage = Dmodel@na, maxL = 0.95 * max(MSAdata@Dmodel@lmid))
     y <- if (length(Dlabel@year)) {
       Dlabel@year
     } else {
@@ -727,7 +727,7 @@ make_map <- function(p, MARSdata, map = list(),
 #' @return
 #' [check_parameters()] invisibly returns the parameter list if no problems are encountered.
 #' @export
-check_parameters <- function(p = list(), map, MARSdata, silent = FALSE) {
+check_parameters <- function(p = list(), map, MSAdata, silent = FALSE) {
 
   if (!silent && !missing(map)) {
     vars <- names(p)

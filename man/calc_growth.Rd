@@ -34,7 +34,7 @@ Array \verb{[y, m, a, s]}
 }
 \description{
 Returns an array of length-at-age with seasonal dimension.
-Useful for \linkS4class{MARSdata} inputs.
+Useful for \linkS4class{MSAdata} inputs.
 }
 \examples{
 len_ymas <- calc_growth(c(30, 40), c(0.4, 0.2), c(-1, -1))

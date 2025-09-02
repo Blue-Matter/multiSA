@@ -2,13 +2,13 @@
 % Please edit documentation in R/simulate.R
 \name{simulate}
 \alias{simulate}
-\alias{simulate.MARSassess}
+\alias{simulate.MSAassess}
 \title{Simulate data}
 \usage{
-\method{simulate}{MARSassess}(object, nsim = 1, seed = NULL, ...)
+\method{simulate}{MSAassess}(object, nsim = 1, seed = NULL, ...)
 }
 \arguments{
-\item{object}{\linkS4class{MARSassess} object returned by \code{\link[=fit_MARS]{fit_MARS()}}}
+\item{object}{\linkS4class{MSAassess} object returned by \code{\link[=fit_MSA]{fit_MSA()}}}
 
 \item{nsim}{Integer, number of simulations}
 
@@ -20,5 +20,5 @@
 A list of \code{nsim} length with data observations
 }
 \description{
-Simulate data observations from fitted MARS model.
+Simulate data observations from fitted MSA model.
 }

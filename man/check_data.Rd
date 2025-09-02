@@ -2,21 +2,21 @@
 % Please edit documentation in R/check-data.R
 \name{check_data}
 \alias{check_data}
-\title{Check dimensions and inputs in MARSdata object}
+\title{Check dimensions and inputs in MSAdata object}
 \usage{
-check_data(MARSdata, silent = FALSE)
+check_data(MSAdata, silent = FALSE)
 }
 \arguments{
-\item{MARSdata}{S4 object containing data inputs. See \linkS4class{MARSdata}}
+\item{MSAdata}{S4 object containing data inputs. See \linkS4class{MSAdata}}
 
 \item{silent}{Logical, whether or not to report default values to the console}
 }
 \value{
-An updated \linkS4class{MARSdata} object.
+An updated \linkS4class{MSAdata} object.
 }
 \description{
 Ensures that data inputs are of proper dimension. Whenever possible, default values are added to missing items.
 }
 \seealso{
-\linkS4class{MARSdata}
+\linkS4class{MSAdata}
 }

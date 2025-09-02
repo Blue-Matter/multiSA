@@ -2,15 +2,15 @@
 % Please edit documentation in R/define-s4-class.R
 \name{report}
 \alias{report}
-\alias{report.MARSassess}
+\alias{report.MSAassess}
 \title{Generate markdown reports}
 \usage{
 report(object, ...)
 
-\method{report}{MARSassess}(
+\method{report}{MSAassess}(
   object,
   name,
-  filename = "MARS",
+  filename = "MSA",
   dir = tempdir(),
   open_file = TRUE,
   render_args = list(),
@@ -18,7 +18,7 @@ report(object, ...)
 )
 }
 \arguments{
-\item{object}{An object from MARS.}
+\item{object}{An object from MSA.}
 
 \item{...}{Additional arguments to render reports.}
 
@@ -34,7 +34,7 @@ uses \code{substitute(object)}}
 \item{render_args}{List of arguments to pass to \code{\link[rmarkdown:render]{rmarkdown::render()}}.}
 }
 \value{
-\code{report.MARSassess} returns a HTML markdown report.
+\code{report.MSAassess} returns a HTML markdown report.
 }
 \description{
 Generate a markdown report of model fits and estimates.

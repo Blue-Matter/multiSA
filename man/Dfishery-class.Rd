@@ -5,7 +5,7 @@
 \alias{Dfishery-class}
 \title{Dfishery S4 object}
 \description{
-S4 class that organizes the various data inputs for the MARS model. \code{MARSdata} simply inherits the slots from 6 component classes:
+S4 class that organizes the various data inputs for the MSA model. \code{MSAdata} simply inherits the slots from 6 component classes:
 \code{Dmodel}, \code{Dstock}, \code{Dfishery}, \code{Dsurvey} \code{DCKMR}, and \code{Dtag}, where the \code{D}- prefix denotes an object for model data.
 }
 \details{
@@ -63,5 +63,5 @@ SC_ff <- matrix(1, nf_SC, nf) # Assumes dim(SC_ymafrs)[4] <- nf_SC
 
 }
 \seealso{
-\link{MARSdata-class} \code{\link[=check_data]{check_data()}} \link{Dmodel-class} \link{Dstock-class} \link{Dfishery-class} \link{Dsurvey-class} \link{DCKMR-class} \link{Dtag-class}
+\link{MSAdata-class} \code{\link[=check_data]{check_data()}} \link{Dmodel-class} \link{Dstock-class} \link{Dfishery-class} \link{Dsurvey-class} \link{DCKMR-class} \link{Dtag-class}
 }

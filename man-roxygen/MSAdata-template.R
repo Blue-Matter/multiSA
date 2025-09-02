@@ -1,4 +1,4 @@
-#' @description S4 class that organizes the various data inputs for the MARS model. `MARSdata` simply inherits the slots from 6 component classes:
+#' @description S4 class that organizes the various data inputs for the MSA model. `MSAdata` simply inherits the slots from 6 component classes:
 #' `Dmodel`, `Dstock`, `Dfishery`, `Dsurvey` `DCKMR`, and `Dtag`, where the `D`- prefix denotes an object for model data.
 #'
 #' @details
@@ -14,4 +14,4 @@
 #' `i` \tab Index \cr
 #' `s` \tab Stock
 #' }
-#' @seealso \link{MARSdata-class} [check_data()] \link{Dmodel-class} \link{Dstock-class} \link{Dfishery-class} \link{Dsurvey-class} \link{DCKMR-class} \link{Dtag-class}
+#' @seealso \link{MSAdata-class} [check_data()] \link{Dmodel-class} \link{Dstock-class} \link{Dfishery-class} \link{Dsurvey-class} \link{DCKMR-class} \link{Dtag-class}

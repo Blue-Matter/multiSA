@@ -6,7 +6,7 @@ init_fn <- function(.Object, dots = list()) {
   if (length(dots)) {
     for(i in names(dots)) slot(.Object, i) <- dots[[i]]
   }
-  attr(.Object, "version") <- paste("MARS", packageVersion("MARS"))
+  attr(.Object, "version") <- paste("MSA", packageVersion("MSA"))
   attr(.Object, "date") <- date()
   attr(.Object, "R.version") <- getRversion()
 
@@ -14,7 +14,7 @@ init_fn <- function(.Object, dots = list()) {
 }
 
 #' Dmodel S4 object
-#' @template MARSdata-template
+#' @template MSAdata-template
 #' @template Dmodel-slot
 #' @export
 setClass(
@@ -28,7 +28,7 @@ setClass(
 )
 
 #' Dstock S4 object
-#' @template MARSdata-template
+#' @template MSAdata-template
 #' @template Dstock-slot
 #' @export
 setClass(
@@ -41,7 +41,7 @@ setClass(
 )
 
 #' Dfishery S4 object
-#' @template MARSdata-template
+#' @template MSAdata-template
 #' @template Dfishery-slot
 #' @export
 setClass(
@@ -54,7 +54,7 @@ setClass(
 )
 
 #' Dsurvey S4 object
-#' @template MARSdata-template
+#' @template MSAdata-template
 #' @template Dsurvey-slot
 #' @export
 setClass(
@@ -76,7 +76,7 @@ setClass(
 )
 
 #' Dtag S4 object
-#' @template MARSdata-template
+#' @template MSAdata-template
 #' @template Dtag-slot
 #' @export
 setClass(
@@ -98,9 +98,9 @@ setClass(
 )
 
 
-#' MARSdata S4 object
-#' @keywords MARSdata
-#' @template MARSdata-template
+#' MSAdata S4 object
+#' @keywords MSAdata
+#' @template MSAdata-template
 #' @slot Dmodel Class [Dmodel-class] containing parameters for model structure (number of years, ages, etc.)
 #' @slot Dstock Class [Dstock-class] containing stock parameters (growth, natural mortality, etc.)
 #' @slot Dfishery Class [Dfishery-class] containing fishery data (catch, size and stock composition, etc.)
@@ -118,11 +118,11 @@ setClass(
 #' @template Dlabel-slot
 #' @export
 setClass(
-  "MARSdata",
+  "MSAdata",
   slots = c(Dmodel = "Dmodel", Dstock = "Dstock", Dfishery = "Dfishery", Dsurvey = "Dsurvey",
             DCKMR = "DCKMR", Dtag = "Dtag", Dlabel = "Dlabel", Misc = "list")
 )
-setMethod("initialize", "MARSdata", function(.Object, ...) init_fn(.Object, list(...)))
+setMethod("initialize", "MSAdata", function(.Object, ...) init_fn(.Object, list(...)))
 setMethod("initialize", "Dmodel", function(.Object, ...) init_fn(.Object, list(...)))
 setMethod("initialize", "Dstock", function(.Object, ...) init_fn(.Object, list(...)))
 setMethod("initialize", "Dfishery", function(.Object, ...) init_fn(.Object, list(...)))
@@ -135,9 +135,9 @@ setMethod("initialize", "Dlabel", function(.Object, ...) init_fn(.Object, list(.
 
 setOldClass("sdreport")
 
-#' MARSassess S4 object
+#' MSAassess S4 object
 #'
-#' S4 object that returns output from MARS model
+#' S4 object that returns output from MSA model
 #'
 #' @slot obj RTMB object returned by [RTMB::MakeADFun()]
 #' @slot opt List returned by [stats::nlminb()]
@@ -145,17 +145,17 @@ setOldClass("sdreport")
 #' @slot report List of model output at the parameter estimates, returned by `obj$report(obj$env$last.par.best)`
 #' @slot Misc List, miscellaneous items
 #'
-#' @keywords MARSassess
+#' @keywords MSAassess
 #'
 #' @export
 setClass(
-  "MARSassess",
+  "MSAassess",
   slots = c(obj = "list", opt = "list", SD = "sdreport", report = "list", Misc = "list")
 )
-setMethod("initialize", "MARSassess", function(.Object, ...) init_fn(.Object, list(...)))
+setMethod("initialize", "MSAassess", function(.Object, ...) init_fn(.Object, list(...)))
 
 #' @export
-summary.MARSassess <- function(object, ...) {
+summary.MSAassess <- function(object, ...) {
   if (length(object@SD) > 1) {
     sdreport_int(object@SD, ...)
   } else {
@@ -168,7 +168,7 @@ summary.MARSassess <- function(object, ...) {
 if(getRversion() >= "2.15.1") {
   utils::globalVariables(
     c(slotNames("Dmodel"), slotNames("Dstock"), slotNames("Dfishery"),
-      slotNames("Dsurvey"), slotNames("DCKMR"), slotNames("Dtag"), slotNames("MARSdata"), slotNames("MARSassess"))
+      slotNames("Dsurvey"), slotNames("DCKMR"), slotNames("Dtag"), slotNames("MSAdata"), slotNames("MSAassess"))
   )
 }
 
@@ -177,28 +177,28 @@ if(getRversion() >= "2.15.1") {
 #'
 #' Generate a markdown report of model fits and estimates.
 #'
-#' @param object An object from MARS.
+#' @param object An object from MSA.
 #' @param ... Additional arguments to render reports.
 #'
 #' @export
 report <- function(object, ...) UseMethod("report")
 
 
-#' @inheritParams report.MARSretro
+#' @inheritParams report.MSAretro
 #' @param name Optional character string for the model name to include in the report, e.g., model run number. Default
 #' uses `substitute(object)`
 #' @return
-#' `report.MARSassess` returns a HTML markdown report.
+#' `report.MSAassess` returns a HTML markdown report.
 #' @rdname report
 #' @export
-report.MARSassess <- function(object, name, filename = "MARS", dir = tempdir(), open_file = TRUE, render_args = list(), ...) {
+report.MSAassess <- function(object, name, filename = "MSA", dir = tempdir(), open_file = TRUE, render_args = list(), ...) {
 
   if (missing(name)) name <- substitute(object) %>% as.character()
 
   dots <- list(...)
   x <- object # Needed for markdown file
 
-  dat <- get_MARSdata(object)
+  dat <- get_MSAdata(object)
 
   nm <- dat@Dmodel@nm
 
@@ -210,7 +210,7 @@ report.MARSassess <- function(object, name, filename = "MARS", dir = tempdir(), 
   sname <- dat@Dlabel@stock
   if (!length(sname)) sname <- "Stock 1"
 
-  rmd <- system.file("include", "MARSreport.Rmd", package = "MARS") %>% readLines()
+  rmd <- system.file("include", "MSAreport.Rmd", package = "MSA") %>% readLines()
   rmd_split <- split(rmd, 1:length(rmd))
 
   name_ind <- grep("NAME", rmd)

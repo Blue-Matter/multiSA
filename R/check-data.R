@@ -1,23 +1,23 @@
 
-#' Check dimensions and inputs in MARSdata object
+#' Check dimensions and inputs in MSAdata object
 #'
 #' Ensures that data inputs are of proper dimension. Whenever possible, default values are added to missing items.
 #'
-#' @param MARSdata S4 object containing data inputs. See [MARSdata-class]
+#' @param MSAdata S4 object containing data inputs. See [MSAdata-class]
 #' @param silent Logical, whether or not to report default values to the console
-#' @returns An updated [MARSdata-class] object.
-#' @seealso [MARSdata-class]
+#' @returns An updated [MSAdata-class] object.
+#' @seealso [MSAdata-class]
 #' @export
-check_data <- function(MARSdata, silent = FALSE) {
-  MARSdata@Dmodel <- check_Dmodel(MARSdata@Dmodel, MARSdata@Dfishery@nf, silent)
-  MARSdata@Dstock <- check_Dstock(MARSdata@Dstock, MARSdata@Dmodel, silent)
-  MARSdata@Dfishery <- check_Dfishery(MARSdata@Dfishery, MARSdata@Dstock, MARSdata@Dmodel, silent)
-  MARSdata@Dsurvey <- check_Dsurvey(MARSdata@Dsurvey, MARSdata@Dmodel, silent)
+check_data <- function(MSAdata, silent = FALSE) {
+  MSAdata@Dmodel <- check_Dmodel(MSAdata@Dmodel, MSAdata@Dfishery@nf, silent)
+  MSAdata@Dstock <- check_Dstock(MSAdata@Dstock, MSAdata@Dmodel, silent)
+  MSAdata@Dfishery <- check_Dfishery(MSAdata@Dfishery, MSAdata@Dstock, MSAdata@Dmodel, silent)
+  MSAdata@Dsurvey <- check_Dsurvey(MSAdata@Dsurvey, MSAdata@Dmodel, silent)
 
-  MARSdata@DCKMR <- check_DCKMR(MARSdata@DCKMR, MARSdata@Dmodel, silent)
-  MARSdata@Dtag <- check_Dtag(MARSdata@Dtag, MARSdata@Dmodel, silent)
-  MARSdata@Dlabel <- check_Dlabel(MARSdata@Dlabel, MARSdata@Dmodel, MARSdata@Dfishery, MARSdata@Dsurvey, silent)
-  return(MARSdata)
+  MSAdata@DCKMR <- check_DCKMR(MSAdata@DCKMR, MSAdata@Dmodel, silent)
+  MSAdata@Dtag <- check_Dtag(MSAdata@Dtag, MSAdata@Dmodel, silent)
+  MSAdata@Dlabel <- check_Dlabel(MSAdata@Dlabel, MSAdata@Dmodel, MSAdata@Dfishery, MSAdata@Dsurvey, silent)
+  return(MSAdata)
 }
 
 
@@ -465,7 +465,7 @@ check_DCKMR <- function(DCKMR, Dmodel, silent = FALSE) {
       }
     })
     if (any(!check_POP)) {
-      stop("Missing columns in close-kin POP data frames. See: help(\"MARSdata-class\")")
+      stop("Missing columns in close-kin POP data frames. See: help(\"MSAdata-class\")")
     }
   }
 
@@ -479,7 +479,7 @@ check_DCKMR <- function(DCKMR, Dmodel, silent = FALSE) {
       }
     })
     if (any(!check_HSP)) {
-      stop("Missing columns in close-kin HSP data frames. See: help(\"MARSdata-class\")")
+      stop("Missing columns in close-kin HSP data frames. See: help(\"MSAdata-class\")")
     }
   }
 
