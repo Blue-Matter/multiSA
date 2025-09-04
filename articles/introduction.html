@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Introduction • MARS</title>
+<title>Introduction • MSA</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction">
 </head>
 <body>
@@ -18,7 +18,7 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="../index.html">MARS</a>
+    <a class="navbar-brand me-2" href="../index.html">MSA</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
 
@@ -43,7 +43,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/Blue-Matter/MARS/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/Blue-Matter/MSA/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -59,9 +59,9 @@
 
       <h1>Introduction</h1>
             
-            <h4 data-toc-skip class="date">2024-09-03</h4>
+            <h4 data-toc-skip class="date">2025-09-04</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/Blue-Matter/MARS/blob/master/vignettes/introduction.Rmd" class="external-link"><code>vignettes/introduction.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Blue-Matter/MSA/blob/master/vignettes/introduction.Rmd" class="external-link"><code>vignettes/introduction.Rmd</code></a></small>
       <div class="d-none name"><code>introduction.Rmd</code></div>
     </div>
 
@@ -83,11 +83,11 @@ representative for all stocks.</p>
 population mixing is quite variable across seasons and years, then the
 error from data processing can propagate significant error into the
 estimation framework.</p>
-<p>MARS (<em>Multi-stock Assessment with Regional Spatiotemporal
+<p>MSA (<em>Multi-stock Assessment with Regional Spatiotemporal
 dynamics</em>) is an age-structured model is intended to address these
 situations where an explicit multi-stock, seasonal, and spatial
 assessment model is desirable.</p>
-<p>Some of the distinguishing features of MARS include:</p>
+<p>Some of the distinguishing features of MSA include:</p>
 <ul>
 <li>Explicit modeling of seasonal and spatial dynamics, with flexible
 parameterizations for stock movement and distribution</li>
@@ -99,11 +99,11 @@ other data types</li>
 especially if the populations are frequently well mixed in the fishery
 data</li>
 </ul>
-<p>As a “next-generation” stock assessment package, MARS relies on
+<p>As a “next-generation” stock assessment package, MSA relies on
 state-of-the-art developments in computational power, optimization
 software, and along with important lessons learned from modeling
 mixed-stock marine fisheries, such as Atlantic bluefin tuna.</p>
-<p>MARS is entirely written in R and uses automatic differentiation
+<p>MSA is entirely written in R and uses automatic differentiation
 enabled by RTMB for model fitting.</p>
 </div>
 <div class="section level2">
@@ -113,8 +113,8 @@ enabled by RTMB for model fitting.</p>
 <h3 id="model-fitting">Model fitting<a class="anchor" aria-label="anchor" href="#model-fitting"></a>
 </h3>
 <p>Model fitting first starts with a S4 object of class
-<code>MARSdata</code>, with various slots to specify the model structure
-and data. See <code><a href="../reference/MARSdata-class.html">help("MARSdata-class")</a></code>.
+<code>MSAdata</code>, with various slots to specify the model structure
+and data. See <code><a href="../reference/MSAdata-class.html">help("MSAdata-class")</a></code>.
 <code><a href="../reference/check_data.html">check_data()</a></code> scans the object and checks if the arrays are
 of the correct dimension and the necessary ancillary information are
 provided, e.g., sample sizes for compositional data.</p>
@@ -129,15 +129,15 @@ shortcut.</p>
 <code><a href="../reference/make_parameters.html">check_parameters()</a></code> which reports the structure of the model
 to the console including start values and the parameters to be
 estimated.</p>
-<p>These objects can then be passed to <code><a href="../reference/fit_MARS.html">fit_MARS()</a></code> which
+<p>These objects can then be passed to <code><a href="../reference/fit_MSA.html">fit_MSA()</a></code> which
 creates and fits the model:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">MARSdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/check_data.html">check_data</a></span><span class="op">(</span><span class="va">MARSdata</span><span class="op">)</span></span>
-<span><span class="va">tmb_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_parameters.html">make_parameters</a></span><span class="op">(</span><span class="va">MARSdata</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">MSAdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/check_data.html">check_data</a></span><span class="op">(</span><span class="va">MSAdata</span><span class="op">)</span></span>
+<span><span class="va">tmb_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_parameters.html">make_parameters</a></span><span class="op">(</span><span class="va">MSAdata</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_parameters.html">check_parameters</a></span><span class="op">(</span><span class="va">tmb_list</span><span class="op">$</span><span class="va">p</span>, <span class="va">tmb_list</span><span class="op">$</span><span class="va">map</span>, MARSdata <span class="op">=</span> <span class="va">MARSdata</span><span class="op">)</span></span>
+<span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/make_parameters.html">check_parameters</a></span><span class="op">(</span><span class="va">tmb_list</span><span class="op">$</span><span class="va">p</span>, <span class="va">tmb_list</span><span class="op">$</span><span class="va">map</span>, MSAdata <span class="op">=</span> <span class="va">MSAdata</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_MARS.html">fit_MARS</a></span><span class="op">(</span><span class="va">MARSdata</span>, <span class="va">parameters</span>, map <span class="op">=</span> <span class="va">tmb_list</span><span class="op">$</span><span class="va">map</span>, random <span class="op">=</span> <span class="va">tmb_list</span><span class="op">$</span><span class="va">random</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_MSA.html">fit_MSA</a></span><span class="op">(</span><span class="va">MSAdata</span>, <span class="va">parameters</span>, map <span class="op">=</span> <span class="va">tmb_list</span><span class="op">$</span><span class="va">map</span>, random <span class="op">=</span> <span class="va">tmb_list</span><span class="op">$</span><span class="va">random</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="reporting">Reporting<a class="anchor" aria-label="anchor" href="#reporting"></a>
@@ -151,8 +151,8 @@ ascertain goodness of fit, residuals, etc.</p>
 predicted index.</em></p>
 <p>The reporting function uses a variety of <code>plot_*()</code>
 functions that can be accessed by the user. View the options with
-<code><a href="../reference/plot-MARS-data.html">help("plot-MARS-data")</a></code> and
-<code><a href="../reference/plot-MARS-state.html">help("plot-MARS-state")</a></code>.</p>
+<code><a href="../reference/plot-MSA-data.html">help("plot-MSA-data")</a></code> and
+<code><a href="../reference/plot-MSA-state.html">help("plot-MSA-state")</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="diagnostics">Diagnostics<a class="anchor" aria-label="anchor" href="#diagnostics"></a>
@@ -198,7 +198,7 @@ estimated parameters are retrievable.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
