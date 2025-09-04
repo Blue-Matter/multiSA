@@ -19,8 +19,8 @@ identified in fishery data alone, i.e., from catch and age/length
 composition. Models can also be fitted to genetic data, e.g., stock
 composition of catches and close-kin pairs.
 
-Funding for development of MSA is provided by the NOAA Fisheries
-Bluefin Tuna Research Program
+Funding for development of MSA is provided by the NOAA Fisheries Bluefin
+Tuna Research Program
 ([BTRP](https://www.fisheries.noaa.gov/grant/bluefin-tuna-research-program)
 Grant NA23NMF4720184) in collaboration with the Ocean Foundation.
 
