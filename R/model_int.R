@@ -554,7 +554,7 @@ calc_eqdist <- function(x, nr = dim(x)[2], start = rep(1/nr, nr), nit = 20) {
 #' @param y Vector, birth year of offspring `j`
 #' @param N Abundance of mature spawners. Matrix by `[y, a]`
 #' @param fec Fecundity schedule of mature spawners. Matrix by `[y, a]`
-#' @return A vector of probabilities.
+#' @return Numeric, vector of probabilities
 #' @seealso [like_CKMR()]
 #' @section Parent-offspring pairs:
 #' The parent-offspring probability is calculated from Bravington et al. 2016, eq 3.4:

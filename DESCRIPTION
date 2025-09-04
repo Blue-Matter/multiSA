@@ -1,12 +1,15 @@
 Package: MSA
 Title: Multi-stock Assessment with Regional Spatiotemporal Dynamics
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person("Quang", "Huynh", , "quang@bluematterscience.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7835-4376"))
-Date: 2023-11-10
+Date: 2025-09-04
 Maintainer: Quang Huynh <quang@bluematterscience.com>
-Description: Implementation of a next-generation, multi-stock assessment.
+Description: Implementation of a next-generation, multi-stock age-structured fisheries assessment model. 
+  `MSA` is intended for use in mixed fisheries where stock composition can not be readily identified in 
+  fishery data alone, e.g., from catch and age/length composition. Models can be fitted to genetic data, 
+  e.g., stock composition of catches and close-kin pairs, with seasonal stock availability and movement.
 License: GPL (>= 3)
 Depends: R (>= 3.5.0)
 Imports: 

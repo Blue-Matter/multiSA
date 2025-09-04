@@ -21,6 +21,8 @@ The penalty value is
 0 & x > \varepsilon
 \end{cases}
 }
+
+Numeric
 }
 \description{
 Taped penalty function if \code{x < eps}

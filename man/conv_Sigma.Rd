@@ -12,6 +12,9 @@ conv_Sigma(sigma, lower_diag)
 \item{lower_diag}{Numeric vector to populate the lower triangle of the correlation matrix. All real numbers.
 Length \code{sum(1:(length(sigma) - 1))}}
 }
+\value{
+Numeric
+}
 \description{
 Uses Cholesky factorization to generate a covariance matrix (or any symmetric positive definite matrix).
 }
@@ -23,4 +26,5 @@ lower_diag <- runif(sum(1:(n-1)), -10, 10)
 Sigma <- conv_Sigma(sigma, lower_diag)
 Sigma/t(Sigma) # Is symmetric matrix? All ones
 cov2cor(Sigma)
+
 }

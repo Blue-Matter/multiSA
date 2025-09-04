@@ -12,7 +12,7 @@ softmax(eta, log = FALSE)
 \item{log}{Logical, whether to return the value of the logarithm}
 }
 \value{
-A vector equal to length of \code{eta}: \eqn{\exp(\eta)/\sum\exp(\eta)}
+Numeric, vector length of \code{eta}: \eqn{\exp(\eta)/\sum\exp(\eta)}
 }
 \description{
 Takes a vector of real numbers and returns the corresponding vector of probabilities

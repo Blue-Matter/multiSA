@@ -23,9 +23,9 @@ calc_NPR(Z, na = length(Z), plusgroup = TRUE)
 \item{plusgroup}{Logical, whether the largest age class is a plusgroup accumulator age}
 }
 \value{
-\code{\link[=calc_phi_simple]{calc_phi_simple()}} returns the spawners per recruit.
+\code{\link[=calc_phi_simple]{calc_phi_simple()}} returns a numeric for the spawning biomass per recruit.
 
-\code{\link[=calc_NPR]{calc_NPR()}} returns a vector of the numbers per recruit at age, i.e., survival.
+\code{\link[=calc_NPR]{calc_NPR()}} returns a numeric, numbers per recruit at age
 }
 \description{
 Calculate spawners per recruit by individual stock. Appropriate for a population model with a single

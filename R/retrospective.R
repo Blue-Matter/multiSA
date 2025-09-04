@@ -229,7 +229,7 @@ Mohn_rho <- function(x) {
 #' @param render_args List of arguments to pass to [rmarkdown::render()].
 #'
 #' @return
-#' `report.MSAretro` returns a HTML markdown report.
+#' `report.MSAretro` invisibly returns the output of [rmarkdown::render()]: character of the path of the rendered HTML markdown report.
 #' @rdname retrospective
 #' @importFrom rmarkdown render
 #' @importFrom utils browseURL

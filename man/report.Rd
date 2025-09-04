@@ -34,7 +34,7 @@ uses \code{substitute(object)}}
 \item{render_args}{List of arguments to pass to \code{\link[rmarkdown:render]{rmarkdown::render()}}.}
 }
 \value{
-\code{report.MSAassess} returns a HTML markdown report.
+\code{report.MSAassess} invisibly returns the output of \code{\link[rmarkdown:render]{rmarkdown::render()}}: character of the path of the rendered HTML markdown report.
 }
 \description{
 Generate a markdown report of model fits and estimates.

@@ -17,6 +17,7 @@
 #' \end{cases}
 #' }
 #'
+#' @return Numeric
 #' @export
 posfun <- function(x, eps) CondExpGe(x, eps, 0, 0.01 * (x - eps) * (x - eps))
 
@@ -27,7 +28,7 @@ posfun <- function(x, eps) CondExpGe(x, eps, 0, 0.01 * (x - eps) * (x - eps))
 #' @param eta Vector
 #' @param log Logical, whether to return the value of the logarithm
 #'
-#' @return A vector equal to length of `eta`: \eqn{\exp(\eta)/\sum\exp(\eta)}
+#' @return Numeric, vector length of `eta`: \eqn{\exp(\eta)/\sum\exp(\eta)}
 #' @details Uses `MSA:::logspace.add` for numerical stability
 #' @export
 softmax <- function(eta, log = FALSE) {
@@ -58,6 +59,8 @@ logspace.add <- function(lx, ly) CondExpGt(lx, ly, lx, ly) + log1p(exp(-abs(lx -
 #' Sigma <- conv_Sigma(sigma, lower_diag)
 #' Sigma/t(Sigma) # Is symmetric matrix? All ones
 #' cov2cor(Sigma)
+#'
+#' @return Numeric
 #' @export
 conv_Sigma <- function(sigma, lower_diag) {
   n <- length(sigma)

@@ -27,7 +27,7 @@ calc_HSP(yi, yj, N, fec, Z)
 \item{Z}{Instantaneous total mortality rate. Matrix by \verb{[y, a]}}
 }
 \value{
-A vector of probabilities.
+Numeric, vector of probabilities
 }
 \description{
 Calculate the probability of observing a parent-offspring pair (\code{calc_POP}) and

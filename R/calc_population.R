@@ -301,7 +301,7 @@ calc_phi_project <- function(ny, nm, na, nf = 1, nr, ns = 1,
 #' @param mat_a Maturity at age. Vector
 #' @param fec_a Fecundity at age. Vector
 #' @param delta Fraction of season that elapses when spawning occurs, e.g., midseason spawning when `delta = 0.5`.
-#' @return [calc_phi_simple()] returns the spawners per recruit.
+#' @return [calc_phi_simple()] returns a numeric for the spawning biomass per recruit.
 #' @seealso [calc_phi_project()]
 #' @export
 calc_phi_simple <- function(Z, fec_a, mat_a, delta = 0) {
@@ -310,7 +310,7 @@ calc_phi_simple <- function(Z, fec_a, mat_a, delta = 0) {
 }
 
 #' @rdname calc_phi_simple
-#' @return [calc_NPR()] returns a vector of the numbers per recruit at age, i.e., survival.
+#' @return [calc_NPR()] returns a numeric, numbers per recruit at age
 #' @param plusgroup Logical, whether the largest age class is a plusgroup accumulator age
 #' @export
 calc_NPR <- function(Z, na = length(Z), plusgroup = TRUE) {

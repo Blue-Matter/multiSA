@@ -27,6 +27,9 @@ CondExpEq(left, right, if_true, if_false)
 
 \item{if_false}{Numeric if expression is false}
 }
+\value{
+Numeric
+}
 \description{
 Convenience functions that allow taping of gradients in RTMB with if expressions,
 following the corresponding \code{CppAD} functions.
@@ -55,6 +58,11 @@ x <- seq(0, 5)
 f2 <- function(x) if (x < 3) 0 else x^2
 g2 <- MakeTape(f2, numeric(1))
 
-data.frame(x = x, deriv = sapply(x, g$jacobian), deriv2 = sapply(x, g2$jacobian))
-
+# Compare the real answer (deriv) with various values returned by RTMB
+data.frame(
+  x = x,
+  deriv = ifelse(x < 3, 0, 2 * x),
+  deriv_f = sapply(x, g$jacobian),
+  deriv_f2 = sapply(x, g2$jacobian)
+)
 }

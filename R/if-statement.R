@@ -8,6 +8,7 @@
 #' @param right Numeric on right hand side of the evaluation
 #' @param if_true Numeric if expression is true
 #' @param if_false Numeric if expression is false
+#' @return Numeric
 #' @details Functions should be vectorized.
 #'
 #' `CondExpLt` evaluates whether `left < right`
@@ -24,8 +25,13 @@
 #' f2 <- function(x) if (x < 3) 0 else x^2
 #' g2 <- MakeTape(f2, numeric(1))
 #'
-#' data.frame(x = x, deriv = sapply(x, g$jacobian), deriv2 = sapply(x, g2$jacobian))
-#'
+#' # Compare the real answer (deriv) with various values returned by RTMB
+#' data.frame(
+#'   x = x,
+#'   deriv = ifelse(x < 3, 0, 2 * x),
+#'   deriv_f = sapply(x, g$jacobian),
+#'   deriv_f2 = sapply(x, g2$jacobian)
+#' )
 #' @export
 CondExpLt <- function(left, right, if_true, if_false) {
   (left < right) * if_true + (left >= right) * if_false

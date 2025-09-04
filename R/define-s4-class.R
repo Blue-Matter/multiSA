@@ -188,7 +188,7 @@ report <- function(object, ...) UseMethod("report")
 #' @param name Optional character string for the model name to include in the report, e.g., model run number. Default
 #' uses `substitute(object)`
 #' @return
-#' `report.MSAassess` returns a HTML markdown report.
+#' `report.MSAassess` invisibly returns the output of [rmarkdown::render()]: character of the path of the rendered HTML markdown report.
 #' @rdname report
 #' @export
 report.MSAassess <- function(object, name, filename = "MSA", dir = tempdir(), open_file = TRUE, render_args = list(), ...) {

@@ -1,3 +1,4 @@
 
-## MSA 0.0.0.9000 (alpha version)
-- Work in progress
+## MSA 0.1.0 (alpha version)
+
+- Initial CRAN release
