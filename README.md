@@ -22,7 +22,8 @@ composition of catches and close-kin pairs.
 Funding for development of MSA is provided by the NOAA Fisheries Bluefin
 Tuna Research Program
 ([BTRP](https://www.fisheries.noaa.gov/grant/bluefin-tuna-research-program)
-Grant NA23NMF4720184) in collaboration with the Ocean Foundation.
+Grants NA23NMF4720184 and NA24NMFX472C0008-T1-01) in collaboration with
+the Ocean Foundation.
 
 Atlantic bluefin tuna (*Thunnus thynnus*) is the first intended case
 study.
