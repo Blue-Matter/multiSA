@@ -239,7 +239,7 @@ report.MSAretro <- function(object, filename = "retro", dir = tempdir(), open_fi
   sname <- attr(object, "Dlabel")@stock
   fname <- attr(object, "Dlabel")@fleet
 
-  rmd <- system.file("include", "retrospective.Rmd", package = "MSA") %>% readLines()
+  rmd <- system.file("include", "retrospective.Rmd", package = "multiSA") %>% readLines()
   rmd_split <- split(rmd, 1:length(rmd))
 
   fleet_ind <- grep("*ADD FLEET RMD*", rmd)

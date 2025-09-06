@@ -1,6 +1,6 @@
 
 ---
-title: "MSA assessment summary"
+title: "multiSA assessment summary"
 subtitle: Tables and Figures
 date: "`r Sys.Date()`"
 output:
@@ -99,5 +99,5 @@ plot_recdist(x)
 ## About
 
 This report was generated on: `r Sys.time()`<br />
-MSA version `r packageVersion("MSA")`<br />
+multiSA version `r packageVersion("multiSA")`<br />
 `r R.version.string`

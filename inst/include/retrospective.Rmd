@@ -1,6 +1,6 @@
 
 ---
-title: "MSA assessment"
+title: "multiSA assessment"
 subtitle: Tables and Figures
 date: "`r Sys.Date()`"
 output:
@@ -44,5 +44,5 @@ summary(object, by = "stock") %>% as.data.frame()
 ## About
 
 This report was generated on: `r Sys.time()`<br />
-MSA version `r packageVersion("MSA")`<br />
+multiSA version `r packageVersion("multiSA")`<br />
 `r R.version.string`

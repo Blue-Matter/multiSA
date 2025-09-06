@@ -1,5 +1,5 @@
 ^LICENSE\.md$
-^MSA\.Rproj$
+^multiSA\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
 ^vignettes$

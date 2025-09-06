@@ -6,7 +6,7 @@ init_fn <- function(.Object, dots = list()) {
   if (length(dots)) {
     for(i in names(dots)) slot(.Object, i) <- dots[[i]]
   }
-  attr(.Object, "version") <- paste("MSA", packageVersion("MSA"))
+  attr(.Object, "version") <- paste("multiSA", packageVersion("multiSA"))
   attr(.Object, "date") <- date()
   attr(.Object, "R.version") <- getRversion()
 
@@ -210,7 +210,7 @@ report.MSAassess <- function(object, name, filename = "MSA", dir = tempdir(), op
   sname <- dat@Dlabel@stock
   if (!length(sname)) sname <- "Stock 1"
 
-  rmd <- system.file("include", "MSAreport.Rmd", package = "MSA") %>% readLines()
+  rmd <- system.file("include", "MSAreport.Rmd", package = "multiSA") %>% readLines()
   rmd_split <- split(rmd, 1:length(rmd))
 
   name_ind <- grep("NAME", rmd)
