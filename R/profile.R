@@ -210,7 +210,7 @@ plot.MSAprof <- function(x, component = "objective", rel = TRUE, xlab, ylab, mai
     }
     if (missing(main)) main <- NULL
 
-    plot(xplot, yplot, xlab = xlab, ylab = ylab, typ = "o", main = main, ...)
+    plot(xplot, yplot, xlab = xlab, ylab = ylab, type = "o", main = main, ...)
     abline(v = fitted[[p1]], lty = 2)
 
   } else {

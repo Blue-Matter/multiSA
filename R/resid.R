@@ -275,7 +275,7 @@ plot_resid_Cobs <- function(fit, f = 1, ...) {
   color <- make_color(ncol(x), type = "region")
   fname <- dat@Dlabel@fleet[f]
 
-  matplot(year, x, xlab = "Year", ylab = paste(fname, "catch residual"), typ = "o", col = color, pch = 16)
+  matplot(year, x, xlab = "Year", ylab = paste(fname, "catch residual"), type = "o", col = color, pch = 16)
   abline(h = 0, lty = 2, col = "grey60")
   if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
 
@@ -297,9 +297,9 @@ plot_resid_Iobs <- function(fit, i = 1, ...) {
   year <- make_yearseason(dat@Dlabel@year, dat@Dmodel@nm)
   x <- collapse_yearseason(x)
 
-  plot(year, x, typ = "n", xlab = "Year", ylab = paste(name, "residual"))
+  plot(year, x, type = "n", xlab = "Year", ylab = paste(name, "residual"))
   lines(year[!is.na(x)], x[!is.na(x)], col = "grey70", lty = 2)
-  points(year, x, typ = "o", pch = 16)
+  points(year, x, type = "o", pch = 16)
   abline(h = 0, lty = 1, col = "grey60")
 
   invisible()
@@ -464,7 +464,7 @@ plot_resid_tagmov <- function(fit, yy = 1, aa = 1, s = 1, ...) {
   border <- ifelse(any(xdiff < 0.5), NA, "grey60")
   rect_diff <- ifelse(any(xdiff < 0.5), 0.475, 0.5)
 
-  plot(NULL, typ = "n", xlab = xlab, ylab = ylab, xlim = range(x), ylim = range(y), yaxt = yaxt)
+  plot(NULL, type = "n", xlab = xlab, ylab = ylab, xlim = range(x), ylim = range(y), yaxt = yaxt)
   sapply(1:nrow(z), function(i) {
     if (any(!is.na(zz[i, ]))) {
       rect(xleft = x[i] - rect_diff * xdiff[i], xright = x[i] + rect_diff * xdiff[i],

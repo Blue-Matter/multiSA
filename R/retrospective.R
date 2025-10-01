@@ -170,7 +170,7 @@ plot.MSAretro <- function(x, var = c("S_yst", "R_yst", "F_yst", "VB_ymft"), s = 
   rcolor <- rich.colors(ncol(y))
   peel <- nrow(y) - apply(y, 2, function(i) sum(!is.na(i)))
 
-  matplot(year, y, xlab = "Year", ylab = ylab, ylim = ylim, lty = 1, typ = "l", col = rcolor, zero_line = TRUE)
+  matplot(year, y, xlab = "Year", ylab = ylab, ylim = ylim, lty = 1, type = "l", col = rcolor, zero_line = TRUE)
   legend("topleft", legend = peel/denom, col = rcolor, lty = 1, bty = "n", title = "Years removed:")
 
   invisible()

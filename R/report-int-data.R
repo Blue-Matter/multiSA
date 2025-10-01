@@ -47,7 +47,7 @@ plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annu
   if (prop) {
     propplot(x, cols = color, leg.names = name, xval = year, ylab = paste(fname, "catch proportion"))
   } else {
-    matplot(year, x, xlab = "Year", ylab = paste(fname, "catch"), typ = "o", col = color, pch = 16,
+    matplot(year, x, xlab = "Year", ylab = paste(fname, "catch"), type = "o", col = color, pch = 16,
             ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
     if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
   }
@@ -93,10 +93,10 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
     iupper <- exp(log(iobs) + 1.96 * isd)
     ilower <- exp(log(iobs) - 1.96 * isd)
 
-    plot(year, iobs, xlab = "Year", ylab = iname, typ = "p", pch = 16,
+    plot(year, iobs, xlab = "Year", ylab = iname, type = "p", pch = 16,
          ylim = c(0, 1.1) * range(ipred, iupper, na.rm = TRUE), zero_line = TRUE)
     arrows(year, y0 = ilower, y1 = iupper, length = 0)
-    lines(year, ipred, lwd = 2, col = 2, typ = ifelse(length(year) > 10, "l", "o"))
+    lines(year, ipred, lwd = 2, col = 2, type = ifelse(length(year) > 10, "l", "o"))
   }
 
   invisible(data.frame(year = year, obs = iobs, pred = ipred, lwr = ilower, upr = iupper, name = iname))
@@ -330,7 +330,7 @@ plot_composition <- function(obs, pred = NULL, xval = 1:ncol(obs), xlab = "Age",
     yaxt <- ifelse(i %% nset %in% c(1:nrow), "s", "n") # TRUE = first column
     xaxt <- ifelse(i < nplot && i %% nrow %in% c(1:(nrow-1)), "n", "s") # TRUE = first three rows
 
-    plot(xval, obs[i, ], typ = "o", ylim = ylim, yaxp = yaxp, xaxt = ifelse(xaxt_manual, "n", xaxt), yaxt = yaxt, las = las)
+    plot(xval, obs[i, ], type = "o", ylim = ylim, yaxp = yaxp, xaxt = ifelse(xaxt_manual, "n", xaxt), yaxt = yaxt, las = las)
     if (xaxt_manual && xaxt == "s") axis(1, at = xval, labels = xaxislab)
     if (!is.null(pred)) lines(xval, pred[i, ], lwd = 2, col = 2)
     legend("topright", legend = c(zval[i], ifelse(is.null(N), "", paste0("N = ", N[i]))), bty = "n", xjust = 1)

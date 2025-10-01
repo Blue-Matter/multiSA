@@ -108,7 +108,7 @@ plot_S <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
     } else {
       ylab <- "Spawning output"
     }
-    matplot(year, x, xlab = "Year", ylab = ylab, typ = "o", col = color, pch = 16,
+    matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
             ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
     if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
   }
@@ -173,7 +173,7 @@ plot_B <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
     } else {
       ylab <- "Spawning output"
     }
-    matplot(year, x, xlab = "Year", ylab = "Total biomass", typ = "o", col = color, pch = 16,
+    matplot(year, x, xlab = "Year", ylab = "Total biomass", type = "o", col = color, pch = 16,
             ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
     if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
   }
@@ -207,7 +207,7 @@ plot_R <- function(fit, s) {
   }
 
   color <- make_color(ncol(x), "stock")
-  matplot(year, x, xlab = "Year", ylab = ylab, typ = "o", col = color, pch = 16,
+  matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
           ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
   if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
 
@@ -230,7 +230,7 @@ plot_SRR <- function(fit, s = 1, phi = TRUE) {
   R_y <- fit@report$R_ys[, s]
   Rpred_y <- R_y/fit@report$Rdev_ys[, s]
 
-  plot(S_y[order(S_y)], Rpred_y[order(S_y)], typ = "l", lwd = 2, xlab = "Spawning output", ylab = "Recruitment",
+  plot(S_y[order(S_y)], Rpred_y[order(S_y)], type = "l", lwd = 2, xlab = "Spawning output", ylab = "Recruitment",
        xaxs = "i", yaxs = "i", xlim = c(0, 1.1) * range(S_y), ylim = c(0, 1.1) * range(R_y))
   points(S_y, R_y, pch = 16)
 
@@ -267,14 +267,14 @@ plot_Rdev <- function(fit, s = 1, log = TRUE) {
     upper <- x + 1.96 * std
     lower <- x - 1.96 * std
 
-    plot(year, x, xlab = "Year", ylab = "log Recruitment deviations", typ = "o", pch = 16,
+    plot(year, x, xlab = "Year", ylab = "log Recruitment deviations", type = "o", pch = 16,
          ylim = range(lower, upper), lty = 3)
     arrows(x0 = year, y0 = lower, y1 = upper, length = 0)
     abline(h = 0, lty = 2)
 
   } else {
     x <- fit@report$Rdev_ys[, s]
-    plot(year, x, xlab = "Year", ylab = "Recruitment deviations", typ = "o", pch = 16,
+    plot(year, x, xlab = "Year", ylab = "Recruitment deviations", type = "o", pch = 16,
          ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
 
     abline(h = 1, lty = 2)
@@ -350,7 +350,7 @@ plot_Fstock <- function(fit, s, by = c("annual", "season")) {
     }
 
     color <- make_color(ncol(x), "stock")
-    matplot(year, x, xlab = "Year", ylab = ylab, typ = "o", col = color, pch = 16,
+    matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
             ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
     if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
   }
@@ -385,7 +385,7 @@ plot_self <- function(fit, f = 1, type = c("length", "age")) {
 
     color <- make_color(ncol(x), "fleet")
     matplot(lmid, x, xlab = "Length", ylab = paste(fname, "selectivity"),
-            typ = "o", col = color, pch = 16,
+            type = "o", col = color, pch = 16,
             ylim = c(0, 1), lty = 1, zero_line = TRUE)
     if (ncol(x) > 1) {
       name <- sapply(unique(sel_block), function(i) {
@@ -425,7 +425,7 @@ plot_self <- function(fit, f = 1, type = c("length", "age")) {
 
     color <- make_color(nrow(x), "fleet")
     matplot(age, t(x), xlab = "Age", ylab = paste(fname, "selectivity"),
-            typ = "o", col = color, pch = 16,
+            type = "o", col = color, pch = 16,
             ylim = c(0, 1), lty = 1, zero_line = TRUE)
     if (nrow(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
   }
@@ -452,7 +452,7 @@ plot_seli <- function(fit, i = 1) {
     x <- fit@report$sel_li[, i]
 
     plot(lmid, x, xlab = "Length", ylab = paste(iname, "selectivity"),
-         typ = "o", pch = 16,
+         type = "o", pch = 16,
          ylim = c(0, 1), lty = 1, zero_line = TRUE)
   } else {
 
@@ -482,7 +482,7 @@ plot_seli <- function(fit, i = 1) {
     color <- make_color(nrow(x), "fleet")
 
     matplot(age, t(x), xlab = "Age", ylab = paste(iname, "selectivity"),
-            typ = "o", col = color, pch = 16,
+            type = "o", col = color, pch = 16,
             ylim = c(0, 1), lty = 1, zero_line = TRUE)
     if (nrow(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
   }
@@ -611,7 +611,7 @@ plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE) {
   if (prop) {
     propplot(x, cols = color, leg.names = name, xval = year, ylab = ylab)
   } else {
-    matplot(year, x, xlab = "Year", ylab = ylab, typ = "o", col = color, pch = 16,
+    matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
             ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
     if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
   }
@@ -643,7 +643,7 @@ plot_Ffleet <- function(fit, f = 1) {
 
   fname <- Dlabel@fleet[f]
   ylab <- paste(fname, "fishing mortality")
-  matplot(year, x, xlab = "Year", ylab = ylab, typ = "o", col = color, pch = 16,
+  matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
           ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
   if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
 
