@@ -104,13 +104,13 @@ check_Dstock <- function(Dstock, Dmodel, silent = FALSE) {
   if (length(ch) > 1) ch <- "Dstock"
 
   if (!length(m_spawn) || nm == 1L) {
-    if (!silent) message("Setting m_spawn to 1")
+    if (!silent && Dmodel@nm > 1) message("Setting m_spawn to 1")
     Dstock@m_spawn <- m_spawn <- 1L
   } else if (m_spawn > nm) {
     stop("m_spawn cannot be greater than nm")
   }
   if (!length(m_rec) || nm == 1L) {
-    if (!silent) message("Setting m_rec to 1")
+    if (!silent && Dmodel@nm > 1) message("Setting m_rec to 1")
     Dstock@m_rec <- m_rec <- 1L
   } else if (m_rec > nm) {
     stop("m_rec cannot be greater than nm")

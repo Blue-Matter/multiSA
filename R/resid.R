@@ -112,7 +112,7 @@ residuals.MSAassess <- function(object, vars, type = c("response", "pearson"), .
     pred <- apply(object@report$IN_ymais, 1:4, sum)
     for(y in 1:dat@Dmodel@ny) {
       for(m in 1:dat@Dmodel@nm) {
-        for(i in 1:dat@Dmodel@ni) {
+        for(i in 1:dat@Dsurvey@ni) {
           pred_i <- pred[y, m, , i]
           res$IAAobs_ymai[y, m, , i] <- resid_comp(
             obs = dat@Dsurvey@IAAobs_ymai[y, m, , i],
@@ -133,7 +133,7 @@ residuals.MSAassess <- function(object, vars, type = c("response", "pearson"), .
     pred <- apply(object@report$IN_ymlis, 1:4, sum)
     for(y in 1:dat@Dmodel@ny) {
       for(m in 1:dat@Dmodel@nm) {
-        for(i in 1:dat@Dmodel@ni) {
+        for(i in 1:dat@Dsurvey@ni) {
           pred_i <- pred[y, m, , i]
           res$IALobs_ymli[y, m, , i] <- resid_comp(
             obs = dat@Dsurvey@IALobs_ymli[y, m, , i],
