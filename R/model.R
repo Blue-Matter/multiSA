@@ -157,7 +157,7 @@ update_report <- function(r, MSAdata) {
   F_ymars <-
     Z_ymars <- array(NA_real_, c(ny, nm, na, nr, ns))
   M_yas <- mat_yas <- array(NA_real_, c(ny, na, ns))
-  if (length(HSP_s)) F_yas <- array(NA_real_, c(ny, na, ns))
+  if (length(DCKMR@HSP_s)) F_yas <- array(NA_real_, c(ny, na, ns))
   mov_ymarrs <- array(NA_real_, c(ny, nm, na, nr, nr, ns))
   recdist_rs <- array(NA_real_, c(nr, ns))
 
@@ -186,7 +186,7 @@ update_report <- function(r, MSAdata) {
   map$mat_ps <- matrix(as.character(map$mat_ps), 2, ns)
   mat_yas[] <- sapply2(1:ns, function(s) {
     if (all(is.na(map$mat_ps[, s]))) {
-      Dstock@matd_yas[1:ny, , s]
+      Dstock@mat_yas[1:ny, , s]
     } else {
       m <- conv_mat(p$mat_ps[, s], na)
       matrix(m, ny, na, byrow = TRUE)
@@ -196,7 +196,7 @@ update_report <- function(r, MSAdata) {
   ## Natural mortality ----
   for(s in 1:ns) {
     if (!is.null(map$log_M_s) && is.na(map$log_M_s[s])) {
-      M_yas[, , s] <- Dstock@Md_yas[1:ny, , s]
+      M_yas[, , s] <- Dstock@M_yas[1:ny, , s]
     } else {
       M_yas[, , s] <- matrix(exp(p$log_M_s[s]), ny, na)
     }

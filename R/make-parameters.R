@@ -362,8 +362,8 @@ make_map <- function(p, MSAdata, map = list(),
       if (!silent) message_info("Estimating maturity ogive parameters")
     } else {
       map$mat_ps <- factor(array(NA, dim(p$mat_ps)))
-      if (!silent) message_info("Fixed maturity to values in data slot 'matd_yas'")
-      if (!length(Dstock@matd_yas)) stop("Maturity ogive is not estimated. Need maturity at age values in the data slot 'matd_yas'.")
+      if (!silent) message_info("Fixed maturity to values in data slot 'mat_yas'")
+      if (!length(Dstock@matd_yas)) stop("Maturity ogive is not estimated. Need maturity at age values in the data slot 'mat_yas'.")
     }
   } else if (!silent && any(!is.na(map$mat_ps))) {
 
@@ -384,8 +384,8 @@ make_map <- function(p, MSAdata, map = list(),
       if (!silent) message_info("Estimating natural mortality for all stocks")
     } else {
       map$log_M_s <- factor(rep(NA, ns))
-      if (!silent) message_info("Fixed natural mortality to values in data slot 'Md_yas'")
-      if (!length(Dstock@Md_yas)) stop("Natural mortality is not estimated. Need M values in the data slot 'Md_yas'.")
+      if (!silent) message_info("Fixed natural mortality to values in data slot 'M_yas'")
+      if (!length(Dstock@M_yas)) stop("Natural mortality is not estimated. Need M values in the data slot 'M_yas'.")
     }
   } else if (!silent && any(!is.na(map$log_M_s))) {
     message_info("Estimating natural mortality for stock ", paste(which(!is.na(map$log_M_s)), collapse = ", "))

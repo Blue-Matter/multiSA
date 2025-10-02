@@ -140,9 +140,9 @@ check_Dstock <- function(Dstock, Dmodel, silent = FALSE) {
     }
   }
 
-  if (!length(Dstock@matd_yas)) {
-    dim_mat <- dim(Dstock@matd_yas) == c(ny, na, ns)
-    if (!all(dim_mat)) stop("dim(", ch, "@matd_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
+  if (!length(Dstock@mat_yas)) {
+    dim_mat <- dim(Dstock@mat_yas) == c(ny, na, ns)
+    if (!all(dim_mat)) stop("dim(", ch, "@mat_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
   }
 
   dim_swt <- dim(Dstock@swt_ymas) == c(ny, nm, na, ns)
@@ -156,9 +156,9 @@ check_Dstock <- function(Dstock, Dmodel, silent = FALSE) {
     if (!all(dim_fec)) stop("dim(", ch, "fec_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
   }
 
-  if (!length(Dstock@Md_yas)) {
-    dim_M <- dim(Dstock@Md_yas) == c(ny, na, ns)
-    if (!all(dim_M)) stop("dim(", ch, "@Md_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
+  if (!length(Dstock@M_yas)) {
+    dim_M <- dim(Dstock@M_yas) == c(ny, na, ns)
+    if (!all(dim_M)) stop("dim(", ch, "@M_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
   }
 
   if (length(Dstock@SRR_s) != ns) stop("SRR_s needs to be length ", ns)

@@ -35,8 +35,8 @@ setClass(
   "Dstock",
   slots = c(m_spawn = "numeric", m_rec = "numeric",
             len_ymas = "array", sdlen_ymas = "array",
-            LAK_ymals = "array", matd_yas = "array", swt_ymas = "array", fec_yas = "array",
-            Md_yas = "array", SRR_s = "character",
+            LAK_ymals = "array", mat_yas = "array", swt_ymas = "array", fec_yas = "array",
+            M_yas = "array", SRR_s = "character",
             delta_s = "numeric", presence_rs = "matrix", natal_rs = "matrix")
 )
 
@@ -162,16 +162,6 @@ summary.MSAassess <- function(object, ...) {
     invisible()
   }
 }
-
-
-# @importFrom utils globalVariables
-#if(getRversion() >= "2.15.1") {
-#  utils::globalVariables(
-#    c(slotNames("Dmodel"), slotNames("Dstock"), slotNames("Dfishery"),
-#      slotNames("Dsurvey"), slotNames("DCKMR"), slotNames("Dtag"), slotNames("MSAdata"), slotNames("MSAassess"))
-#  )
-#}
-
 
 #' Generate markdown reports
 #'

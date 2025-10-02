@@ -64,12 +64,13 @@ retrospective <- function(MSAassess, yret = 1:5, cores = 1) {
 .ret <- function(y, MSAassess) {
 
   MSAdata <- get_MSAdata(MSAassess)
+  Dmodel <- MSAdata@Dmodel
 
-  ny <- MSAdata@Dmodel@ny
-  nm <- MSAdata@Dmodel@nm
-  na <- MSAdata@Dmodel@na
-  nr <- MSAdata@Dmodel@nr
-  ns <- MSAdata@Dmodel@ns
+  ny <- Dmodel@ny
+  nm <- Dmodel@nm
+  na <- Dmodel@na
+  nr <- Dmodel@nr
+  ns <- Dmodel@ns
 
   nf <- MSAdata@Dfishery@nf
 
