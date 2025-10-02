@@ -168,7 +168,7 @@ update_report <- function(r, MSAdata) {
     log_F_ymfr <- array(NA_real_, c(ny, nm, nf, nr))
   F_ymafrs <-
     CN_ymafrs <- array(NA_real_, c(ny, nm, na, nf, nr, ns))
-  if (any(CALobs_ymlfr > 0, na.rm = TRUE)) CN_ymlfrs <- array(NA_real_, c(ny, nm, nl, nf, nr, ns))
+  if (any(Dfishery@CALobs_ymlfr > 0, na.rm = TRUE)) CN_ymlfrs <- array(NA_real_, c(ny, nm, nl, nf, nr, ns))
   CB_ymfrs <-
     VB_ymfrs <- array(NA_real_, c(ny, nm, nf, nr, ns))
 
@@ -176,7 +176,7 @@ update_report <- function(r, MSAdata) {
   if (ni > 0) {
     IN_ymais <-
       sel_ymais <- array(NA_real_, c(ny, nm, na, ni, ns))
-    if (any(IALobs_ymli > 0, na.rm = TRUE)) IN_ymlis <- array(NA_real_, c(ny, nm, na, nl, ns))
+    if (any(Dsurvey@IALobs_ymli > 0, na.rm = TRUE)) IN_ymlis <- array(NA_real_, c(ny, nm, nl, ni, ns))
     VI_ymi <- I_ymi <- array(NA_real_, c(ny, nm, ni))
   }
 
@@ -312,27 +312,31 @@ update_report <- function(r, MSAdata) {
   recdist_rs[] <- sapply(1:ns, function(s) softmax(p$log_recdist_rs[, s]))
 
   # Movement
-  for (yy in 1:nrow(Dtag@tag_yy)) {
-    yvec <- which(Dtag@tag_yy[yy, ] > 0)
-    y1 <- yvec[1]
+  if (nr > 1) {
+    for (yy in 1:nrow(Dtag@tag_yy)) {
+      yvec <- which(Dtag@tag_yy[yy, ] > 0)
+      y1 <- yvec[1]
 
-    for (m in 1:nm) {
-      mov_ymarrs[y1, m, , , , ] <- sapply2(1:ns, function(s) {
-        mov_arr <- array(0, c(na, nr, nr))
-        r_eff <- Dtag@presence_rs[, s]
-        nr_eff <- sum(Dtag@presence_rs[, s])
-        mov_arr[, r_eff, r_eff] <- conv_mov(
-          p$mov_x_marrs[m, , r_eff, r_eff, s], p$mov_g_ymars[y1, m, , r_eff, s], p$mov_v_ymas[y1, m, , s], na, nr_eff
-        )
-        return(mov_arr)
-      })
-    }
+      for (m in 1:nm) {
+        mov_ymarrs[y1, m, , , , ] <- sapply2(1:ns, function(s) {
+          mov_arr <- array(0, c(na, nr, nr))
+          r_eff <- Dstock@presence_rs[, s]
+          nr_eff <- sum(Dstock@presence_rs[, s])
+          mov_arr[, r_eff, r_eff] <- conv_mov(
+            p$mov_x_marrs[m, , r_eff, r_eff, s], p$mov_g_ymars[y1, m, , r_eff, s], p$mov_v_ymas[y1, m, , s], na, nr_eff
+          )
+          return(mov_arr)
+        })
+      }
 
-    if (length(yvec) > 1) {
-      mov_ind <- mov1_ind <- as.matrix(expand.grid(y = yvec[-1], m = 1:m, a = 1:na, rf = 1:nr, rt = 1:nr, s = 1:ns))
-      mov1_ind[, "y"] <- yvec[1]
-      mov_ymarrs[mov_ind] <- mov_ymarrs[mov1_ind]
+      if (length(yvec) > 1) {
+        mov_ind <- mov1_ind <- as.matrix(expand.grid(y = yvec[-1], m = 1:m, a = 1:na, rf = 1:nr, rt = 1:nr, s = 1:ns))
+        mov1_ind[, "y"] <- yvec[1]
+        mov_ymarrs[mov_ind] <- mov_ymarrs[mov1_ind]
+      }
     }
+  } else {
+    mov_ymarrs[] <- 1
   }
 
   #for(y in 1:ny) {
@@ -403,7 +407,7 @@ update_report <- function(r, MSAdata) {
   initCN_mafrs <- array(NA_real_, c(nm, na, nf, nr, ns))
   initCB_mfrs <- array(NA_real_, c(nm, nf, nr, ns))
 
-  if (all(Cinit_mfr < 1e-8)) {
+  if (all(Dfishery@Cinit_mfr < 1e-8)) {
     initNPR_yars[] <- initNPR0_yars
     initphi_s <- phi_s
     initR_s <- R0_s
@@ -462,6 +466,7 @@ update_report <- function(r, MSAdata) {
 
   # Likelihoods ----
   ## Initial catch ----
+  Cinit_mfr <- Dfishery@Cinit_mfr
   any_Cinit <- any(Cinit_mfr >= 1e-8)
   if (any_Cinit) {
     initCB_mfr <- apply(initCB_mfrs, 1:3, sum)
@@ -687,7 +692,7 @@ update_report <- function(r, MSAdata) {
   }
 
   ## Tag
-  tay_ymarrs <- Dtag@tag_ymarrs
+  tag_ymarrs <- Dtag@tag_ymarrs
   if (any(tag_ymarrs > 0, na.rm = TRUE)) {
     tag_ymarrs <- OBS(tag_ymarrs)
     tagpred_ymarrs <- array(0, dim(tag_ymarrs))
@@ -758,12 +763,12 @@ update_report <- function(r, MSAdata) {
   bcr_s <- -0.5 * sdr_s * sdr_s
 
   if (is.null(map$log_initrdev_as)) {
-    par_initrdev_as <- matrix(0, na, ns)
+    par_initrdev_as <- matrix(TRUE, na, ns)
   } else {
     par_initrdev_as <- matrix(!is.na(map$log_initrdev_as) & !duplicated(map$log_initrdev_as, MARGIN = 0), na, ns)
   }
   logprior_initrdev_as <- sapply(1:ns, function(s) {
-    CondExpGt(par_initrdev_as[, s], 0, dnorm(p$log_initrdev_as[, s], bcr_s[s], sdr_s[s], log = TRUE), 0)
+    CondExpGt(par_initrdev_as[, s], 0, dnorm(p$log_initrdev_as[, s], Dmodel@pbc_initrdev_as[, s] * bcr_s[s], sdr_s[s], log = TRUE), 0)
   })
 
   if (is.null(map$log_rdev_ys)) {
@@ -772,7 +777,7 @@ update_report <- function(r, MSAdata) {
     par_rdev_ys <- matrix(!is.na(map$log_rdev_ys) & !duplicated(map$log_rdev_ys, MARGIN = 0), ny, ns)
   }
   logprior_rdev_ys <- sapply(1:ns, function(s) {
-    CondExpGt(par_rdev_ys[, s], 0, dnorm(p$log_rdev_ys[, s], bcr_s[s], sdr_s[s], log = TRUE), 0)
+    CondExpGt(par_rdev_ys[, s], 0, dnorm(p$log_rdev_ys[, s], Dmodel@pbc_rdev_ys[, s] * bcr_s[s], sdr_s[s], log = TRUE), 0)
   })
 
   if (nr > 1 && "mov_g_ymars" %in% random) {

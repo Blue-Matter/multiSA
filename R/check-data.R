@@ -92,6 +92,27 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
     }
   }
 
+  if (!length(Dmodel@pbc_rdev_ys)) {
+    Dmodel@pbc_rdev_ys <- matrix(1, Dmodel@ny, Dmodel@ns)
+  } else if (length(Dmodel@pbc_rdev_ys) == 1) {
+    Dmodel@pbc_rdev_ys <- matrix(Dmodel@pbc_rdev_ys, Dmodel@ny, Dmodel@ns)
+  } else {
+    dim_pbc <- dim(Dmodel@pbc_rdev_ys)
+    if (any(dim_pbc != c(Dmodel@ny, Dmodel@ns))) {
+      stop("dim(", ch, "@pbc_rdev_ys) should be ", c(Dmodel@ny, Dmodel@ns) %>% paste(collapse = ", "))
+    }
+  }
+  if (!length(Dmodel@pbc_initrdev_as)) {
+    Dmodel@pbc_initrdev_as <- matrix(1, Dmodel@na, Dmodel@ns)
+  } else if (length(Dmodel@pbc_initrdev_as) == 1) {
+    Dmodel@pbc_initrdev_as <- matrix(Dmodel@pbc_initrdev_as, Dmodel@na, Dmodel@ns)
+  } else {
+    dim_pbc <- dim(Dmodel@pbc_initrdev_as)
+    if (any(dim_pbc != c(Dmodel@na, Dmodel@ns))) {
+      stop("dim(", ch, "@pbc_initrdev_as) should be ", c(Dmodel@na, Dmodel@ns) %>% paste(collapse = ", "))
+    }
+  }
+
   return(Dmodel)
 }
 

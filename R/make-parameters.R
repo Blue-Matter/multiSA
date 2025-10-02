@@ -363,7 +363,7 @@ make_map <- function(p, MSAdata, map = list(),
     } else {
       map$mat_ps <- factor(array(NA, dim(p$mat_ps)))
       if (!silent) message_info("Fixed maturity to values in data slot 'mat_yas'")
-      if (!length(Dstock@matd_yas)) stop("Maturity ogive is not estimated. Need maturity at age values in the data slot 'mat_yas'.")
+      if (!length(Dstock@mat_yas)) stop("Maturity ogive is not estimated. Need maturity at age values in the data slot 'mat_yas'.")
     }
   } else if (!silent && any(!is.na(map$mat_ps))) {
 
