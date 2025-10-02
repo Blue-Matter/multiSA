@@ -164,13 +164,13 @@ summary.MSAassess <- function(object, ...) {
 }
 
 
-#' @importFrom utils globalVariables
-if(getRversion() >= "2.15.1") {
-  utils::globalVariables(
-    c(slotNames("Dmodel"), slotNames("Dstock"), slotNames("Dfishery"),
-      slotNames("Dsurvey"), slotNames("DCKMR"), slotNames("Dtag"), slotNames("MSAdata"), slotNames("MSAassess"))
-  )
-}
+# @importFrom utils globalVariables
+#if(getRversion() >= "2.15.1") {
+#  utils::globalVariables(
+#    c(slotNames("Dmodel"), slotNames("Dstock"), slotNames("Dfishery"),
+#      slotNames("Dsurvey"), slotNames("DCKMR"), slotNames("Dtag"), slotNames("MSAdata"), slotNames("MSAassess"))
+#  )
+#}
 
 
 #' Generate markdown reports

@@ -64,18 +64,24 @@ retrospective <- function(MSAassess, yret = 1:5, cores = 1) {
 .ret <- function(y, MSAassess) {
 
   MSAdata <- get_MSAdata(MSAassess)
-  getAllS4(MSAdata@Dmodel)
+
+  ny <- MSAdata@Dmodel@ny
+  nm <- MSAdata@Dmodel@nm
+  na <- MSAdata@Dmodel@na
+  nr <- MSAdata@Dmodel@nr
+  ns <- MSAdata@Dmodel@ns
+
   nf <- MSAdata@Dfishery@nf
 
   data_new <- MSAdata
   data_new@Dmodel@ny <- nyret <- ny - y
 
-  if (y_phi > nyret) stop("Reduce y_phi")
+  if (Dmodel@y_phi > nyret) stop("Reduce y_phi")
 
   data_new@Dfishery@Cobs_ymfr <- MSAdata@Dfishery@Cobs_ymfr[1:nyret, , , , drop = FALSE]
-  if (condition == "F") {
+  if (Dmodel@condition == "F") {
     data_new@Dfishery@Csd_ymfr <- MSAdata@Dfishery@Csd_ymfr[1:nyret, , , , drop = FALSE]
-    if (any(y_Fmult_f > nyret)) stop("Reduce y_Fmult_f")
+    if (any(Dmodel@y_Fmult_f > nyret)) stop("Reduce y_Fmult_f")
   }
   data_new@Dsurvey@Iobs_ymi <- MSAdata@Dsurvey@Iobs_ymi[1:nyret, , , drop = FALSE]
   data_new@Dsurvey@Isd_ymi <- MSAdata@Dsurvey@Isd_ymi[1:nyret, , , drop = FALSE]

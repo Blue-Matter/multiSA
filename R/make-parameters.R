@@ -79,14 +79,24 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
                             silent = FALSE, ...) {
   est_mov <- match.arg(est_mov)
 
-  getAllS4(MSAdata@Dmodel)
-  nf <- MSAdata@Dfishery@nf
+  Dmodel <- MSAdata@Dmodel
+  Dstock <- MSAdata@Dstock
+  Dfishery <- MSAdata@Dfishery
+
+  ny <- Dmodel@ny
+  nm <- Dmodel@nm
+  na <- Dmodel@na
+  nl <- Dmodel@nl
+  nr <- Dmodel@nr
+  ns <- Dmodel@ns
+
+  nf <- Dfishery@nf
 
   p <- start
 
   # Stock parameters ----
   if (!is.null(start$R0_s)) {
-    p$t_R0_s <- log(start$R0_s/MSAdata@Dmodel@scale_s)
+    p$t_R0_s <- log(start$R0_s/Dmodel@scale_s)
     p$R0_s <- NULL
   } else if (is.null(start$t_R0_s)) {
     p$t_R0_s <- rep(3, ns)
@@ -97,7 +107,7 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
   } else {
     p$h_s <- NULL
   }
-  p$t_h_s <- ifelse(MSAdata@Dstock@SRR_s == "BH", qlogis((start$h_s - 0.2)/0.8), log(start$h_s - 0.2))
+  p$t_h_s <- ifelse(Dstock@SRR_s == "BH", qlogis((start$h_s - 0.2)/0.8), log(start$h_s - 0.2))
 
   if (is.null(p$mat_ps)) {
     p$mat_ps <- sapply(1:ns, function(s) {
@@ -124,9 +134,9 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
     } else {
       p$mov_x_marrs <- array(0, c(nm, na, nr, nr, ns))
     }
-    if (any(!MSAdata@Dstock@presence_rs)) {
+    if (any(!Dstock@presence_rs)) {
       for(s in 1:ns) {
-        presence_r <- MSAdata@Dstock@presence_rs[, s]
+        presence_r <- Dstock@presence_rs[, s]
         if (any(!presence_r)) p$mov_x_marrs[, , presence_r, presence_r, s] <- -1000
       }
     }
@@ -141,14 +151,14 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
     p$log_q_fs <- matrix(0, nf, ns)
   }
   if (is.null(p$log_Fdev_ymfr)) {
-    if (condition == "F") {
+    if (Dmodel@condition == "F") {
       p$log_Fdev_ymfr <- sapply2(1:nr, function(r) {
         sapply2(1:nf, function(f) {
           sapply(1:nm, function(m) {
             sapply(1:ny, function(y) {
-              Fmult_y <- y == y_Fmult_f[f]
-              Fmult_m <- m == m_Fmult_f[f]
-              Fmult_r <- r == r_Fmult_f[f]
+              Fmult_y <- y == Dmodel@y_Fmult_f[f]
+              Fmult_m <- m == Dmodel@m_Fmult_f[f]
+              Fmult_r <- r == Dmodel@r_Fmult_f[f]
               if (Fmult_y && Fmult_m && Fmult_r) {
                 log(-log(0.05)/na/nm)
               } else {
@@ -158,50 +168,50 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
           })
         })
       })
-      p$log_Fdev_ymfr[MSAdata@Dfishery@Cobs_ymfr < 1e-8] <- -1000
+      p$log_Fdev_ymfr[Dfishery@Cobs_ymfr < 1e-8] <- -1000
     } else {
       p$log_Fdev_ymfr <- array(0, c(ny, nm, nf, nr))
     }
   }
 
   if (is.null(p$sel_pf)) {
-    p$sel_pf <- sapply(unique(MSAdata@Dfishery@sel_block_yf), function(b) {
-      sel_b <- MSAdata@Dfishery@sel_f[b]
+    p$sel_pf <- sapply(unique(Dfishery@sel_block_yf), function(b) {
+      sel_b <- Dfishery@sel_f[b]
       val <- numeric(3)
-      f_yb <- MSAdata@Dfishery@sel_block_yf == b
-      if (grepl("length", sel_b) && length(MSAdata@Dfishery@CALobs_ymlfr)) {
+      f_yb <- Dfishery@sel_block_yf == b
+      if (grepl("length", sel_b) && length(Dfishery@CALobs_ymlfr)) {
         CAL <- sapply2(1:nf, function(f) {
-          sapply(1:MSAdata@Dmodel@ny, function(y) {
+          sapply(1:ny, function(y) {
             if (f_yb[y, f]) {
-              apply(MSAdata@Dfishery@CALobs_ymlfr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
+              apply(Dfishery@CALobs_ymlfr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
             } else {
-              rep(0,  MSAdata@Dmodel@nl)
+              rep(0, nl)
             }
           })
         }) %>% apply(1, sum)
 
         if (sum(CAL)) {
-          LFS <- min(MSAdata@Dmodel@lmid[which.max(CAL)], 0.75 * max(MSAdata@Dmodel@lmid))
-          L5 <- approx(cumsum(CAL)/sum(CAL), MSAdata@Dmodel@lmid, 0.05)$y
+          LFS <- min(Dmodel@lmid[which.max(CAL)], 0.75 * max(Dmodel@lmid))
+          L5 <- approx(cumsum(CAL)/sum(CAL), Dmodel@lmid, 0.05)$y
           if (is.na(L5) || L5 > 0.99 * LFS) L5 <- 0.5 * LFS
 
-          sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(MSAdata@Dmodel@lmid)))
+          sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(Dmodel@lmid)))
           val[2:3] <- log(sigma_asc)
-          val[1] <- qlogis(LFS/max(0.95 * MSAdata@Dmodel@lmid))
+          val[1] <- qlogis(LFS/max(0.95 * Dmodel@lmid))
         }
-      } else if (grepl("age", sel_b) && length(MSAdata@Dfishery@CAAobs_ymafr)) {
+      } else if (grepl("age", sel_b) && length(Dfishery@CAAobs_ymafr)) {
         CAA <- sapply2(1:nf, function(f) {
-          sapply(1:MSAdata@Dmodel@ny, function(y) {
+          sapply(1:ny, function(y) {
             if (f_yb[y, f]) {
-              apply(MSAdata@Dfishery@CAAobs_ymafr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
+              apply(Dfishery@CAAobs_ymafr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
             } else {
-              rep(0,  MSAdata@Dmodel@na)
+              rep(0, na)
             }
           })
         }) %>% apply(1, sum)
 
         if (sum(CAA)) {
-          age <- 1:MSAdata@Dmodel@na
+          age <- 1:na
           AFS <- min(age[which.max(CAA)], 0.75 * max(age))
           A5 <- approx(cumsum(CAA)/sum(CAA), age, 0.05)$y
           if (is.na(A5) || A5 > 0.99 * AFS) A5 <- 0.5 * AFS
@@ -223,23 +233,24 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
   }
 
   # Index parameters ----
-  ni <- MSAdata@Dsurvey@ni
+  Dsurvey <- MSAdata@Dsurvey
+  ni <- Dsurvey@ni
   if (ni > 0 && is.null(p$sel_pi)) {
     p$sel_pi <- sapply(1:ni, function(i) {
-      sel_i <- MSAdata@Dsurvey@sel_i[i]
+      sel_i <- Dsurvey@sel_i[i]
       val <- numeric(3)
-      if (grepl("length", sel_i) && length(MSAdata@Dsurvey@IALobs_ymli)) {
+      if (grepl("length", sel_i) && length(Dsurvey@IALobs_ymli)) {
 
-        IAL <- apply(MSAdata@Dsurvey@IALobs_ymli[, , , i, drop = FALSE], 3, sum)
+        IAL <- apply(Dsurvey@IALobs_ymli[, , , i, drop = FALSE], 3, sum)
 
         if (sum(IAL)) {
-          LFS <- min(MSAdata@Dmodel@lmid[which.max(IAL)], 0.75 * max(MSAdata@Dmodel@lmid))
-          L5 <- approx(cumsum(IAL)/sum(IAL), MSAdata@Dmodel@lmid, 0.05)$y
+          LFS <- min(Dmodel@lmid[which.max(IAL)], 0.75 * max(Dmodel@lmid))
+          L5 <- approx(cumsum(IAL)/sum(IAL), Dmodel@lmid, 0.05)$y
 
           if (L5 < LFS) {
-            sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(MSAdata@Dmodel@lmid)))
+            sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(Dmodel@lmid)))
             val[2:3] <- log(sigma_asc)
-            val[1] <- qlogis(LFS/max(0.95 * MSAdata@Dmodel@lmid))
+            val[1] <- qlogis(LFS/max(0.95 * Dmodel@lmid))
           }
         }
       }
@@ -255,7 +266,7 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
 
   # Initial conditions ----
   if (is.null(p$log_initF_mfr)) {
-    p$log_initF_mfr <- ifelse(MSAdata@Dfishery@Cinit_mfr < 1e-8, -1000, log(0.1))
+    p$log_initF_mfr <- ifelse(Dfishery@Cinit_mfr < 1e-8, -1000, log(0.1))
   }
   if (is.null(p$log_initrdev_as)) {
     p$log_initrdev_as <- matrix(0, na, ns)
@@ -301,17 +312,28 @@ make_map <- function(p, MSAdata, map = list(),
                      silent = FALSE) {
 
   est_mov <- match.arg(est_mov)
-  getAllS4(MSAdata)
-  getAllS4(MSAdata@Dmodel)
 
-  nf <- MSAdata@Dfishery@nf
+  Dmodel <- MSAdata@Dmodel
+  Dstock <- MSAdata@Dstock
+  Dfishery <- MSAdata@Dfishery
+  Dsurvey <- MSAdata@Dsurvey
+  Dlabel <- MSAdata@Dlabel
+
+  ny <- Dmodel@ny
+  nm <- Dmodel@nm
+  na <- Dmodel@na
+  nl <- Dmodel@nl
+  nr <- Dmodel@nr
+  ns <- Dmodel@ns
+
+  nf <- Dfishery@nf
 
   random <- NULL
   map <- lapply(map, factor)
 
   # Stock parameters ----
   if (!silent) {
-    R0_s <- signif(exp(p$t_R0_s) * scale_s, 4)
+    R0_s <- signif(exp(p$t_R0_s) * Dmodel@scale_s, 4)
     if (is.null(map$t_R0_s)) {
       message_info("Estimating t_R0_s, starting R0 = ", paste(R0_s, collapse = ", "))
     } else {
@@ -406,20 +428,22 @@ make_map <- function(p, MSAdata, map = list(),
 
   } else {
 
+    Dtag <- MSAdata@Dtag
+
     if (is.null(map$mov_x_marrs)) map$mov_x_marrs <- factor(array(NA, dim(p$mov_x_marrs)))
 
     if (is.null(map$mov_g_ymars)) {
       map$mov_g_ymars <- array(NA, c(ny, nm, na, nr, ns))
 
       # Group parameters based on data stratification
-      if (length(MSAdata@Dtag@tag_yy) && length(MSAdata@Dtag@tag_aa)) {
+      if (length(Dtag@tag_yy) && length(Dtag@tag_aa)) {
         for (s in 1:ns) { # Estimate parameters for r = 2, ..., nr (softmax transformation)
-          r_eff <- which(MSAdata@Dstock@presence_rs[, s])[-1]
+          r_eff <- which(Dstock@presence_rs[, s])[-1]
           if (length(r_eff)) {
-            for (i in 1:nrow(MSAdata@Dtag@tag_yy)) {
-              yy <- which(MSAdata@Dtag@tag_yy[i, ] > 0)
-              for (j in 1:nrow(MSAdata@Dtag@tag_aa)) {
-                aa <- which(MSAdata@Dtag@tag_aa[j, ] > 0)
+            for (i in 1:nrow(Dtag@tag_yy)) {
+              yy <- which(Dtag@tag_yy[i, ] > 0)
+              for (j in 1:nrow(Dtag@tag_aa)) {
+                aa <- which(Dtag@tag_aa[j, ] > 0)
 
                 gind_strat <- expand.grid(m = 1:nm, r = r_eff, s = s, yc = i, ac = j)
                 gind_strat$par_no <- 1:nrow(gind_strat)
@@ -440,7 +464,7 @@ make_map <- function(p, MSAdata, map = list(),
         }
       } else {
         for (s in 1:ns) { # Estimate parameters for r = 2, ..., nr (softmax transformation)
-          r_eff <- which(MSAdata@Dstock@presence_rs[, s])[-1]
+          r_eff <- which(Dstock@presence_rs[, s])[-1]
           if (length(r_eff)) {
             gind <- as.matrix(expand.grid(y = 1:ny, m = 1:nm, a = 1:na, r = r_eff, s = s))
             if (all(is.na(map$mov_g_ymars))) {
@@ -465,14 +489,14 @@ make_map <- function(p, MSAdata, map = list(),
         map$mov_v_ymas <- array(NA, dim(p$mov_v_ymas))
 
         # Group parameters based on data stratification
-        if (length(MSAdata@Dtag@tag_yy) && length(MSAdata@Dtag@tag_aa)) {
+        if (length(Dtag@tag_yy) && length(Dtag@tag_aa)) {
           for (s in 1:ns) { # Estimate parameters for r = 2, ..., nr (softmax transformation)
-            nr_eff <- sum(MSAdata@Dstock@presence_rs[, s])
+            nr_eff <- sum(Dstock@presence_rs[, s])
             if (nr_eff > 1) {
-              for (i in 1:nrow(MSAdata@Dtag@tag_yy)) {
-                yy <- which(MSAdata@Dtag@tag_yy[i, ] > 0)
-                for (j in 1:nrow(MSAdata@Dtag@tag_aa)) {
-                  aa <- which(MSAdata@Dtag@tag_aa[j, ] > 0)
+              for (i in 1:nrow(Dtag@tag_yy)) {
+                yy <- which(Dtag@tag_yy[i, ] > 0)
+                for (j in 1:nrow(Dtag@tag_aa)) {
+                  aa <- which(Dtag@tag_aa[j, ] > 0)
 
                   vind_strat <- expand.grid(m = 1:nm, yc = i, ac = j)
                   vind_strat$par_no <- 1:nrow(vind_strat)
@@ -493,7 +517,7 @@ make_map <- function(p, MSAdata, map = list(),
           }
         } else {
           for (s in 1:ns) {  # Estimate parameters if nr_effective > 1
-            nr_eff <- sum(MSAdata@Dstock@presence_rs[, s])
+            nr_eff <- sum(Dstock@presence_rs[, s])
             if (nr_eff > 1) {
               vind <- as.matrix(expand.grid(y = 1:ny, m = 1:nm, a = 1:na, s = s))
               if (all(is.na(map$mov_v_ymas))) {
@@ -534,8 +558,6 @@ make_map <- function(p, MSAdata, map = list(),
     map$log_recdist_rs <- factor(matrix(NA, nr, ns))
   }
 
-
-
   # Fleet parameters ----
   if (!est_qfs || ns == 1) {
     map$log_q_fs <- factor(matrix(NA, nf, ns))
@@ -549,16 +571,16 @@ make_map <- function(p, MSAdata, map = list(),
     })
     if (!silent) message_info("Fishery catchability to be estimated for all fleets (relative to stock 1)")
   }
-  if (condition == "F" && any(Dfishery@Cobs_ymfr < 1e-8)) {
+  if (Dmodel@condition == "F" && any(Dfishery@Cobs_ymfr < 1e-8)) {
     map$log_Fdev_ymfr <- local({
       m <- ifelse(Dfishery@Cobs_ymfr < 1e-8, NA, TRUE)
       m[!is.na(m)] <- 1:sum(m, na.rm = TRUE)
       factor(m)
     })
-  } else if (condition == "catch") {
+  } else if (Dmodel@condition == "catch") {
     map$log_Fdev_ymfr <- factor(array(NA, c(ny, nm, nf, nr)))
   }
-  if (!silent && condition == "F") {
+  if (!silent && Dmodel@condition == "F") {
     message_info("F is an estimated parameter for all corresponding catches greater than 1e-8")
   }
 
@@ -579,7 +601,7 @@ make_map <- function(p, MSAdata, map = list(),
   if (!silent) {
     message_info("Fishery selectivity setup:")
 
-    fsel_start <- conv_selpar(p$sel_pf, type = Dfishery@sel_f, maxage = Dmodel@na, maxL = 0.95 * max(MSAdata@Dmodel@lmid))
+    fsel_start <- conv_selpar(p$sel_pf, type = Dfishery@sel_f, maxage = Dmodel@na, maxL = 0.95 * max(Dmodel@lmid))
     y <- if (length(Dlabel@year)) {
       Dlabel@year
     } else {
@@ -668,7 +690,7 @@ make_map <- function(p, MSAdata, map = list(),
 
   if (!silent) {
     message_info("Index selectivity setup:")
-    isel_start <- conv_selpar(p$sel_pi, type = Dsurvey@sel_i, maxage = Dmodel@na, maxL = 0.95 * max(lmid))
+    isel_start <- conv_selpar(p$sel_pi, type = Dsurvey@sel_i, maxage = Dmodel@na, maxL = 0.95 * max(Dmodel@lmid))
     for (i in 1:Dsurvey@ni) {
       sel_i <- Dsurvey@sel_i[i]
       if (length(Dlabel@index)) {
