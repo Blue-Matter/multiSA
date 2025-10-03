@@ -120,7 +120,7 @@ calc_sel_len <- function(sel_par, lmid, type) {
 #' @return
 #' [calc_fsel_age()] returns a matrix `[a, f]`, i.e., `[a, length(sel_block)]`
 #' @export
-calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length(type)), mat, a = seq(1, nrow(LAK))) {
+calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length(type)), mat, a = seq(1, nrow(LAK)) - 1) {
   nf <- length(sel_block)
 
   is_ad <- inherits(sel_par, "advector")
@@ -161,7 +161,7 @@ calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length
 #' @return
 #' [calc_isel_age()] returns a matrix `[a, i]`, i.e., `[a, length(type)]`
 #' @export
-calc_isel_age <- function(sel_len, LAK, type, sel_par, fsel_age, maxage, mat, a = seq(1, nrow(LAK))) {
+calc_isel_age <- function(sel_len, LAK, type, sel_par, fsel_age, maxage, mat, a = seq(1, nrow(LAK)) - 1) {
 
   old_warn <- options()$warn
   options(warn = -1)

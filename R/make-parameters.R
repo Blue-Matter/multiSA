@@ -760,11 +760,12 @@ check_parameters <- function(p = list(), map, MSAdata, silent = FALSE) {
         m_x <- map[[x]]
         nparam <- length(unique(m_x[!is.na(m_x)]))
       }
+      out <- NULL
       if (nparam) {
-        data.frame(Parameter = par_df[x], Number = nparam)
-      } else {
-        NULL
+        out <- try(data.frame(Parameter = par_df[x], Number = nparam), silent = TRUE)
+        if (is.character(out)) out <- NULL
       }
+      return(out)
     })
     output <- do.call(rbind, npar)
 

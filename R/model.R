@@ -268,14 +268,14 @@ update_report <- function(r, MSAdata) {
       for (y in 1:ny) {
         for (m in 1:nm) {
           sel_ymafs[y, m, , , s] <- calc_fsel_age(
-            sel_lf, Dstock@LAK_ymals[y, m, , , s], Dfishery@sel_f, selconv_pf, Dfishery@sel_block_yf[y, ], mat = mat_yas[y, , s], a = seq(1, na)
+            sel_lf, Dstock@LAK_ymals[y, m, , , s], Dfishery@sel_f, selconv_pf, Dfishery@sel_block_yf[y, ], mat = mat_yas[y, , s], a = seq(1, na) - 1
           )
         }
       }
     } else {
       for (m in 1:nm) {
         sel_ymafs[1, m, , , s] <- calc_fsel_age(
-          sel_lf, Dstock@LAK_ymals[1, m, , , s], Dfishery@sel_f, selconv_pf, Dfishery@sel_block_yf[1, ], mat = mat_yas[1, , s], a = seq(1, na)
+          sel_lf, Dstock@LAK_ymals[1, m, , , s], Dfishery@sel_f, selconv_pf, Dfishery@sel_block_yf[1, ], mat = mat_yas[1, , s], a = seq(1, na) - 1
         )
       }
       fsel_ind <- fsel1_ind <- as.matrix(expand.grid(y = 2:ny, m = 1:m, a = 1:na, f = 1:nf, s = s))
@@ -291,14 +291,14 @@ update_report <- function(r, MSAdata) {
         for (y in 1:ny) {
           for (m in 1:nm) {
             sel_ymais[y, m, , , s] <- calc_isel_age(
-              sel_li, Dstock@LAK_ymals[y, m, , , s], Dsurvey@sel_i, selconv_pi, sel_ymafs[y, m, , , s], mat = mat_yas[y, , s], a = seq(1, na)
+              sel_li, Dstock@LAK_ymals[y, m, , , s], Dsurvey@sel_i, selconv_pi, sel_ymafs[y, m, , , s], mat = mat_yas[y, , s], a = seq(1, na) - 1
             )
           }
         }
       } else {
         for (m in 1:nm) {
           sel_ymais[1, m, , , s] <- calc_isel_age(
-            sel_li, Dstock@LAK_ymals[1, m, , , s], Dsurvey@sel_i, selconv_pi, sel_ymafs[1, m, , , s], mat = mat_yas[1, , s], a = seq(1, na)
+            sel_li, Dstock@LAK_ymals[1, m, , , s], Dsurvey@sel_i, selconv_pi, sel_ymafs[1, m, , , s], mat = mat_yas[1, , s], a = seq(1, na) - 1
           )
         }
         isel_ind <- isel1_ind <- as.matrix(expand.grid(y = 2:ny, m = 1:m, a = 1:na, i = 1:ni, s = s))
@@ -339,29 +339,6 @@ update_report <- function(r, MSAdata) {
     mov_ymarrs[] <- 1
   }
 
-  #for(y in 1:ny) {
-  #  for(m in 1:nm) {
-  #    mov_ymarrs[y, m, , , , ] <- sapply2(1:ns, function(s) {
-  #      mov_arr <- array(0, c(na, nr, nr))
-  #      r_eff <- presence_rs[, s]
-  #      nr_eff <- sum(presence_rs[, s])
-  #      mov_arr[, r_eff, r_eff] <- conv_mov(
-  #        p$mov_x_marrs[m, , r_eff, r_eff, s], p$mov_g_ymars[y, m, , r_eff, s], p$mov_v_ymas[y, m, , s], na, nr_eff)
-  #      return(mov_arr)
-  #    })
-  #    sel_ymafs[y, m, , , ] <- sapply2(1:ns, function(s) {
-  #      calc_fsel_age(sel_lf, LAK_ymals[y, m, , , s], sel_f, selconv_pf, sel_block_yf[y, ],
-  #                    mat = mat_yas[y, , s], a = seq(1, na))
-  #    })
-  #    if (ni > 0) {
-  #      sel_ymais[y, m, , , ] <- sapply2(1:ns, function(s) {
-  #        calc_isel_age(sel_li, LAK_ymals[y, m, , , s], sel_i, selconv_pi, sel_ymafs[y, m, , , s],
-  #                      mat = mat_yas[y, , s], a = seq(1, na))
-  #      })
-  #    }
-  #  }
-  #}
-
   ## Stock recruit parameters ----
   R0_s <- exp(p$t_R0_s) * Dmodel@scale_s
   h_s <- sapply(1:ns, function(s) conv_steepness(p$t_h_s[s], Dstock@SRR_s[s]))
@@ -378,7 +355,7 @@ update_report <- function(r, MSAdata) {
     nyinit <- Dmodel@nyinit
     NPR_unfished <- calc_phi_project(
       nyinit, nm, na, nf = 1, nr, ns, M_as = M_yas[Dmodel@y_phi, , ], mov_marrs = mov_ymarrs[Dmodel@y_phi, , , , , ],
-      mat_as = mat_yas[Dmodel@y_phi, , ], fec_as = Dstock@fec_yas[Dmodel@y_phi, , ], m_spawn = Dstock@m_spawn, m_rec = Dstock@m_rec,
+      mat_as = mat_yas[Dmodel@y_phi, , ], fec_as = Dstock@fec_yas[Dmodel@y_phi, , ], m_spawn = Dstock@m_spawn, m_advanceage = Dstock@m_advanceage,
       delta_s = Dstock@delta_s, natal_rs = Dstock@natal_rs, recdist_rs = recdist_rs
     )
     initNPR0_yars <- array(NPR_unfished[["N_ymars"]][1:nyinit, 1, , , ], c(nyinit, na, nr, ns))
@@ -417,7 +394,7 @@ update_report <- function(r, MSAdata) {
       nyinit, nm, na, nf, nr, ns, F_mfr = initF_mfr, sel_mafs = sel_ymafs[1, , , , ],
       fwt_mafs = Dfishery@fwt_ymafs[1, , , , ], q_fs = q_fs,
       M_as = M_yas[1, , ], mov_marrs = mov_ymarrs[Dmodel@y_phi, , , , , ],
-      mat_as = mat_yas[1, , ], fec_as = Dstock@fec_yas[1, , ], m_spawn = Dstock@m_spawn, m_rec = Dstock@m_rec,
+      mat_as = mat_yas[1, , ], fec_as = Dstock@fec_yas[1, , ], m_spawn = Dstock@m_spawn, m_advanceage = Dstock@m_advanceage,
       delta_s = Dstock@delta_s, natal_rs = Dstock@natal_rs, recdist_rs = recdist_rs
     )
     initNPR_yars[] <- NPR_init[["N_ymars"]][1:nyinit, 1, , , ]
@@ -437,7 +414,7 @@ update_report <- function(r, MSAdata) {
   # Run population model ----
   pop <- calc_population(
     ny, nm, na, nf, nr, ns, initN_ars, mov_ymarrs, M_yas, Dstock@SRR_s, sralpha_s, srbeta_s,
-    mat_yas, Dstock@fec_yas, Rdev_ys, Dstock@m_rec, Dstock@m_spawn, Dstock@delta_s, Dstock@natal_rs, recdist_rs = recdist_rs,
+    mat_yas, Dstock@fec_yas, Rdev_ys, Dstock@m_advanceage, Dstock@m_spawn, Dstock@delta_s, Dstock@natal_rs, recdist_rs = recdist_rs,
     Dfishery@fwt_ymafs, q_fs, sel_ymafs,
     condition = Dmodel@condition, F_ymfr = F_ymfr, Cobs_ymfr = Dfishery@Cobs_ymfr, Fmax = Dmodel@Fmax, nitF = Dmodel@nitF
   )

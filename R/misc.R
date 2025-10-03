@@ -92,7 +92,7 @@ conv_mat <- function(x, na) {
   a50 <- na * plogis(x[1])
   a95 <- a50 + exp(x[2])
 
-  a <- seq(1, na)
+  a <- seq(1, na) - 1
   m <- 1/(1 + exp(-log(19) * (a - a50)/(a95 - a50)))
   return(m)
 }

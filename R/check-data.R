@@ -133,11 +133,11 @@ check_Dstock <- function(Dstock, Dmodel, silent = FALSE) {
   } else if (Dstock@m_spawn > nm) {
     stop(ch, "@m_spawn cannot be greater than Dmodel@nm")
   }
-  if (!length(Dstock@m_rec) || nm == 1L) {
-    if (!silent && Dmodel@nm > 1) message("Setting ", ch, "@m_rec = 1")
-    Dstock@m_rec <- 1L
-  } else if (Dstock@m_rec > nm) {
-    stop(ch, "@m_rec cannot be greater than Dmodel@nm")
+  if (!length(Dstock@m_advanceage) || nm == 1L) {
+    if (!silent && Dmodel@nm > 1) message("Setting ", ch, "@m_advanceage = 1")
+    Dstock@m_advanceage <- 1L
+  } else if (Dstock@m_advanceage > nm) {
+    stop(ch, "@m_advanceage cannot be greater than Dmodel@nm")
   }
 
   if (nl > 0) {

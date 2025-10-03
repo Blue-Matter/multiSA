@@ -2,7 +2,7 @@
 #' \describe{
 #' \item{`ny`}{Integer, number of years}
 #' \item{`nm`}{Integer, number of seasons}
-#' \item{`na`}{Integer, number of ages}
+#' \item{`na`}{Integer, number of ages. The first age class is zero and the last age class (plus group is age `na - 1`).}
 #' \item{`nl`}{Integer, number of length bins. Set to zero if lengths are not modeled.}
 #' \item{`nr`}{Integer, number of spatial regions}
 #' \item{`ns`}{Integer, number of stocks}

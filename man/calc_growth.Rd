@@ -11,7 +11,7 @@ calc_growth(
   ns = length(Linf_s),
   nm = 4,
   ny = 20,
-  a = seq(1, 10)
+  a = seq(1, 10) - 1
 )
 }
 \arguments{

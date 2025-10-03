@@ -17,7 +17,7 @@
 #' @param fec_yas Fecundity schedule (spawning output of mature individuals). Array `[y, a, s]`
 #' @param Rdev_ys Recruitment deviations. Matrix `[y, s]`
 #' @param m_spawn Integer, season of spawning
-#' @param m_rec Integer, season of recruitment
+#' @param m_advanceage Integer, season at which to advance integer year age classes
 #' @param delta_s Numeric vector by `s`. Fraction of season that elapses when spawning occurs, e.g., midseason spawning when `delta_s = 0.5`.
 #' @param natal_rs Matrix `[r, s]`. The fraction of the mature stock `s` in region `r` that spawns at
 #' time of spawning. See example in [Dstock-class].
@@ -58,7 +58,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
                             srbeta_s = rep(1e16, ns),
                             mat_yas = array(1, c(ny, na, ns)), fec_yas = array(1, c(ny, na, ns)),
                             Rdev_ys = matrix(1, ny, ns),
-                            m_spawn = 1, m_rec = 1, delta_s = rep(0, ns), natal_rs = matrix(1, nr, ns),
+                            m_spawn = 1, m_advanceage = 1, delta_s = rep(0, ns), natal_rs = matrix(1, nr, ns),
                             recdist_rs = matrix(1/nr, nr, ns),
                             fwt_ymafs = array(1, c(ny, nm, na, nf, ns)),
                             q_fs = matrix(1, nf, ns), sel_ymafs = array(1, c(ny, nm, na, nf, ns)),
@@ -165,33 +165,21 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         R_ys[y, ] <- Rdev_ys[y, ] * sapply(1:ns, function(s) {
           calc_recruitment(sum(S_yrs[y, , s]), SRR = SRR_s[s], a = sralpha_s[s], b = srbeta_s[s])
         })
+
+        ## Enter recruitment into age structure ----
+        N_ymars[y, m, 1, , ] <- sapply(1:ns, function(s) recdist_rs[, s] * R_ys[y, s])
       }
 
       ## Next season's abundance and total biomass ----
-      # Have to advance the age classes in the season before spawning
       ynext <- ifelse(m == nm, y+1, y)
       mnext <- ifelse(m == nm, 1, m+1)
       ylast <- min(ynext, ny)
 
-      y_spawn <- ifelse(m_rec > m_spawn, ynext, ynext-1) # If m_rec <= m_spawn in year 1, multiseason?
-
-      Rnext <- if (y_spawn > 0) { # For year 1, no recruitment has been calculated yet
-        if (y_spawn <= ny) {
-          R_ys[y_spawn, ]
-        } else {
-          0
-        }
-      } else {
-        apply(initN_ars[1, , , drop = FALSE], 3, sum)
-      }
-
       N_ymars[ynext, mnext, , , ] <- calc_nextN(
         N = N_ymars[y, m, , , ], surv = exp(-Z_ymars[y, m, , , ]),
         na = na, nr = nr, ns = ns,
-        advance_age = mnext == m_rec,
-        R = Rnext,
-        recdist = recdist_rs,
-        mov = mov_ymarrs[ylast, mnext, , , , ]
+        advance_age = mnext == m_advanceage,
+        mov = mov_ymarrs[min(ynext, ny), mnext, , , , ]
       )
     }
   }
@@ -234,7 +222,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
 #' @param mat_as Maturity at age. Matrix `[a, s]`
 #' @param fec_as Fecundity at age. Matrix `[a, s]`
 #' @details
-#' The initial population vector will be the survival at age evenly by the number of regions `nr`.
+#' The initial population vector will be the survival at age evenly divided by the number of regions `nr`.
 #' @return A named list returned by [calc_population()].
 #' @seealso [calc_phi_simple()]
 #' @export
@@ -245,7 +233,7 @@ calc_phi_project <- function(ny, nm, na, nf = 1, nr, ns = 1,
                              q_fs = matrix(1, nf, ns),
                              M_as, mov_marrs,
                              mat_as, fec_as,
-                             m_spawn = 1, m_rec = 1,
+                             m_spawn = 1, m_advanceage = 1,
                              delta_s = rep(0, ns),
                              natal_rs = matrix(1, nr, ns),
                              recdist_rs = matrix(1/nr, nr, ns)) {
@@ -282,7 +270,7 @@ calc_phi_project <- function(ny, nm, na, nf = 1, nr, ns = 1,
     mov_ymarrs, M_yas,
     SRR_s = SRR, sralpha_s = sralpha, srbeta_s = srbeta,
     mat_yas, fec_yas, Rdev_ys = matrix(1, ny, ns),
-    m_spawn, m_rec, delta_s, natal_rs,
+    m_spawn, m_advanceage, delta_s, natal_rs,
     fwt_ymafs = fwt_ymafs, q_fs,
     sel_ymafs = sel_ymafs,
     condition = "F",

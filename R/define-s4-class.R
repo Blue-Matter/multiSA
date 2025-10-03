@@ -34,7 +34,7 @@ setClass(
 #' @export
 setClass(
   "Dstock",
-  slots = c(m_spawn = "numeric", m_rec = "numeric",
+  slots = c(m_spawn = "numeric", m_advanceage = "numeric",
             len_ymas = "array", sdlen_ymas = "array",
             LAK_ymals = "array", mat_yas = "array", swt_ymas = "array", fec_yas = "array",
             M_yas = "array", SRR_s = "character",

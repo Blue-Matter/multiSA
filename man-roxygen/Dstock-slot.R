@@ -1,7 +1,7 @@
 #' @section Slots inherited from Dstock:
 #' \describe{
-#' \item{`m_spawn`}{Integer, season of spawning. Defaults to 1.}
-#' \item{`m_rec`}{Integer, season of recruitment. Defaults to 1.}
+#' \item{`m_spawn`}{Integer, season of spawning. Defaults to 1. The progeny will enter the age structure in the same season.}
+#' \item{`m_advanceage`}{Integer, season in which to advance age classes (corresponding to calendar year) to the next age class. Defaults to 1.}
 #' \item{`len_ymas`}{Length-at-age. Only needed if `Dmodel@nl > 0`. [calc_growth()] may be a helpful function.}
 #' \item{`sdlen_ymas`}{Standard deviation in length-at-age}
 #' \item{`LAK_ymals`}{Length-at-age probability array. If empty, values will be calculated by [check_data()] with [calc_LAK()].}

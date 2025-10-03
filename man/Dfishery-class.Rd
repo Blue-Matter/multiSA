@@ -6,7 +6,7 @@
 \title{Dfishery S4 object}
 \description{
 S4 class that organizes the various data inputs for the MSA model. \code{MSAdata} simply inherits the slots from 6 component classes:
-\code{Dmodel}, \code{Dstock}, \code{Dfishery}, \code{Dsurvey} \code{DCKMR}, and \code{Dtag}, where the \code{D}- prefix denotes an object for model data.
+\code{Dmodel}, \code{Dstock}, \code{Dfishery}, \code{Dsurvey} \code{DCKMR}, and \code{Dtag}, where the \code{D}- prefix denotes an object for data inputs (or model configuration).
 }
 \details{
 For convenience, most arrays and matrices have the associated dimensions in the variable name. For example, \code{Cobs_ymfr} represents

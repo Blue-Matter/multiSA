@@ -21,7 +21,7 @@ calc_population(
   fec_yas = array(1, c(ny, na, ns)),
   Rdev_ys = matrix(1, ny, ns),
   m_spawn = 1,
-  m_rec = 1,
+  m_advanceage = 1,
   delta_s = rep(0, ns),
   natal_rs = matrix(1, nr, ns),
   recdist_rs = matrix(1/nr, nr, ns),
@@ -68,7 +68,7 @@ calc_population(
 
 \item{m_spawn}{Integer, season of spawning}
 
-\item{m_rec}{Integer, season of recruitment}
+\item{m_advanceage}{Integer, season at which to advance integer year age classes}
 
 \item{delta_s}{Numeric vector by \code{s}. Fraction of season that elapses when spawning occurs, e.g., midseason spawning when \code{delta_s = 0.5}.}
 

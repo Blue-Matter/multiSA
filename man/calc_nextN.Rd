@@ -11,9 +11,7 @@ calc_nextN(
   nr = dim(N)[2],
   ns = dim(N)[3],
   advance_age = TRUE,
-  R = numeric(ns),
   mov = array(1/nr, c(na, nr, nr, ns)),
-  recdist = matrix(1/nr, nr, ns),
   plusgroup = TRUE
 )
 }
@@ -30,11 +28,7 @@ calc_nextN(
 
 \item{advance_age}{Logical, whether the animals advance to their next age class}
 
-\item{R}{Incoming total recruitment. Vector length \code{s}. Only assigned if \code{advance_age = TRUE}.}
-
 \item{mov}{Movement array in the next time step. Array \verb{[a, r, r, s]}. Rows denote region of origin and columns denote region of destination.}
-
-\item{recdist}{Distribution of incoming recruitment. Matrix \verb{[r, s]}. Only assigned if \code{advance_age = TRUE}.}
 
 \item{plusgroup}{Logical, whether the last age class is an accumulator plus group.}
 }
@@ -42,6 +36,6 @@ calc_nextN(
 Abundance at the next time step. Array \verb{[a, r, s]}
 }
 \description{
-This function generates the abundance array by calculating survival from current mortality, then advances
-age classes, re-distributes the stock, and adds recruitment.
+This function applies survival of the current abundance, advances
+age classes, re-distributes the stock using the movement matrix.
 }

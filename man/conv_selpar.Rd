@@ -18,7 +18,7 @@ calc_fsel_age(
   sel_par,
   sel_block = seq(1, length(type)),
   mat,
-  a = seq(1, nrow(LAK))
+  a = seq(1, nrow(LAK)) - 1
 )
 
 calc_isel_age(
@@ -29,7 +29,7 @@ calc_isel_age(
   fsel_age,
   maxage,
   mat,
-  a = seq(1, nrow(LAK))
+  a = seq(1, nrow(LAK)) - 1
 )
 }
 \arguments{

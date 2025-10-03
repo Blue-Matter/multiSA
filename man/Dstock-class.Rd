@@ -6,7 +6,7 @@
 \title{Dstock S4 object}
 \description{
 S4 class that organizes the various data inputs for the MSA model. \code{MSAdata} simply inherits the slots from 6 component classes:
-\code{Dmodel}, \code{Dstock}, \code{Dfishery}, \code{Dsurvey} \code{DCKMR}, and \code{Dtag}, where the \code{D}- prefix denotes an object for model data.
+\code{Dmodel}, \code{Dstock}, \code{Dfishery}, \code{Dsurvey} \code{DCKMR}, and \code{Dtag}, where the \code{D}- prefix denotes an object for data inputs (or model configuration).
 }
 \details{
 For convenience, most arrays and matrices have the associated dimensions in the variable name. For example, \code{Cobs_ymfr} represents
@@ -25,8 +25,8 @@ observed catch with the dimension following the underscore, following this templ
 \section{Slots inherited from Dstock}{
 
 \describe{
-\item{\code{m_spawn}}{Integer, season of spawning. Defaults to 1.}
-\item{\code{m_rec}}{Integer, season of recruitment. Defaults to 1.}
+\item{\code{m_spawn}}{Integer, season of spawning. Defaults to 1. The progeny will enter the age structure in the same season.}
+\item{\code{m_advanceage}}{Integer, season in which to advance age classes (corresponding to calendar year) to the next age class. Defaults to 1.}
 \item{\code{len_ymas}}{Length-at-age. Only needed if \code{Dmodel@nl > 0}. \code{\link[=calc_growth]{calc_growth()}} may be a helpful function.}
 \item{\code{sdlen_ymas}}{Standard deviation in length-at-age}
 \item{\code{LAK_ymals}}{Length-at-age probability array. If empty, values will be calculated by \code{\link[=check_data]{check_data()}} with \code{\link[=calc_LAK]{calc_LAK()}}.}

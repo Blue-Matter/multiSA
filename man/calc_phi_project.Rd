@@ -20,7 +20,7 @@ calc_phi_project(
   mat_as,
   fec_as,
   m_spawn = 1,
-  m_rec = 1,
+  m_advanceage = 1,
   delta_s = rep(0, ns),
   natal_rs = matrix(1, nr, ns),
   recdist_rs = matrix(1/nr, nr, ns)
@@ -58,7 +58,7 @@ calculate yield per recruit.}
 
 \item{m_spawn}{Integer, season of spawning}
 
-\item{m_rec}{Integer, season of recruitment}
+\item{m_advanceage}{Integer, season at which to advance integer year age classes}
 
 \item{delta_s}{Numeric vector by \code{s}. Fraction of season that elapses when spawning occurs, e.g., midseason spawning when \code{delta_s = 0.5}.}
 
@@ -76,7 +76,7 @@ seasonal dynamics (growth, movement-by-season) to obtain per recruit parameters.
 mortality among fleets and stocks remain linked by matrix \code{q_fs}.
 }
 \details{
-The initial population vector will be the survival at age evenly by the number of regions \code{nr}.
+The initial population vector will be the survival at age evenly divided by the number of regions \code{nr}.
 }
 \seealso{
 \code{\link[=calc_phi_simple]{calc_phi_simple()}}

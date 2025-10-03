@@ -323,7 +323,7 @@ calc_LAK <- function(len_a, sd_la, lbin, nl = length(lbin) - 1) {
 #'   a_s[s]*len_ymas[, , , s]^b_s[s]
 #' }, simplify = "array")
 #' @export
-calc_growth <- function(Linf_s, K_s, t0_s, ns = length(Linf_s), nm = 4, ny = 20, a = seq(1, 10)) {
+calc_growth <- function(Linf_s, K_s, t0_s, ns = length(Linf_s), nm = 4, ny = 20, a = seq(1, 10) - 1) {
   len_ymas <- sapply2(1:ns, function(s) {
     sapply2(a, function(aa) {
       sapply(1:nm, function(m) {
@@ -339,8 +339,8 @@ calc_growth <- function(Linf_s, K_s, t0_s, ns = length(Linf_s), nm = 4, ny = 20,
 
 #' Project stock abundance to the next time step
 #'
-#' This function generates the abundance array by calculating survival from current mortality, then advances
-#' age classes, re-distributes the stock, and adds recruitment.
+#' This function applies survival of the current abundance, advances
+#' age classes, re-distributes the stock using the movement matrix.
 #'
 #' @param N Abundance at current time step. Array `[a, r, s]`
 #' @param surv Survival during the current time step. Array `[a, r, s]`
@@ -348,17 +348,12 @@ calc_growth <- function(Linf_s, K_s, t0_s, ns = length(Linf_s), nm = 4, ny = 20,
 #' @param nr Integer, number of regions
 #' @param ns Integer, number of stocks
 #' @param advance_age Logical, whether the animals advance to their next age class
-#' @param R Incoming total recruitment. Vector length `s`. Only assigned if `advance_age = TRUE`.
-#' @param recdist Distribution of incoming recruitment. Matrix `[r, s]`. Only assigned if `advance_age = TRUE`.
 #' @param mov Movement array in the next time step. Array `[a, r, r, s]`. Rows denote region of origin and columns denote region of destination.
 #' @param plusgroup Logical, whether the last age class is an accumulator plus group.
 #' @return Abundance at the next time step. Array `[a, r, s]`
 #' @export
 calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
-                       advance_age = TRUE, R = numeric(ns),
-                       mov = array(1/nr, c(na, nr, nr, ns)),
-                       recdist = matrix(1/nr, nr, ns),
-                       plusgroup = TRUE) {
+                       advance_age = TRUE, mov = array(1/nr, c(na, nr, nr, ns)), plusgroup = TRUE) {
 
   N <- array(N, c(na, nr, ns))
   surv <- array(surv, c(na, nr, ns))
@@ -366,14 +361,13 @@ calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
 
   # Apply survival and advance age class ----
   if (advance_age) {
-    is_ad <- inherits(N, "advector") || inherits(surv, "advector") || inherits(R, "advector")
+    is_ad <- inherits(N, "advector") || inherits(surv, "advector") || inherits(mov, "advector")
     if (is_ad) {
       `[<-` <- RTMB::ADoverload("[<-")
     }
     Nsurv_ars <- array(0, c(na, nr, ns))
     Nsurv_ars[2:na, , ] <- N[2:na - 1, , ] * surv[2:na - 1, , ]
     if (plusgroup) Nsurv_ars[na, , ] <- Nsurv_ars[na, , ] + N[na, , ] * surv[na, , ]
-    Nsurv_ars[1, , ] <- sapply(1:ns, function(s) recdist[, s] * R[s])
   } else {
     Nsurv_ars <- N * surv
   }

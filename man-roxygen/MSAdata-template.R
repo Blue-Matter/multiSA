@@ -1,5 +1,5 @@
 #' @description S4 class that organizes the various data inputs for the MSA model. `MSAdata` simply inherits the slots from 6 component classes:
-#' `Dmodel`, `Dstock`, `Dfishery`, `Dsurvey` `DCKMR`, and `Dtag`, where the `D`- prefix denotes an object for model data.
+#' `Dmodel`, `Dstock`, `Dfishery`, `Dsurvey` `DCKMR`, and `Dtag`, where the `D`- prefix denotes an object for data inputs (or model configuration).
 #'
 #' @details
 #' For convenience, most arrays and matrices have the associated dimensions in the variable name. For example, `Cobs_ymfr` represents
