@@ -20,4 +20,5 @@
 #' \item{`pbc_rdev_ys`}{Numeric matrix, for the fraction of lognormal bias correction (`-0.5 * sd_r^2`) applied to the recruitment estimates in the model. Typically between 0-1, with default of 1.}
 #' \item{`pbc_initrdev_as`}{Numeric matrix, for the fraction of lognormal bias correction (`-0.5 * sd_r^2`) applied to the initial abundance vector in the model. Typically between 0-1, with default of 1.}
 #' \item{`prior`}{Character vector to be evaluated in the model to return the log prior for a parameter. See example in documentation for \link{prior}.}
+#' \item{`nyret`}{Integer, number of recent years of data to remove from the likelihood for retrospective analysis (positive numbers). Default is zero.}
 #' }

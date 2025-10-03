@@ -38,7 +38,7 @@ Overrides default values created by \code{\link[=make_parameters]{make_parameter
 
 \item{map}{List of mapped parameters. Used by \code{\link[=check_parameters]{check_parameters()}} only to count parameters.}
 
-\item{est_mov}{Character describing structure of stock movement parameters. See details below.}
+\item{est_mov}{Character describing structure of stock movement parameters. Only used if map arguments for the movement parameters is NULL. See details below.}
 
 \item{silent}{Logical, whether \code{\link[=make_map]{make_map()}} reports messages to the console}
 
@@ -46,15 +46,15 @@ Overrides default values created by \code{\link[=make_parameters]{make_parameter
 
 \item{p}{List of parameters, e.g., returned by \code{\link[=make_parameters]{make_parameters()}}}
 
-\item{est_M}{Logical, estimate natural mortality?}
+\item{est_M}{Logical, estimate natural mortality? Only used if \code{map$log_M_s} is NULL}
 
-\item{est_h}{Logical, estimate steepness?}
+\item{est_h}{Logical, estimate steepness? Only used if \code{map$t_h_s} is NULL}
 
-\item{est_mat}{Logical, estimate maturity?}
+\item{est_mat}{Logical, estimate maturity? Only used if \code{map$mat_ps} is NULL}
 
-\item{est_sdr}{Logical, estimate standard deviation of recruitment deviates?}
+\item{est_sdr}{Logical, estimate standard deviation of recruitment deviates? Only used if \code{map$log_sdr_s} is NULL}
 
-\item{est_qfs}{Logical, estimate relative catchability of stocks by each fleet? Fix \code{log_q_fs} for the first stock if \code{TRUE}}
+\item{est_qfs}{Logical, estimate relative catchability of stocks by each fleet? Fix \code{log_q_fs} for the first stock if \code{TRUE}. Only used if \code{map$log_q_fs} is NULL}
 }
 \value{
 \code{\link[=make_parameters]{make_parameters()}} returns a list of parameters (\code{"p"}) concatenated with the output of \code{\link[=make_map]{make_map()}}.
@@ -120,7 +120,7 @@ Only used when \code{est_mov = "dist_random"}. Default SD of 0.1.}
 \item{\code{t_corg_ps}}{Array \verb{[sum(1:(nr - 1)), s]}. Lower triangle of the correlation matrix for \code{mov_g_ymars}, to be obtained with the
 Cholesky factorization. Only used when \code{est_mov = dist_random}. Default values of zero.}
 \item{\code{log_initF_mfr}}{Array \verb{[m, f, r]}. Initial F corresponding to the equilibrium catch.}
-\item{\code{log_initrdev_as}}{Array \verb{[a, s]}. Recruitment deviations for the initial abundance-at-age vector.}
+\item{\code{log_initrdev_as}}{Array \verb{[na - 1, s]}. Recruitment deviations for the initial abundance-at-age vector.}
 }
 }
 

@@ -26,6 +26,9 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
   if (length(ch) > 1) ch <- "Dmodel"
 
   if (!length(Dmodel@ny)) stop("Need ", ch, "@ny")
+  if (!length(Dmodel@nyret)) Dmodel@nyret <- 0L
+  y_max <- Dmodel@ny - Dmodel@nyret
+
   if (!length(Dmodel@nm)) {
     if (!silent) message("Setting ", ch, "@nm to 1")
     Dmodel@nm <- 1L
@@ -77,10 +80,13 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
     if (!silent) message("Setting ", ch, "@nitF to 5")
     Dmodel@nitF <- 5
   }
+
   if (Dmodel@condition == "F") {
     if (!length(Dmodel@y_Fmult_f)) {
-      Dmodel@y_Fmult_f <- rep(round(0.5 * Dmodel@ny), nf)
+      Dmodel@y_Fmult_f <- rep(round(0.5 * y_max), nf)
       if (!silent) message("Setting ", ch, "@y_Fmult_f = ", paste(Dmodel@y_Fmult_f, collapse = ", "))
+    } else if (Dmodel@y_Fmult_f > y_max) {
+      stop("Reduce ", ch, "@y_Fmult_f so that is less than ny - nyret")
     }
     if (!length(Dmodel@m_Fmult_f)) {
       Dmodel@m_Fmult_f <- rep(1L, nf)
@@ -103,15 +109,16 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
     }
   }
   if (!length(Dmodel@pbc_initrdev_as)) {
-    Dmodel@pbc_initrdev_as <- matrix(1, Dmodel@na, Dmodel@ns)
+    Dmodel@pbc_initrdev_as <- matrix(1, Dmodel@na-1, Dmodel@ns)
   } else if (length(Dmodel@pbc_initrdev_as) == 1) {
-    Dmodel@pbc_initrdev_as <- matrix(Dmodel@pbc_initrdev_as, Dmodel@na, Dmodel@ns)
+    Dmodel@pbc_initrdev_as <- matrix(Dmodel@pbc_initrdev_as, Dmodel@na-1, Dmodel@ns)
   } else {
     dim_pbc <- dim(Dmodel@pbc_initrdev_as)
-    if (any(dim_pbc != c(Dmodel@na, Dmodel@ns))) {
-      stop("dim(", ch, "@pbc_initrdev_as) should be ", c(Dmodel@na, Dmodel@ns) %>% paste(collapse = ", "))
+    if (any(dim_pbc != c(Dmodel@na-1, Dmodel@ns))) {
+      stop("dim(", ch, "@pbc_initrdev_as) should be ", c(Dmodel@na-1, Dmodel@ns) %>% paste(collapse = ", "))
     }
   }
+
 
   return(Dmodel)
 }

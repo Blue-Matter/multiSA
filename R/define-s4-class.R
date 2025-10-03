@@ -25,7 +25,7 @@ setClass(
             condition = "character", nitF = "numeric",
             y_Fmult_f = "numeric", m_Fmult_f = "numeric", r_Fmult_f = "numeric",
             pbc_rdev_ys = "matrix", pbc_initrdev_as = "matrix",
-            prior = "character")
+            prior = "character", nyret = "numeric")
 )
 
 #' Dstock S4 object

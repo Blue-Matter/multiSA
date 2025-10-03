@@ -7,9 +7,15 @@
 \alias{report.MSAretro}
 \title{Retrospective analysis}
 \usage{
-retrospective(MSAassess, yret = 1:5, cores = 1)
+retrospective(MSAassess, yret = 0:5, cores = 1)
 
-\method{plot}{MSAretro}(x, var = c("S_yst", "R_yst", "F_yst", "VB_ymft"), s = 1, f = 1, ...)
+\method{plot}{MSAretro}(
+  x,
+  var = c("S_yst", "R_yst", "F_yst", "log_rdev_yst", "VB_ymft"),
+  s = 1,
+  f = 1,
+  ...
+)
 
 \method{summary}{MSAretro}(object, by = c("stock", "fleet"), ...)
 
@@ -25,7 +31,7 @@ retrospective(MSAassess, yret = 1:5, cores = 1)
 \arguments{
 \item{MSAassess}{\linkS4class{MSAassess} object}
 
-\item{yret}{Vector of integers (greater than zero) specifying the years to remove for the retrospective analysis}
+\item{yret}{Vector specifying the years (positive integers and include zero) to remove for the retrospective analysis}
 
 \item{cores}{Integer for the number of cores to use for parallel processing (snowfall package)}
 

@@ -367,13 +367,31 @@ update_report <- function(r, MSAdata) {
   srbeta_s <- sapply(1:ns, function(s) SRbetaconv(h_s[s], R0_s[s], phi_s[s], SRR = Dstock@SRR_s[s]))
 
   ## Recruitment deviates ----
-  Rdev_ys[] <- exp(p$log_rdev_ys)
+  sdr_s <- exp(p$log_sdr_s)
+  bcr_s <- -0.5 * sdr_s * sdr_s
+
+  par_rdev_ys <- matrix(TRUE, ny, ns)
+  bcr_ys <- sapply(1:ns, function(s) bcr_s[s] * Dmodel@pbc_rdev_ys[, s])
+  if (!is.null(map$log_rdev_ys)) {
+    par_rdev_ys[] <- matrix(!is.na(map$log_rdev_ys) & !duplicated(map$log_rdev_ys, MARGIN = 0), ny, ns)
+    bcr_ys[is.na(map$log_rdev_ys)] <- 0
+  }
+
+  par_initrdev_as <- matrix(TRUE, na-1, ns)
+  bcrinit_as <- sapply(1:ns, function(s) bcr_s[s] * Dmodel@pbc_initrdev_as[, s])
+  if (!is.null(map$log_initrdev_as)) {
+    par_initrdev_as[] <- matrix(!is.na(map$log_initrdev_as) & !duplicated(map$log_initrdev_as, MARGIN = 0), na-1, ns)
+    bcrinit_as[is.na(map$log_initrdev_as)] <- 0
+  }
+  Rdev_ys[] <- exp(p$log_rdev_ys + bcr_ys)
 
   ## Miscellaneous penalty term, e.g., F > Fmax
   penalty <- 0
 
   # First year, first season initialization ----
-  initRdev_as <- exp(p$log_initrdev_as)
+  initRdev_as <- matrix(NA_real_, na, ns)
+  initRdev_as[-1, ] <- exp(p$log_initrdev_as + bcrinit_as)
+  initRdev_as[1, ] <- Rdev_ys[1, ]
   initF_mfr <- exp(p$log_initF_mfr)
 
   initNPR_yars <- array(NA_real_, c(nyinit, na, nr, ns))
@@ -389,7 +407,6 @@ update_report <- function(r, MSAdata) {
     initphi_s <- phi_s
     initR_s <- R0_s
   } else {
-
     NPR_init <- calc_phi_project( #nyinit = 1 if nm == 1 && nr == 1
       nyinit, nm, na, nf, nr, ns, F_mfr = initF_mfr, sel_mafs = sel_ymafs[1, , , , ],
       fwt_mafs = Dfishery@fwt_ymafs[1, , , , ], q_fs = q_fs,
@@ -442,6 +459,8 @@ update_report <- function(r, MSAdata) {
     apply(c(1, 2, 4, 5), sum)
 
   # Likelihoods ----
+  y_like <- seq(1, ny - Dmodel@nyret)
+
   ## Initial catch ----
   Cinit_mfr <- Dfishery@Cinit_mfr
   any_Cinit <- any(Cinit_mfr >= 1e-8)
@@ -459,10 +478,12 @@ update_report <- function(r, MSAdata) {
   Cobs_ymfr <- Dfishery@Cobs_ymfr
   if (Dmodel@condition == "F") {
     CB_ymfr <- apply(CB_ymfrs, 1:4, sum)
-
     Cobs_ymfr <- OBS(Cobs_ymfr)
-    loglike_Cobs_ymfr <- dnorm(log(Cobs_ymfr/CB_ymfr), 0, Dfishery@Csd_ymfr, log = TRUE)
+
+    loglike_Cobs_ymfr <- array(0, c(ny, nm, nf, nr))
+    loglike_Cobs_ymfr[] <- dnorm(log(Cobs_ymfr/CB_ymfr), 0, Dfishery@Csd_ymfr, log = TRUE)
     loglike_Cobs_ymfr[Cobs_ymfr < 1e-8] <- 0
+    loglike_Cobs_ymfr[1:ny > max(y_like), , , ] <- 0
   } else {
     loglike_Cobs_ymfr <- 0
   }
@@ -472,12 +493,13 @@ update_report <- function(r, MSAdata) {
   any_CAA <- any(CAAobs_ymafr > 0, na.rm = TRUE)
   if (any_CAA) {
     CN_ymafr <- apply(CN_ymafrs, 1:5, sum)
-
     CAAobs_ymafr <- OBS(CAAobs_ymafr)
-    loglike_CAA_ymfr <- sapply2(1:nr, function(r) {
+
+    loglike_CAA_ymfr <- array(0, c(ny, nm, nf, nr))
+    loglike_CAA_ymfr[y_like, , , ] <- sapply2(1:nr, function(r) {
       sapply2(1:nf, function(f) {
         sapply(1:nm, function(m) {
-          sapply(1:ny, function(y) {
+          sapply(y_like, function(y) {
             pred <- CN_ymafr[y, m, , f, r]
             like_comp(obs = (Cobs_ymfr[y, m, f, r] >= 1e-8) * CAAobs_ymafr[y, m, , f, r],
                       pred = pred, type = Dfishery@fcomp_like,
@@ -505,12 +527,13 @@ update_report <- function(r, MSAdata) {
       }
     }
     CN_ymlfr <- apply(CN_ymlfrs, 1:5, sum)
-
     CALobs_ymlfr <- OBS(CALobs_ymlfr)
-    loglike_CAL_ymfr <- sapply2(1:nr, function(r) {
+
+    loglike_CAL_ymfr <- array(0, c(ny, nm, nf, nr))
+    loglike_CAL_ymfr[y_like, , , ] <- sapply2(1:nr, function(r) {
       sapply2(1:nf, function(f) {
         sapply(1:nm, function(m) {
-          sapply(1:ny, function(y) {
+          sapply(y_like, function(y) {
             pred <- CN_ymlfr[y, m, , f, r]
             like_comp(obs = (Cobs_ymfr[y, m, f, r] >= 1e-8) * CALobs_ymlfr[y, m, , f, r],
                       pred = pred, type = Dfishery@fcomp_like,
@@ -546,8 +569,11 @@ update_report <- function(r, MSAdata) {
     I_ymi[] <- sapply2(1:ni, function(i) q_i[i] * VI_ymi[, , i])
 
     Iobs_ymi <- OBS(Iobs_ymi)
-    loglike_I_ymi <- dnorm(log(Iobs_ymi/I_ymi), 0, Dsurvey@Isd_ymi, log = TRUE)
+    loglike_I_ymi <- array(0, c(ny, nm, ni))
+    loglike_I_ymi[] <- dnorm(log(Iobs_ymi/I_ymi), 0, Dsurvey@Isd_ymi, log = TRUE)
     loglike_I_ymi[is.na(Iobs_ymi)] <- 0
+    loglike_I_ymi[1:ny > max(y_like), , ] <- 0
+
   } else {
     loglike_I_ymi <- 0
   }
@@ -556,11 +582,12 @@ update_report <- function(r, MSAdata) {
   any_IAA <- ni > 0 && any(IAAobs_ymai > 0, na.rm = TRUE)
   if (any_IAA) {
     IN_ymai <- apply(IN_ymais, 1:4, sum)
-
     IAAobs_ymai <- OBS(IAAobs_ymai)
-    loglike_IAA_ymi <- sapply2(1:ni, function(i) {
+
+    loglike_IAA_ymi <- array(0, c(ny, nm, ni))
+    loglike_IAA_ymi[y_like, , ] <- sapply2(1:ni, function(i) {
       sapply(1:nm, function(m) {
-        sapply(1:ny, function(y) {
+        sapply(y_like, function(y) {
           pred <- IN_ymai[y, m, , i]
           like_comp(obs = IAAobs_ymai[y, m, , i], pred = pred, type = Dsurvey@icomp_like,
                     N = Dsurvey@IAAN_ymi[y, m, i], theta = Dsurvey@IAAtheta_i[i],
@@ -583,11 +610,12 @@ update_report <- function(r, MSAdata) {
       }
     }
     IN_ymli <- apply(IN_ymlis, 1:4, sum)
-
     IALobs_ymli <- OBS(IALobs_ymli)
-    loglike_IAL_ymi <- sapply2(1:ni, function(i) {
+
+    loglike_IAL_ymi <- array(0, c(ny, nm, ni))
+    loglike_IAL_ymi[y_like, , ] <- sapply2(1:ni, function(i) {
       sapply(1:nm, function(m) {
-        sapply(1:ny, function(y) {
+        sapply(y_like, function(y) {
           pred <- IN_ymli[y, m, , i]
           like_comp(obs = IALobs_ymli[y, m, , i], pred = pred, type = Dsurvey@icomp_like,
                     N = Dsurvey@IALN_ymi[y, m, i], theta = Dsurvey@IALtheta_i[i],
@@ -613,11 +641,12 @@ update_report <- function(r, MSAdata) {
     }) %>%
       aperm(c(1, 2, 5, 6, 3, 4))
 
-    loglike_SC_ymafr <- sapply2(1:nr, function(r) {
+    loglike_SC_ymafr <- array(0, dim(SC_ymafrs)[1:5])
+    loglike_SC_ymafr[y_like, , , , ] <- sapply2(1:nr, function(r) {
       sapply2(1:nrow(Dfishery@SC_ff), function(ff) {
         sapply2(1:nrow(Dfishery@SC_aa), function(aa) {
           sapply(1:nm, function(m) {
-            sapply(1:ny, function(y) {
+            sapply(y_like, function(y) {
               pred <- SCpred_ymafrs[y, m, aa, ff, r, ]
               Cobs <- sum(Cobs_ymfr[y, m, ff, r])
               like_comp(obs = (Cobs >= 1e-8) * SC_ymafrs[y, m, aa, ff, r, ],
@@ -640,7 +669,11 @@ update_report <- function(r, MSAdata) {
                N = apply(Nsp_yars[, , , s], 1:2, sum), fec = Dstock@fec_yas[, , s])
     })
     loglike_POP_s <- lapply(1:ns, function(s) {
-      like_CKMR(n = DCKMR@POP_s[[s]]$n, m = DCKMR@POP_s[[s]]$m, p = pPOP_s[[s]], type = DCKMR@CKMR_like)
+      val <- 0
+      if (DCKMR@POP_s[[s]]$y %in% y_like) {
+        val <- like_CKMR(n = DCKMR@POP_s[[s]]$n, m = DCKMR@POP_s[[s]]$m, p = pPOP_s[[s]], type = DCKMR@CKMR_like)
+      }
+      return(val)
     })
   } else {
     loglike_POP_s <- 0
@@ -662,7 +695,11 @@ update_report <- function(r, MSAdata) {
                N = apply(Nsp_yars[, , , s], 1:2, sum), fec = Dstock@fec_yas[, , s], Z = Z_yas[, , s])
     })
     loglike_HSP_s <- lapply(1:ns, function(s) {
-      like_CKMR(n = DCKMR@HSP_s[[s]]$n, m = DCKMR@HSP_s[[s]]$m, p = pHSP_s[[s]], type = DCKMR@CKMR_like)
+      val <- 0
+      if (DCKMR@HSP_s[[s]]$yi %in% y_like) {
+        val <- like_CKMR(n = DCKMR@HSP_s[[s]]$n, m = DCKMR@HSP_s[[s]]$m, p = pHSP_s[[s]], type = DCKMR@CKMR_like)
+      }
+      return(val)
     })
   } else {
     loglike_HSP_s <- 0
@@ -691,11 +728,15 @@ update_report <- function(r, MSAdata) {
         sapply2(1:nrow(Dtag@tag_aa), function(aa) {
           sapply(1:nm, function(m) {
             sapply(1:nrow(Dtag@tag_yy), function(yy) {
-              pred <- tagpred_ymarrs[yy, m, aa, rf, , s]
-              like_comp(obs = tag_ymarrs[yy, m, aa, rf, , s],
-                        pred = CondExpGt(pred, 1e-8, pred, 1e-8), type = Dtag@tag_like,
-                        N = Dtag@tagN_ymars[yy, m, aa, rf, s], theta = Dtag@tagtheta_s[s],
-                        stdev = Dtag@tagstdev_s[s])
+              val <- 0
+              if (any(Dtag@tag_yy[yy, ] %in% y_like)) {
+                pred <- tagpred_ymarrs[yy, m, aa, rf, , s]
+                val <- like_comp(obs = tag_ymarrs[yy, m, aa, rf, , s],
+                                 pred = CondExpGt(pred, 1e-8, pred, 1e-8), type = Dtag@tag_like,
+                                 N = Dtag@tagN_ymars[yy, m, aa, rf, s], theta = Dtag@tagtheta_s[s],
+                                 stdev = Dtag@tagstdev_s[s])
+              }
+              return(val)
             })
           })
         })
@@ -713,12 +754,15 @@ update_report <- function(r, MSAdata) {
         avec <- Dtag@tag_aa[aa, ]
         sapply(1:nm, function(m) {
           sapply(1:nrow(Dtag@tag_yy), function(yy) {
-            yvec <- Dtag@tag_yy[yy, ]
-            pred <- apply(N_ymars[yvec, m, avec, , s, drop = FALSE], 3, sum)
-            like_comp(obs = tag_ymars[yy, m, aa, , s],
-                      pred = CondExpGt(pred, 1e-8, pred, 1e-8), type = Dtag@tag_like,
-                      N = Dtag@tagN_ymas[yy, m, aa, s], theta = Dtag@tagtheta_s[s],
-                      stdev = Dtag@tagstdev_s[s])
+            val <- 0
+            if (any(Dtag@tag_yy[yy, ] %in% y_like)) {
+              pred <- apply(N_ymars[yvec, m, avec, , s, drop = FALSE], 3, sum)
+              like_comp(obs = tag_ymars[yy, m, aa, , s],
+                        pred = CondExpGt(pred, 1e-8, pred, 1e-8), type = Dtag@tag_like,
+                        N = Dtag@tagN_ymas[yy, m, aa, s], theta = Dtag@tagtheta_s[s],
+                        stdev = Dtag@tagstdev_s[s])
+            }
+            return(val)
           })
         })
       })
@@ -736,34 +780,25 @@ update_report <- function(r, MSAdata) {
     sum(loglike_tag_dist_ymas)
 
   # Priors ----
-  sdr_s <- exp(p$log_sdr_s)
-  bcr_s <- -0.5 * sdr_s * sdr_s
-
-  if (is.null(map$log_initrdev_as)) {
-    par_initrdev_as <- matrix(TRUE, na, ns)
-  } else {
-    par_initrdev_as <- matrix(!is.na(map$log_initrdev_as) & !duplicated(map$log_initrdev_as, MARGIN = 0), na, ns)
-  }
-  logprior_initrdev_as <- sapply(1:ns, function(s) {
-    CondExpGt(par_initrdev_as[, s], 0, dnorm(p$log_initrdev_as[, s], Dmodel@pbc_initrdev_as[, s] * bcr_s[s], sdr_s[s], log = TRUE), 0)
+  logprior_rdev_ys <- array(0, c(ny, ns))
+  logprior_rdev_ys[] <- sapply(1:ns, function(s) {
+    CondExpGt(par_rdev_ys[, s], 0, dnorm(p$log_rdev_ys[, s], 0, sdr_s[s], log = TRUE), 0)
   })
+  logprior_rdev_ys[1:ny > max(y_like), ] <- 0
 
-  if (is.null(map$log_rdev_ys)) {
-    par_rdev_ys <- matrix(TRUE, ny, ns)
-  } else {
-    par_rdev_ys <- matrix(!is.na(map$log_rdev_ys) & !duplicated(map$log_rdev_ys, MARGIN = 0), ny, ns)
-  }
-  logprior_rdev_ys <- sapply(1:ns, function(s) {
-    CondExpGt(par_rdev_ys[, s], 0, dnorm(p$log_rdev_ys[, s], Dmodel@pbc_rdev_ys[, s] * bcr_s[s], sdr_s[s], log = TRUE), 0)
+  logprior_initrdev_as <- sapply(1:ns, function(s) {
+    CondExpGt(par_initrdev_as[, s], 0, dnorm(p$log_initrdev_as[, s], 0, sdr_s[s], log = TRUE), 0)
   })
 
   if (nr > 1 && "mov_g_ymars" %in% random) {
     sdg_s <- sapply2(1:ns, function(s) conv_Sigma(sigma = exp(p$log_sdg_rs[, s]), lower_diag = p$t_rhog_rs[, s]))
     par_g_ymars <- !is.na(map$mov_g_ymars) & !duplicated(map$mov_g_ymars, MARGIN = 0)
-    logprior_dist_ymas <- sapply2(1:ns, function(s) {
+
+    logprior_dist_ymas <- array(0, c(ny, nm, na, ns))
+    logprior_dist_ymas[y_like, , , ] <- sapply2(1:ns, function(s) {
       sapply2(1:na, function(a) {
         sapply(1:nm, function(m) {
-          sapply(1:ny, function(y) dmvnorm(p$mov_g_ymars[y, m, a, , s], mu = 0, Sigma = sdg_s[, , s], log = TRUE))
+          sapply(y_like, function(y) dmvnorm(p$mov_g_ymars[y, m, a, , s], mu = 0, Sigma = sdg_s[, , s], log = TRUE))
         })
       })
     })

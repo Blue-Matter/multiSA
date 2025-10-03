@@ -12,11 +12,11 @@
 #' - `F_yst` Apical fishing mortality `[y, s, t]`
 #' - `VB_ymft` Vulnerable biomass available to each fishery `[y, m, f, t]`
 #' @param MSAassess [MSAassess-class] object
-#' @param yret Vector of integers (greater than zero) specifying the years to remove for the retrospective analysis
+#' @param yret Vector specifying the years (positive integers and include zero) to remove for the retrospective analysis
 #' @param cores Integer for the number of cores to use for parallel processing (snowfall package)
 #' @export
 #' @import snowfall
-retrospective <- function(MSAassess, yret = 1:5, cores = 1) {
+retrospective <- function(MSAassess, yret = 0:5, cores = 1) {
 
   if (cores > 1 && !snowfall::sfIsRunning()) {
     snowfall::sfInit(parallel = TRUE, cpus = cores)
@@ -34,29 +34,26 @@ retrospective <- function(MSAassess, yret = 1:5, cores = 1) {
   nf <- MSAdata@Dfishery@nf
   ns <- MSAdata@Dmodel@ns
 
-  nret <- length(yret)
-  nt <- length(yret) + 1
+  nt <- length(yret)
 
   F_yst <-
     R_yst <-
-    S_yst <- array(NA_real_, c(ny, ns, nt))
+    S_yst <-
+    log_rdev_yst <- array(NA_real_, c(ny, ns, nt))
 
   VB_ymft <- array(NA_real_, c(ny, nm, nf, nt))
 
-  for(i in 1:nret) {
-    F_yst[1:(ny-yret[i]), , i+1] <- apply(ret[[i]][["F_yas"]], c(1, 3), max)
-    R_yst[1:(ny-yret[i]), , i+1] <- ret[[i]][["R_ys"]]
-    S_yst[1:(ny-yret[i]), , i+1] <- apply(ret[[i]][["S_yrs"]], c(1, 3), sum)
-    VB_ymft[1:(ny-yret[i]), , , i+1] <- apply(ret[[i]][["VB_ymfrs"]], 1:3, sum)
-  }
-  F_yst[, , 1] <- apply(MSAassess@report[["F_yas"]], c(1, 3), max)
-  R_yst[, , 1] <- MSAassess@report[["R_ys"]]
-  S_yst[, , 1] <- apply(MSAassess@report[["S_yrs"]], c(1, 3), sum)
-  VB_ymft[, , , 1] <- apply(MSAassess@report[["VB_ymfrs"]], 1:3, sum)
+  F_yst[] <- sapply2(ret, function(x) apply(x@report$F_yas, c(1, 3), max))
+  R_yst[] <- sapply2(ret, function(x) x@report$R_ys)
+  S_yst[] <- sapply2(ret, function(x) apply(x@report$S_yrs, c(1, 3), sum))
+  log_rdev_yst[] <- sapply2(ret, function(x) x@obj$env$parList()$log_rdev_ys)
+  VB_ymft[] <- sapply2(ret, function(x) apply(x@report$VB_ymfrs, 1:3, sum))
 
-  ret_out <- list(S_yst = S_yst, R_yst = R_yst, F_yst = F_yst, VB_ymft = VB_ymft) %>%
+  ret_out <- list(S_yst = S_yst, R_yst = R_yst, F_yst = F_yst, VB_ymft = VB_ymft,
+                  log_rdev_yst = log_rdev_yst) %>%
     structure(class = "MSAretro")
   attr(ret_out, "Dlabel") <- MSAdata@Dlabel
+  attr(ret_out, "yret") <- yret
   return(ret_out)
 }
 
@@ -64,79 +61,32 @@ retrospective <- function(MSAassess, yret = 1:5, cores = 1) {
 .ret <- function(y, MSAassess) {
 
   MSAdata <- get_MSAdata(MSAassess)
-  Dmodel <- MSAdata@Dmodel
+  if (y == MSAdata@Dmodel@nyret) return(MSAassess)
 
-  ny <- Dmodel@ny
-  nm <- Dmodel@nm
-  na <- Dmodel@na
-  nr <- Dmodel@nr
-  ns <- Dmodel@ns
+  MSAdata@Dmodel@nyret <- y
 
-  nf <- MSAdata@Dfishery@nf
-
-  data_new <- MSAdata
-  data_new@Dmodel@ny <- nyret <- ny - y
-
-  if (Dmodel@y_phi > nyret) stop("Reduce y_phi")
-
-  data_new@Dfishery@Cobs_ymfr <- MSAdata@Dfishery@Cobs_ymfr[1:nyret, , , , drop = FALSE]
-  if (Dmodel@condition == "F") {
-    data_new@Dfishery@Csd_ymfr <- MSAdata@Dfishery@Csd_ymfr[1:nyret, , , , drop = FALSE]
-    if (any(Dmodel@y_Fmult_f > nyret)) stop("Reduce y_Fmult_f")
+  parameters <- MSAassess@obj$env$parList(par = MSAassess@obj$par)
+  map <- MSAassess@obj$env$map
+  if (length(map)) {
+    map_dim <- lapply(names(map), function(i) {
+      dim_i <- dim(parameters[[i]])
+      if (length(dim_i)) {
+        array(map[[i]], dim_i)
+      } else {
+        map[[i]]
+      }
+    }) %>%
+      structure(names = names(map))
+  } else {
+    map_dim <- list()
   }
-  data_new@Dsurvey@Iobs_ymi <- MSAdata@Dsurvey@Iobs_ymi[1:nyret, , , drop = FALSE]
-  data_new@Dsurvey@Isd_ymi <- MSAdata@Dsurvey@Isd_ymi[1:nyret, , , drop = FALSE]
+  random <- MSAassess@obj$env$random
 
-  if (length(MSAdata@DCKMR@POP_s)) {
-    data_new@DCKMR@POP_s <- lapply(MSAdata@DCKMR@POP_s, function(x) {
-      filter(x, .data$y <= .env$nyret, .data$a <= .env$nyret)
-    })
-  }
-  if (length(MSAdata@DCKMR@HSP_s)) {
-    data_new@DCKMR@HSP_s <- lapply(MSAdata@DCKMR@HSP_s, function(x) {
-      filter(x, .data$yi <= .env$nyret, .data$yj <= .env$nyret)
-    })
-  }
+  data_new <- check_data(MSAdata, silent = TRUE)
+  parameters_new <- make_parameters(data_new, start = parameters, map = map_dim, silent = TRUE)
+  fit <- fit_MSA(data_new, parameters_new$p, parameters_new$map, random, do_sd = FALSE, silent = TRUE)
 
-  if (length(MSAdata@Dtag@tag_yy)) {
-    data_new@Dtag@tag_yy <- MSAdata@Dtag@tag_yy[, 1:nyret, drop = FALSE]
-  }
-
-  parameters <- MSAassess@obj$env$parList()
-  map <- MSAdata@Misc$map
-  random <- MSAdata@Misc$random
-
-  parameters[["log_rdev_ys"]] <- parameters[["log_rdev_ys"]][1:nyret, , drop = FALSE]
-  if (!is.null(map[["log_rdev_ys"]])) {
-    map[["log_rdev_ys"]] <- local({
-      m <- matrix(map[["log_rdev_ys"]], ny, ns)
-      factor(m[1:nyret, ])
-    })
-  }
-  parameters[["mov_g_ymars"]] <- parameters[["mov_g_ymars"]][1:nyret, , , , , drop = FALSE]
-  if (!is.null(map[["mov_g_ymars"]])) {
-    map[["mov_g_ymars"]] <- local({
-      m <- array(map[["mov_g_ymars"]], c(ny, nm, na, nr, ns))
-      factor(m[1:nyret, , , , ])
-    })
-  }
-  parameters[["mov_v_ymas"]] <- parameters[["mov_v_ymas"]][1:nyret, , , , drop = FALSE]
-  if (!is.null(map[["mov_v_ymas"]])) {
-    map[["mov_v_ymas"]] <- local({
-      m <- array(map[["mov_v_ymas"]], c(ny, nm, na, ns))
-      factor(m[1:nyret, , , ])
-    })
-  }
-  parameters[["log_Fdev_ymfr"]] <- parameters[["log_Fdev_ymfr"]][1:nyret, , , , drop = FALSE]
-  if (!is.null(map[["log_Fdev_ymfr"]])) {
-    map[["log_Fdev_ymfr"]] <- local({
-      m <- array(map[["log_Fdev_ymfr"]], c(ny, nm, nf, nr))
-      factor(m[1:nyret, , , ])
-    })
-  }
-
-  fit <- fit_MSA(data_new, parameters, map, random, do_sd = FALSE, silent = TRUE)
-  return(fit@report)
+  return(fit)
 }
 
 #' @rdname retrospective
@@ -150,12 +100,14 @@ retrospective <- function(MSAassess, yret = 1:5, cores = 1) {
 #' @returns
 #' `plot.MSAretro` returns individual figures using base graphics.
 #' @export
-plot.MSAretro <- function(x, var = c("S_yst", "R_yst", "F_yst", "VB_ymft"), s = 1, f = 1, ...) {
+plot.MSAretro <- function(x, var = c("S_yst", "R_yst", "F_yst", "log_rdev_yst", "VB_ymft"), s = 1, f = 1, ...) {
   var <- match.arg(var)
   Dlabel <- attr(x, "Dlabel")
-  year <- Dlabel@year
+  peel <- attr(x, "yret")
+  ny <- length(Dlabel@year)
   nm <- max(length(Dlabel@season), 1)
 
+  year <- Dlabel@year
   ylab <- retro_label(var)
 
   if (grepl("yst", var)) {
@@ -172,13 +124,20 @@ plot.MSAretro <- function(x, var = c("S_yst", "R_yst", "F_yst", "VB_ymft"), s = 
     }
     denom <- nm
   }
-  ylim <- c(0, 1.1) * range(y, na.rm = TRUE)
+
+  if (all(y >= 0, na.rm = TRUE)) {
+    ylim <- c(0, 1.1) * range(y, na.rm = TRUE)
+  } else {
+    ylim <- 1.1 * range(y, na.rm = TRUE)
+  }
 
   rcolor <- rich.colors(ncol(y))
-  peel <- nrow(y) - apply(y, 2, function(i) sum(!is.na(i)))
-
+  for (i in 1:length(peel)) {
+    if (peel[i] > 0) y[seq(ny - peel[i] + 1, ny), i] <- NA_real_
+  }
   matplot(year, y, xlab = "Year", ylab = ylab, ylim = ylim, lty = 1, type = "l", col = rcolor, zero_line = TRUE)
   legend("topleft", legend = peel/denom, col = rcolor, lty = 1, bty = "n", title = "Years removed:")
+  points(year[ny - peel], y[cbind(ny - peel, 1:ncol(y))], pch = 16, col = rcolor)
 
   invisible()
 }
@@ -190,6 +149,7 @@ plot.MSAretro <- function(x, var = c("S_yst", "R_yst", "F_yst", "VB_ymft"), s = 
 #' @export
 summary.MSAretro <- function(object, by = c("stock", "fleet"), ...) {
   by <- match.arg(by)
+  peel <- attr(object, "yret")
 
   if (by == "stock") {
     ns <- dim(object$S_yst)[2]
@@ -198,7 +158,7 @@ summary.MSAretro <- function(object, by = c("stock", "fleet"), ...) {
 
     x <- object[grepl("yst", names(object))]
 
-    rho <- sapply(x, function(i) apply(i, 2, Mohn_rho)) %>%
+    rho <- sapply(x, function(i) apply(i, 2, Mohn_rho, peel)) %>%
       t() %>%
       matrix(length(x), ns) %>%
       structure(dimnames = list(sapply(names(x), retro_label), sname))
@@ -213,7 +173,7 @@ summary.MSAretro <- function(object, by = c("stock", "fleet"), ...) {
 
     # First season
     rho <- sapply(x, function(i) {
-      array(i[, 1, , ], c(ny, nf, nt)) %>% apply(2, Mohn_rho)
+      array(i[, 1, , ], c(ny, nf, nt)) %>% apply(2, Mohn_rho, peel)
     }) %>%
       t() %>%
       matrix(length(x), nf) %>%
@@ -222,11 +182,15 @@ summary.MSAretro <- function(object, by = c("stock", "fleet"), ...) {
   return(rho)
 }
 
-Mohn_rho <- function(x) {
-  terminal_ind <- apply(x[, -1, drop = FALSE], 2, function(y) sum(!is.na(y)))
-  n_peel <- ncol(x) - 1
-  rho <- sapply(1:n_peel, function(i) x[terminal_ind[i], i+1])/x[terminal_ind, 1] - 1
-  mean(rho)
+Mohn_rho <- function(x, peel) {
+  ny <- dim(x)[1]
+  for (i in 1:length(peel)) { # Not necessary but good practice
+    if (peel[i] > 0) x[seq(ny - peel[i] + 1, ny), i] <- NA_real_
+  }
+  num <- x[cbind(ny - peel, 1:ncol(x))]
+  denom <- x[ny - peel, peel == 0]
+  rho <- num/denom - 1
+  mean(rho[peel > 0])
 }
 
 
@@ -289,6 +253,9 @@ make_rmd_ret_stock <- function(sname) {
              "```\n",
              "```{r}",
              paste0("plot(object, \"F_yst\", s = ", s, ")"),
+             "```\n",
+             "```{r}",
+             paste0("plot(object, \"log_rdev_yst\", s = ", s, ")"),
              "```\n")
     c(header, out)
   })
@@ -312,7 +279,8 @@ retro_label <- function(var) {
     "F_yst" = "Fishing mortality",
     "R_yst" = "Recruitment",
     "S_yst" = "Spawning output",
-    "VB_ymft" = "Vulnerable biomass"
+    "VB_ymft" = "Vulnerable biomass",
+    "log_rdev_yst" = "log Recruitment deviations"
   )
 }
 

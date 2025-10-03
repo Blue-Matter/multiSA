@@ -162,12 +162,17 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         S_yrs[y, , ] <- sapply(1:ns, function(s) {
           sapply(1:nr, function(r) sum(Nsp_yars[y, , r, s] * fec_yas[y, , s]))
         })
-        R_ys[y, ] <- Rdev_ys[y, ] * sapply(1:ns, function(s) {
-          calc_recruitment(sum(S_yrs[y, , s]), SRR = SRR_s[s], a = sralpha_s[s], b = srbeta_s[s])
-        })
 
-        ## Enter recruitment into age structure ----
-        N_ymars[y, m, 1, , ] <- sapply(1:ns, function(s) recdist_rs[, s] * R_ys[y, s])
+        if (y > 1) {
+          R_ys[y, ] <- Rdev_ys[y, ] * sapply(1:ns, function(s) {
+            calc_recruitment(sum(S_yrs[y, , s]), SRR = SRR_s[s], a = sralpha_s[s], b = srbeta_s[s])
+          })
+
+          ## Enter recruitment into age structure ----
+          N_ymars[y, m, 1, , ] <- sapply(1:ns, function(s) recdist_rs[, s] * R_ys[y, s])
+        } else {
+          R_ys[y, ] <- apply(initN_ars[1, , , drop = FALSE], 3, sum)
+        }
       }
 
       ## Next season's abundance and total biomass ----

@@ -260,7 +260,7 @@ plot_Rdev <- function(fit, s = 1, log = TRUE) {
       std <- as.list(fit@SD, what = "Std. Error")$log_rdev_ys[, s]
       std[is.na(std)] <- 0
     } else {
-      x <- log(fit@report$Rdev_ys[, s])
+      x <- fit@obj$env$parList(par = fit@obj$env$last.par.best)$log_rdev_ys[, s]
       std <- numeric(length(x))
     }
 
