@@ -204,7 +204,7 @@ update_report <- function(r, MSAdata) {
 
   ## Fishery selectivity ----
   q_fs <- exp(p$log_q_fs)
-  selconv_pf <- conv_selpar(p$sel_pf, type = Dfishery@sel_f, maxage = na, maxL = 0.95 * max(Dmodel@lmid))
+  selconv_pf <- conv_selpar(p$sel_pf, type = Dfishery@sel_f, maxage = na - 1, maxL = 0.95 * max(Dmodel@lmid))
   sel_lf <- calc_sel_len(selconv_pf, Dmodel@lmid, type = Dfishery@sel_f)
 
   ## Fishing mortality ----
@@ -231,7 +231,7 @@ update_report <- function(r, MSAdata) {
 
   ## Index selectivity ----
   if (ni > 0) {
-    selconv_pi <- conv_selpar(p$sel_pi, type = Dsurvey@sel_i, maxage = na, maxL = 0.95 * max(Dmodel@lmid))
+    selconv_pi <- conv_selpar(p$sel_pi, type = Dsurvey@sel_i, maxage = na - 1, maxL = 0.95 * max(Dmodel@lmid))
     sel_li <- calc_sel_len(selconv_pi, Dmodel@lmid, type = Dsurvey@sel_i)
   }
 

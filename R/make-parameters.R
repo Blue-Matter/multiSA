@@ -605,7 +605,7 @@ make_map <- function(p, MSAdata, map = list(),
   if (!silent) {
     message_info("Fishery selectivity setup:")
 
-    fsel_start <- conv_selpar(p$sel_pf, type = Dfishery@sel_f, maxage = Dmodel@na, maxL = 0.95 * max(Dmodel@lmid))
+    fsel_start <- conv_selpar(p$sel_pf, type = Dfishery@sel_f, maxage = Dmodel@na - 1, maxL = 0.95 * max(Dmodel@lmid))
     y <- if (length(Dlabel@year)) {
       Dlabel@year
     } else {
@@ -694,7 +694,7 @@ make_map <- function(p, MSAdata, map = list(),
 
   if (!silent) {
     message_info("Index selectivity setup:")
-    isel_start <- conv_selpar(p$sel_pi, type = Dsurvey@sel_i, maxage = Dmodel@na, maxL = 0.95 * max(Dmodel@lmid))
+    isel_start <- conv_selpar(p$sel_pi, type = Dsurvey@sel_i, maxage = Dmodel@na - 1, maxL = 0.95 * max(Dmodel@lmid))
     for (i in 1:Dsurvey@ni) {
       sel_i <- Dsurvey@sel_i[i]
       if (length(Dlabel@index)) {

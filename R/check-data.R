@@ -668,7 +668,7 @@ check_Dlabel <- function(Dlabel, Dmodel, Dfishery, Dsurvey, silent = FALSE) {
     }
   }
   if (!length(Dlabel@age)) {
-    Dlabel@age <- 1:na
+    Dlabel@age <- seq(1, na) - 1
   } else if (length(Dlabel@age) != na) {
     stop("length(", ch, "@age) needs to be ", na)
   }
