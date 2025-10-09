@@ -814,6 +814,11 @@ update_report <- function(r, MSAdata) {
 
   logprior <- sum(logprior_par) + sum(logprior_initrdev_as) + sum(logprior_rdev_ys) + sum(logprior_dist_ymas)
 
+  # Penalty selectivity parameters to avoid steep ascending and descending limbs
+  penalty <- penalty +
+    calc_selpar_penalty(p$sel_pf, Dfishery@sel_f, Dmodel@lmid) +
+    calc_selpar_penalty(p$sel_pi, Dsurvey@sel_i, Dmodel@lmid)
+
   # Objective function ----
   fn <- -1 * (logprior + loglike) + penalty
 

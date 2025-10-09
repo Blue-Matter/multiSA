@@ -21,6 +21,21 @@
 #' @export
 posfun <- function(x, eps) CondExpGe(x, eps, 0, 0.01 * (x - eps) * (x - eps))
 
+calc_selpar_penalty <- function(sel_pf, sel_f, lmid) {
+  penalty <- 0
+  parametric_sel <- grepl("dome|logistic", sel_f)
+  flen <- parametric_sel & grepl("length", sel_f)
+  if (any(flen)) {
+    log_binwidth <- log(min(diff(lmid)))
+    penalty <- penalty + sum(posfun(sel_pf[2:3, flen], log_binwidth))
+  }
+  fage <- parametric_sel & grepl("age", sel_f)
+  if (any(fage)) {
+    penalty <- penalty + sum(posfun(sel_pf[2:3, fage], 0))
+  }
+  return(penalty)
+}
+
 #' Softmax function
 #'
 #' Takes a vector of real numbers and returns the corresponding vector of probabilities
