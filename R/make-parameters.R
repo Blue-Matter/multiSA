@@ -196,8 +196,9 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
           if (is.na(L5) || L5 > 0.99 * LFS) L5 <- 0.5 * LFS
 
           sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(Dmodel@lmid)))
-          val[2:3] <- log(sigma_asc)
+          val[2] <- log(sigma_asc)
           val[1] <- qlogis(LFS/max(0.95 * Dmodel@lmid))
+          if (grepl("dome", sel_b)) val[3] <- val[2]
         }
       } else if (grepl("age", sel_b) && length(Dfishery@CAAobs_ymafr)) {
         CAA <- sapply2(1:nf, function(f) {
@@ -217,16 +218,19 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
           if (is.na(A5) || A5 > 0.99 * AFS) A5 <- 0.5 * AFS
 
           sigma_asc <- min((AFS - A5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(age)))
-          val[2:3] <- log(sigma_asc)
+          val[2] <- log(sigma_asc)
           val[1] <- qlogis(AFS/max(age))
+          if (grepl("dome", sel_b)) val[3] <- val[2]
         }
 
       }
       if (all(!val)) {
         # Apical sel halfway between 0 and max age/length
-        # Knife edge ascending selectivity, ascend SD = 0.1
-        # More sloping descending limb of selectivity, descend SD = 2
-        val[] <- c(0, log(0.1), log(2))
+        # Sloping ascending selectivity limbs (25% of max age or three length bins)
+        val[1] <- 0
+        sel_limb <- if (grepl("length", sel_b)) log(3 * min(diff(Dmodel@lmid))) else log(0.25 * Dmodel@na)
+        val[2] <- sel_limb
+        if (grepl("dome", sel_b)) val[3] <- sel_limb
       }
       return(val)
     })
@@ -249,16 +253,19 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
 
           if (L5 < LFS) {
             sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(Dmodel@lmid)))
-            val[2:3] <- log(sigma_asc)
+            val[2] <- log(sigma_asc)
             val[1] <- qlogis(LFS/max(0.95 * Dmodel@lmid))
+            if (grepl("dome", sel_i)) val[3] <- val[2]
           }
         }
       }
       if (all(!val)) {
-        # Apical sel between 0 and max age/length
-        # Knife edge ascending selectivity, ascend SD = 0.1
-        # More sloping descending limb of selectivity, descend SD = 2
-        val[] <- c(0, log(0.1), log(2))
+        # Apical sel halfway between 0 and max age/length
+        # Sloping ascending selectivity limbs (25% of max age or three length bins)
+
+        sel_limb <- if (grepl("length", sel_i)) log(3 * min(diff(Dmodel@lmid))) else log(0.25 * Dmodel@na)
+        val[2] <- sel_limb
+        if (grepl("dome", sel_i)) val[3] <- sel_limb
       }
       return(val)
     })
