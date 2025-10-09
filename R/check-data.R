@@ -47,7 +47,7 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
     Dmodel@ns <- 1L
   }
   if (Dmodel@nl > 0) {
-    if (length(Dmodel@lbin) != Dmodel@nl+1) stop("Need nl + 1 vector for ", ch, "@lbin")
+    if (length(Dmodel@lbin) != Dmodel@nl) stop("Need nl vector for ", ch, "@lbin")
     if (length(Dmodel@lmid) != Dmodel@nl) stop("Need nl vector for ", ch, "@lmid")
   }
   if (!length(Dmodel@Fmax)) {
@@ -181,7 +181,7 @@ check_Dstock <- function(Dstock, Dmodel, silent = FALSE) {
     Dstock@fec_yas <- array(Dstock@swt_ymas[, Dstock@m_spawn, , ], c(ny, na, ns))
   } else {
     dim_fec <- dim(Dstock@fec_yas) == c(ny, na, ns)
-    if (!all(dim_fec)) stop("dim(", ch, "fec_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
+    if (!all(dim_fec)) stop("dim(", ch, "@fec_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
   }
 
   if (!length(Dstock@M_yas)) {
@@ -282,7 +282,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     if (!nl) stop("Fishery length composition detected but no length bins found in Dmodel@nl")
 
     dim_CAL <- dim(Dfishery@CALobs_ymlfr) == c(ny, nm, nl, nf, nr)
-    if (!all(dim_CAL)) stop("dim(", "@CALobs_ymlfr) needs to be: ", c(ny, nm, nl, nf, nr) %>% paste(collapse = ", "))
+    if (!all(dim_CAL)) stop("dim(", ch, "@CALobs_ymlfr) needs to be: ", c(ny, nm, nl, nf, nr) %>% paste(collapse = ", "))
 
     if (!length(Dfishery@CALN_ymfr)) {
       if (Dfishery@fcomp_like %in% c("multinomial", "ddirmult1", "ddirmult2") && !silent) {

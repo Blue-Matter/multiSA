@@ -4,7 +4,7 @@
 \alias{calc_LAK}
 \title{Length-at-age key}
 \usage{
-calc_LAK(len_a, sd_la, lbin, nl = length(lbin) - 1)
+calc_LAK(len_a, sd_la, lbin, nl = length(lbin))
 }
 \arguments{
 \item{len_a}{Vector of length-at-age}
@@ -13,7 +13,7 @@ calc_LAK(len_a, sd_la, lbin, nl = length(lbin) - 1)
 
 \item{lbin}{Vector of the lower boundary of the length bins}
 
-\item{nl}{Integer, number of length bins (default is \code{length(lbin) - 1})}
+\item{nl}{Integer, number of length bins (default is \code{length(lbin)})}
 }
 \value{
 Matrix by age (rows) and length (columns)

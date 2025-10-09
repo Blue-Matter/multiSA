@@ -279,10 +279,10 @@ SRkconv <- function(h, SRR = c("BH", "Ricker")) {
 #' @param len_a Vector of length-at-age
 #' @param sd_la Vector of standard deviation in length-at-age
 #' @param lbin Vector of the lower boundary of the length bins
-#' @param nl Integer, number of length bins (default is `length(lbin) - 1`)
+#' @param nl Integer, number of length bins (default is `length(lbin)`)
 #' @return Matrix by age (rows) and length (columns)
 #' @export
-calc_LAK <- function(len_a, sd_la, lbin, nl = length(lbin) - 1) {
+calc_LAK <- function(len_a, sd_la, lbin, nl = length(lbin)) {
   stopifnot(length(sd_la) == length(len_a))
 
   lak_al <- sapply(1:nl, function(j) {
