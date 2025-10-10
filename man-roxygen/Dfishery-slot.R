@@ -3,7 +3,7 @@
 #' \item{`nf`}{Integer, number of fleets}
 #' \item{`Cobs_ymfr`}{Total fishery catch}
 #' \item{`Csd_ymfr`}{Lognormal standard deviation of the fishery catch. Only used if `Dmodel@condition = "F"`. Default of 0.01.}
-#' \item{`fwt_yamfs`}{Fishery weight at age. Set to 1 when fleet catch is in units of abundance. Set to stock weight at age by default.}
+#' \item{`fwt_ymafs`}{Fishery weight at age. Set to 1 when fleet catch is in units of abundance. Set to stock weight at age by default (values at beginning of time step).}
 #' \item{`CAAobs_ymafr`}{Fishery catch at age composition}
 #' \item{`CALobs_ymlfr`}{Fishery catch at length composition}
 #' \item{`fcomp_like`}{Character, likelihood for the fishery composition data. See `type` argument of [like_comp()] for options}

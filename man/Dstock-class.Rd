@@ -27,11 +27,11 @@ observed catch with the dimension following the underscore, following this templ
 \describe{
 \item{\code{m_spawn}}{Integer, season of spawning. Defaults to 1. The progeny will enter the age structure in the same season.}
 \item{\code{m_advanceage}}{Integer, season in which to advance age classes (corresponding to calendar year) to the next age class. Defaults to 1.}
-\item{\code{len_ymas}}{Length-at-age. Only needed if \code{Dmodel@nl > 0}. \code{\link[=calc_growth]{calc_growth()}} may be a helpful function.}
+\item{\code{len_ymas}}{Length-at-age. Only needed if \code{Dmodel@nl > 0} to fit length composition (you may want to calculate the growth at the middle of the time step). \code{\link[=calc_growth]{calc_growth()}} may be a helpful function.}
 \item{\code{sdlen_ymas}}{Standard deviation in length-at-age}
 \item{\code{LAK_ymals}}{Length-at-age probability array. If empty, values will be calculated by \code{\link[=check_data]{check_data()}} with \code{\link[=calc_LAK]{calc_LAK()}}.}
 \item{\code{mat_yas}}{Proportion mature by age class. Ignored if maturity ogive is estimated, e.g., when fitting to close-kin genetic data.}
-\item{\code{swt_ymas}}{Stock weight-at-age. See \code{\link[=calc_growth]{calc_growth()}} example.}
+\item{\code{swt_ymas}}{Stock weight-at-age (at beginning of time step). See \code{\link[=calc_growth]{calc_growth()}} example.}
 \item{\code{fec_yas}}{Fecundity, i.e., spawning output, of mature animals. Default uses stock weight at age.}
 \item{\code{M_yas}}{Natural mortality. Instantaneous units per year. Ignored if M is estimated.}
 \item{\code{SRR_s}}{Character vector of stock-recruit relationship by stock. See \code{SRR} argument in \code{\link[=calc_recruitment]{calc_recruitment()}} for options.}
