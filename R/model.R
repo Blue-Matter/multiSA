@@ -168,15 +168,25 @@ update_report <- function(r, MSAdata) {
     log_F_ymfr <- array(NA_real_, c(ny, nm, nf, nr))
   F_ymafrs <-
     CN_ymafrs <- array(NA_real_, c(ny, nm, na, nf, nr, ns))
-  if (any(Dfishery@CALobs_ymlfr > 0, na.rm = TRUE)) CN_ymlfrs <- array(NA_real_, c(ny, nm, nl, nf, nr, ns))
+
+  any_CAL <- any(Dfishery@CALobs_ymlfr > 0, na.rm = TRUE)
+  if (any_CAL) {
+    CN_ymlfrs <- array(NA_real_, c(ny, nm, nl, nf, nr, ns))
+    LAKsel_ymalfs <- array(1, c(ny, nm, na, nl, nf, ns))
+  }
   CB_ymfrs <-
     VB_ymfrs <- array(NA_real_, c(ny, nm, nf, nr, ns))
 
   # Index of abundance arrays ----
+  any_IAL <- ni > 0 && any(Dsurvey@IALobs_ymli > 0, na.rm = TRUE)
   if (ni > 0) {
     IN_ymais <-
       sel_ymais <- array(NA_real_, c(ny, nm, na, ni, ns))
-    if (any(Dsurvey@IALobs_ymli > 0, na.rm = TRUE)) IN_ymlis <- array(NA_real_, c(ny, nm, nl, ni, ns))
+
+    if (any_IAL) {
+      IN_ymlis <- array(NA_real_, c(ny, nm, nl, ni, ns))
+      LAKsel_ymalis <- array(1, c(ny, nm, na, nl, ni, ns))
+    }
     VI_ymi <- I_ymi <- array(NA_real_, c(ny, nm, ni))
   }
 
@@ -236,7 +246,7 @@ update_report <- function(r, MSAdata) {
   }
 
   ## Fishery and index selectivity ----
-  # Check for fishery selectivity blocks
+  # Check for length-based selectivity (through time blocks)
   tv_flensel <- any(
     sapply(1:nf, function(f) {
       bb <- Dfishery@sel_block_yf[, f]
@@ -245,14 +255,14 @@ update_report <- function(r, MSAdata) {
       change_sel || lensel
     })
   )
-  if (ni > 0) { # Check for length selectivity blocks
+  if (ni > 0) { # Check for length-based selectivity
     ilensel <- any(sapply(1:ni, function(i) grepl("length", Dsurvey@sel_i[i])))
   }
 
   for (s in 1:ns) {
     # Fishery selectivity
 
-    # Check for time-varying growth
+    # Check for time-varying growth only if there are length-based sel functions
     if (tv_flensel) {
       tv_growth <- any(sapply(2:ny, function(y) max(Dstock@LAK_ymals[y, , , , s] - Dstock@LAK_ymals[1, , , , s])) > 0)
       tv_fagesel_growth <- tv_growth
@@ -264,7 +274,7 @@ update_report <- function(r, MSAdata) {
     tv_mat <- any(sapply(2:ny, function(y) max(mat_yas[y, , s] - mat_yas[1, , s])) > 0)
     tv_fsel_mat <- tv_mat && any(Dfishery@sel_f == "SB")
 
-    if (tv_fagesel_growth || tv_fsel_mat) {
+    if (tv_fagesel_growth || tv_fsel_mat) { # Slow method by individual time step
       for (y in 1:ny) {
         for (m in 1:nm) {
           sel_ymafs[y, m, , , s] <- calc_fsel_age(
@@ -272,7 +282,7 @@ update_report <- function(r, MSAdata) {
           )
         }
       }
-    } else {
+    } else { # Fast way
       for (m in 1:nm) {
         sel_ymafs[1, m, , , s] <- calc_fsel_age(
           sel_lf, Dstock@LAK_ymals[1, m, , , s], Dfishery@sel_f, selconv_pf, Dfishery@sel_block_yf[1, ], mat = mat_yas[1, , s], a = seq(1, na) - 1
@@ -515,13 +525,46 @@ update_report <- function(r, MSAdata) {
 
   ## Marginal fishery length composition ----
   CALobs_ymlfr <- Dfishery@CALobs_ymlfr
-  any_CAL <- any(CALobs_ymlfr > 0, na.rm = TRUE)
   if (any_CAL) {
+
+    # Adjust LAK by selectivity function (note: values stay at 1 if no length selectivity)
+    for (f in 1:nf) {
+      for (bb in unique(Dfishery@sel_block_yf[, f])) {
+        if (grepl("length", Dfishery@sel_f[bb])) {
+          if (tv_growth) {
+            for (y in 1:ny) {
+              if (Dfishery@sel_block_yf[y, f] == bb) {
+                for (m in 1:nm) {
+                  LAKsel_ymalfs[y, m, , , f, ] <- sapply2(1:ns, function(s) {
+                    LAK_la <- t(Dstock@LAK_ymals[y, m, , , s]) * sel_lf[, Dfishery@sel_block_yf[y, f]]
+                    t(LAK_la)/colSums(LAK_la)
+                  })
+                }
+              }
+            }
+          } else {
+            y_b <- which(Dfishery@sel_block_yf[, f] == bb)
+            for (m in 1:nm) {
+              LAKsel_ymalfs[y_b[1], m, , , f, s] <- sapply2(1:ns, function(s) {
+                LAK_la <- t(Dstock@LAK_ymals[y_b[1], m, , , s]) * sel_lf[, Dfishery@sel_block_yf[y_b[1], f]]
+                t(LAK_la)/colSums(LAK_la)
+              })
+            }
+            fsel_ind <- fsel1_ind <- as.matrix(expand.grid(y = y_b[-1], m = 1:m, a = 1:na, 1:nl, f = f, s = 1:ns))
+            fsel1_ind[, "y"] <- y_b[1]
+            LAKsel_ymalfs[fsel_ind] <- LAKsel_ymalfs[fsel1_ind]
+          }
+        }
+      }
+    }
+
     for(y in 1:ny) {
       for(m in 1:nm) {
         CN_ymlfrs[y, m, , , , ] <- sapply2(1:ns, function(s) {
           sapply2(1:nr, function(r) {
-            sapply(1:nf, function(f) CN_ymafrs[y, m, , f, r, s] %*% Dstock@LAK_ymals[y, m, , , s])
+            sapply(1:nf, function(f) {
+              CN_ymafrs[y, m, , f, r, s] %*% LAKsel_ymalfs[y, m, , , f, s]
+            })
           })
         })
       }
@@ -600,12 +643,38 @@ update_report <- function(r, MSAdata) {
   }
 
   IALobs_ymli <- Dsurvey@IALobs_ymli
-  any_IAL <- ni > 0 && any(IALobs_ymli > 0, na.rm = TRUE)
   if (any_IAL) {
+
+    # Adjust LAK by selectivity function (note: values stay at 1 if no length selectivity)
+    for (i in 1:ni) {
+      if (grepl("length", Dsurvey@sel_i[i])) {
+        if (tv_growth) {
+          for (y in 1:ny) {
+            for (m in 1:nm) {
+              LAKsel_ymalis[y, m, , , i, ] <- sapply2(1:ns, function(s) {
+                LAK_la <- t(Dstock@LAK_ymals[y, m, , , s]) * sel_li[, i]
+                t(LAK_la)/colSums(LAK_la)
+              })
+            }
+          }
+        } else {
+          for (m in 1:nm) {
+            LAKsel_ymalis[1, m, , , i, s] <- sapply2(1:ns, function(s) {
+              LAK_la <- t(Dstock@LAK_ymals[1, m, , , s]) * sel_li[, i]
+              t(LAK_la)/colSums(LAK_la)
+            })
+          }
+          isel_ind <- isel1_ind <- as.matrix(expand.grid(y = 2:ny, m = 1:m, a = 1:na, 1:nl, i = i, s = 1:ns))
+          isel1_ind[, "y"] <- 1
+          LAKsel_ymalis[isel_ind] <- LAKsel_ymalis[isel1_ind]
+        }
+      }
+    }
+
     for(y in 1:ny) {
       for(m in 1:nm) {
         IN_ymlis[y, m, , , ] <- sapply2(1:ns, function(s) {
-          sapply(1:ni, function(i) IN_ymais[y, m, , i, s] %*% Dstock@LAK_ymals[y, m, , , s])
+          sapply(1:ni, function(i) IN_ymais[y, m, , i, s] %*% LAKsel_ymalis[y, m, , , i, s])
         })
       }
     }
