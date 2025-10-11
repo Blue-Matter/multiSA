@@ -33,7 +33,8 @@ calc_index(
 
 \item{samp}{Boolean indicates which regions and stocks are sampled by the index. Array \verb{[i, r, s]}}
 
-\item{delta}{Fraction of time step when the index samples the population. Vector by \code{i}}
+\item{delta}{Fraction of time step when the index samples the population. Vector by \code{i}. Set to a negative number (-1) to sample the average
+population over the course of the time step, i.e. \code{N * (1 - exp(-Z))/Z}.}
 }
 \value{
 Index at age. Array \verb{[a, i, s]}
@@ -44,7 +45,17 @@ For indices of abundance, the function calculates the numbers vulnerable to the 
 \details{
 The index is calculated as
 \deqn{
-I_{a,i,s} = v_{a,i,s} \sum_r N_{a,r,s} \exp(-\delta_i Z_{a,r,s}) \times \mathbb{1}(r \in R_i) \mathbb{1}(s \in S_i)
+I_{a,i,s} = v_{a,i,s} \sum_r N_{a,r,s} d_{a,r,s} \times \mathbb{1}(r \in R_i) \mathbb{1}(s \in S_i)
+}
+
+If the survey samples at a moment in time, then
+\deqn{
+d_{a,r,s} = \exp(-\delta_i Z_{a,r,s})
+}
+
+Otherwise, if the index samples the population over the duration of the time step, then
+\deqn{
+d_{a,r,s} = (1 - \exp(-Z_{a,r,s}))/Z_{a,r,s}
 }
 
 where \eqn{R_i} and \eqn{S_i} denote the regions and stocks, respectively, sampled by index \eqn{i}. For example,

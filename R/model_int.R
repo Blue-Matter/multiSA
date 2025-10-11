@@ -399,12 +399,23 @@ calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
 #' @param ns Integer, number of stocks
 #' @param ni Integer, number of indices
 #' @param samp Boolean indicates which regions and stocks are sampled by the index. Array `[i, r, s]`
-#' @param delta Fraction of time step when the index samples the population. Vector by `i`
+#' @param delta Fraction of time step when the index samples the population. Vector by `i`. Set to a negative number (-1) to sample the average
+#' population over the course of the time step, i.e. `N * (1 - exp(-Z))/Z`.
 #' @return Index at age. Array `[a, i, s]`
 #' @details
 #' The index is calculated as
 #' \deqn{
-#' I_{a,i,s} = v_{a,i,s} \sum_r N_{a,r,s} \exp(-\delta_i Z_{a,r,s}) \times \mathbb{1}(r \in R_i) \mathbb{1}(s \in S_i)
+#' I_{a,i,s} = v_{a,i,s} \sum_r N_{a,r,s} d_{a,r,s} \times \mathbb{1}(r \in R_i) \mathbb{1}(s \in S_i)
+#' }
+#'
+#' If the survey samples at a moment in time, then
+#' \deqn{
+#' d_{a,r,s} = \exp(-\delta_i Z_{a,r,s})
+#' }
+#'
+#' Otherwise, if the index samples the population over the duration of the time step, then
+#' \deqn{
+#' d_{a,r,s} = (1 - \exp(-Z_{a,r,s}))/Z_{a,r,s}
 #' }
 #'
 #' where \eqn{R_i} and \eqn{S_i} denote the regions and stocks, respectively, sampled by index \eqn{i}. For example,
@@ -418,31 +429,25 @@ calc_index <- function(N, Z, sel, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3]
   Z <- array(Z, c(na, nr, ns))
   sel <- array(sel, c(na, ni, ns))
 
-  ind_airs <- as.matrix(expand.grid(a = 1:na, i = 1:ni, r = 1:nr, s = 1:ns))
-  irs_airs <- ind_airs[, c("i", "r", "s")]
-  ars_airs <- ind_airs[, c("a", "r", "s")]
-  ais_airs <- ind_airs[, c("a", "i", "s")]
-  i_airs <- ind_airs[, "i"]
+  ind_arsi <- as.matrix(expand.grid(a = 1:na, r = 1:nr, s = 1:ns, i = 1:ni))
+  irs_arsi <- ind_arsi[, c("i", "r", "s")]
+  ars_arsi <- ind_arsi[, c("a", "r", "s")]
+  ais_arsi <- ind_arsi[, c("a", "i", "s")]
 
-  IN_airs <- array(
-    N[ars_airs] * samp[irs_airs] * sel[ais_airs] * exp(-delta[i_airs] * Z[ars_airs]),
-    c(na, ni, nr, ns)
+  duration_arsi <- sapply2(1:ni, function(i) {
+    if (delta[i] < 0) {
+      (1 - exp(-Z))/Z
+    } else {
+      exp(-delta[i] * Z)
+    }
+  })
+
+  IN_arsi <- array(
+    N[ars_arsi] * samp[irs_arsi] * sel[ais_arsi] * duration_arsi,
+    c(na, nr, ns, ni)
   )
-  IN_ais <- apply(IN_airs, c(1, 2, 4), sum)
+  IN_ais <- apply(IN_arsi, c(1, 4, 3), sum)
 
-  #N_ais <- sapply2(1:ns, function(s) {
-  #  sapply(1:ni, function(i) {
-  #    r_i <- samp[i, , s]
-  #    if (sum(r_i)) {
-  #      N_ars <- N[, r_i, s, drop = FALSE] * exp(-delta[i] * Z[, r_i, s, drop = FALSE])
-  #      N_a <- apply(N_ars, 1, sum)
-  #    } else {
-  #      N_a <- numeric(na)
-  #    }
-  #    return(N_a)
-  #  })
-  #})
-  #IN_ais2 <- N_ais * sel
   return(IN_ais)
 }
 

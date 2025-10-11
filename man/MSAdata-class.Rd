@@ -125,16 +125,16 @@ in the model. Default of zero.}
 \item{\code{Iobs_ymi}}{Observed indices}
 \item{\code{Isd_ymi}}{Lognormal standard deviation of the observed indices}
 \item{\code{unit_i}}{Character vector, units of the index. Set to \code{"B"} to use stock weight at age (default) or \code{"N"} for abundance (numbers).}
-\item{\code{IAAobs_ymai}}{Survey age composition}
-\item{\code{IALobs_ymli}}{Survey length composition}
+\item{\code{IAAobs_ymai}}{Array, survey age composition}
+\item{\code{IALobs_ymli}}{Array, survey length composition}
 \item{\code{icomp_like}}{Character, likelihood for the composition data. See \code{\link[=like_comp]{like_comp()}} for options}
-\item{\code{IAAN_ymi}}{Sample size of the index age composition by season if using the multinomial or Dirichlet-multinomial likelihoods}
-\item{\code{IALN_ymi}}{Sample size of the index length composition by season if using the multinomial or Dirichlet-multinomial likelihoods}
-\item{\code{IAAtheta_i}}{Index age composition dispersion parameter if using the Dirichlet-multinomial likelihood}
-\item{\code{IALtheta_i}}{Index length composition dispersion parameter if using the Dirichlet-multinomial likelihood}
+\item{\code{IAAN_ymi}}{Array, sample size of the index age composition by season if using the multinomial or Dirichlet-multinomial likelihoods}
+\item{\code{IALN_ymi}}{Array, sample size of the index length composition by season if using the multinomial or Dirichlet-multinomial likelihoods}
+\item{\code{IAAtheta_i}}{Numeric vector, survey age composition dispersion parameter if using the Dirichlet-multinomial likelihood}
+\item{\code{IALtheta_i}}{Numeric vector, index length composition dispersion parameter if using the Dirichlet-multinomial likelihood}
 \item{\code{samp_irs}}{Boolean array that specifies the regions and stocks sampled by the index. \code{samp[i, r, s]} indicates whether index \code{i} operates in region \code{r} and catches stock \code{s}.}
-\item{\code{sel_i}}{Character matrix of functional forms for selectivity. See \code{"type"} argument in \code{\link[=conv_selpar]{conv_selpar()}} for options.}
-\item{\code{delta_i}}{The elapsed fraction of time in the seasonal time step when the index samples the population.}
+\item{\code{sel_i}}{Character vector, functional forms for selectivity. See \code{"type"} argument in \code{\link[=conv_selpar]{conv_selpar()}} for options.}
+\item{\code{delta_i}}{Numeric vector, The elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., \code{(1 - exp(-Z))/Z}.}
 }
 }
 
