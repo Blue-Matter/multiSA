@@ -79,9 +79,9 @@ plot_recdist(fit)
 
 \item{m}{Integer for the corresponding season}
 
-\item{y}{Integer, year for plotting the movement matrix}
+\item{y}{Integer, year for plotting the movement matrix (last model year is the default)}
 
-\item{a}{Integer, corresponding age for plotting the movement matrix}
+\item{a}{Integer, corresponding age for plotting the movement matrix (age 1 is the default)}
 }
 \value{
 Various base graphics plots

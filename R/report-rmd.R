@@ -321,7 +321,7 @@ make_rmd_ind_stock <- function(s, sname, ns = 1) {
 make_rmd_mov <- function(s, y, a, yname, sname, header = TRUE) {
   rmd <- c(
     ifelse(header, "### Movement\n\n", ""),
-    paste0("```{r fig.cap=\"Movement matrix for ", sname, " for year ", yname, ", age ", a, " and its corresponding equilibrium distribution, calculated starting with the recruitment distribution.\"}"),
+    paste0("```{r fig.cap=\"Movement matrix for ", sname, " for year ", yname, ", age ", a, " and its corresponding equilibrium distribution over annual cycle (initialized with the recruitment distribution).\"}"),
     paste0("plot_mov(x, s = ", s, ", y = ", y, ", a = ", a, ")"),
     "```",
     ""

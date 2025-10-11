@@ -652,8 +652,8 @@ plot_Ffleet <- function(fit, f = 1) {
 
 #' @rdname plot-MSA-state
 #' @aliases plot_mov
-#' @param y Integer, year for plotting the movement matrix
-#' @param a Integer, corresponding age for plotting the movement matrix
+#' @param y Integer, year for plotting the movement matrix (last model year is the default)
+#' @param a Integer, corresponding age for plotting the movement matrix (age 1 is the default)
 #' @details
 #' - `plot_mov` plots movement matrices and the corresponding equilibrium distribution in multi-area models
 #' @export
@@ -664,12 +664,12 @@ plot_mov <- function(fit, s = 1, y, a) {
 
   nm <- dat@Dmodel@nm
   nr <- dat@Dmodel@nr
-  if (missing(y)) y <- dat@Dmodel@y_phi
-  if (missing(a)) a <- 2
+  if (missing(y)) y <- dat@Dmodel@ny
+  if (missing(a)) a <- 1
   rname <- dat@Dlabel@region
   mname <- dat@Dlabel@season
 
-  mov <- array(fit@report$mov_ymarrs[y, , a, , , s], c(nm, nr, nr))
+  mov <- array(fit@report$mov_ymarrs[y, , a+1, , , s], c(nm, nr, nr))
 
   if (nm > 1) {
     old_mar <- par()$mar
@@ -680,13 +680,9 @@ plot_mov <- function(fit, s = 1, y, a) {
     par(mfrow = c(2, ceiling(nm/2)))
   }
 
+  dist_eq <- calc_eqdist(mov, start = fit@report$recdist_rs[, s], m_start = dat@Dstock@m_spawn)
   for(m in 1:nm) {
-    dist_eq <- calc_eqdist(mov[m, , ], start = fit@report$recdist_rs[, s])
-
-    #dist_start <- ifelse(dat@Dstock@presence_rs[, s], 1/sum(dat@Dstock@presence_rs[, s]), 0)
-    #dist_eq <- calc_eqdist(mov[m, , ], start = dist_start)
-
-    .plot_mov(m = mov[m, , ], p = dist_eq, rname = rname, xlab = "", ylab = "")
+    .plot_mov(m = mov[m, , ], p = dist_eq[m, ], rname = rname, xlab = "", ylab = "")
     if (nm > 1) title(mname[m], font.main = 1)
   }
 

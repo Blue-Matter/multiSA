@@ -523,23 +523,36 @@ conv_mov <- function(x, g, v, na = dim(x)[1], nr = dim(x)[2], aref = ceiling(0.5
 
 #' Equilibrium distribution from movement matrix
 #'
-#' Applies the movement matrix several times in order to obtain the equilibrium spatial distribution of a movement matrix.
+#' Applies the seasonal movement matrices several times in order to obtain the equilibrium spatial distribution over the course of a year.
 #' Not used in the model but useful for reporting.
-#' @return Numeric vector of length `nr`
-#' @param x Movement matrix, a square matrix with rows corresponding to origin (sum to 1), and columns corresponding to destination
+#'
+#' @return Matrix by season and region `[m, r]`
+#' @param x Movement array `[m, r, r]`. The second dimension corresponds to origin (sum to 1), and third dimension corresponds to destination
+#' @param nm Number of seasons
 #' @param nr Number of regions
 #' @param start The initial distribution. Vector of length `nr`
+#' @param m_start Integer, the season in which to apply the initial distribution and start the projection
 #' @param nit Integer, the number of times the movement matrix will be applied
 #' @export
-calc_eqdist <- function(x, nr = dim(x)[2], start = rep(1/nr, nr), nit = 20) {
+calc_eqdist <- function(x, nm = dim(x)[1], nr = dim(x)[2], start = rep(1/nr, nr),
+                        m_start = 1L, nit = 20) {
   if (inherits(start, "advector") || inherits(x, "advector")) {
     `[<-` <- RTMB::ADoverload("[<-")
   }
 
-  N <- array(NA_real_, c(nit, nr))
-  N[1, ] <- start
-  for (i in 2:nit - 1) N[i+1, ] <- colSums(N[i, ] * x)
-  return(N[nit-1, ])
+  N <- array(NA_real_, c(nit, nm, nr))
+  N[1, m_start, ] <- start
+
+  if (nm > m_start) {
+    for (m in seq(m_start + 1, nm)) N[1, m, ] <- colSums(N[1, m-1, ] * x[m, , ])
+  }
+  for (i in seq(2, nit - 1)) {
+    N[i, 1, ] <- colSums(N[i-1, nm, ] * x[1, , ])
+    if (nm > 1) {
+      for (m in 2:nm) N[i, m, ] <- colSums(N[i, m-1, ] * x[m, , ])
+    }
+  }
+  return(matrix(N[nit-1, , ], nm, nr))
 }
 
 #' Predict the probability of CKMR kinship pairs

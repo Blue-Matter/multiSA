@@ -4,21 +4,32 @@
 \alias{calc_eqdist}
 \title{Equilibrium distribution from movement matrix}
 \usage{
-calc_eqdist(x, nr = dim(x)[2], start = rep(1/nr, nr), nit = 20)
+calc_eqdist(
+  x,
+  nm = dim(x)[1],
+  nr = dim(x)[2],
+  start = rep(1/nr, nr),
+  m_start = 1L,
+  nit = 20
+)
 }
 \arguments{
-\item{x}{Movement matrix, a square matrix with rows corresponding to origin (sum to 1), and columns corresponding to destination}
+\item{x}{Movement array \verb{[m, r, r]}. The second dimension corresponds to origin (sum to 1), and third dimension corresponds to destination}
+
+\item{nm}{Number of seasons}
 
 \item{nr}{Number of regions}
 
 \item{start}{The initial distribution. Vector of length \code{nr}}
 
+\item{m_start}{Integer, the season in which to apply the initial distribution and start the projection}
+
 \item{nit}{Integer, the number of times the movement matrix will be applied}
 }
 \value{
-Numeric vector of length \code{nr}
+Matrix by season and region \verb{[m, r]}
 }
 \description{
-Applies the movement matrix several times in order to obtain the equilibrium spatial distribution of a movement matrix.
+Applies the seasonal movement matrices several times in order to obtain the equilibrium spatial distribution over the course of a year.
 Not used in the model but useful for reporting.
 }
