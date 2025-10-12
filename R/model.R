@@ -545,7 +545,7 @@ update_report <- function(r, MSAdata) {
           } else {
             y_b <- which(Dfishery@sel_block_yf[, f] == bb)
             for (m in 1:nm) {
-              LAKsel_ymalfs[y_b[1], m, , , f, s] <- sapply2(1:ns, function(s) {
+              LAKsel_ymalfs[y_b[1], m, , , f, ] <- sapply2(1:ns, function(s) {
                 LAK_la <- t(Dstock@LAK_ymals[y_b[1], m, , , s]) * sel_lf[, Dfishery@sel_block_yf[y_b[1], f]]
                 t(LAK_la)/colSums(LAK_la)
               })
@@ -659,7 +659,7 @@ update_report <- function(r, MSAdata) {
           }
         } else {
           for (m in 1:nm) {
-            LAKsel_ymalis[1, m, , , i, s] <- sapply2(1:ns, function(s) {
+            LAKsel_ymalis[1, m, , , i, ] <- sapply2(1:ns, function(s) {
               LAK_la <- t(Dstock@LAK_ymals[1, m, , , s]) * sel_li[, i]
               t(LAK_la)/colSums(LAK_la)
             })
