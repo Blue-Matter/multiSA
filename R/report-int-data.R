@@ -43,14 +43,8 @@ plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annu
 
   color <- make_color(ncol(x), type = by)
   fname <- Dlabel@fleet[f]
-
-  if (prop) {
-    propplot(x, cols = color, leg.names = name, xval = year, ylab = paste(fname, "catch proportion"))
-  } else {
-    matplot(year, x, xlab = "Year", ylab = paste(fname, "catch"), type = "o", col = color, pch = 16,
-            ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
-    if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
-  }
+  ylab <- if (prop) paste(fname, "catch proportion") else paste(fname, "catch")
+  barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
 
   invisible()
 }
@@ -286,7 +280,7 @@ plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE) {
 
       if (prop) {
         color <- make_color(ncol(pred), type = "stock")
-        propplot(pred, cols = color, leg.names = Dlabel@stock, xval = year)
+        barplot2(pred, cols = color, leg.names = Dlabel@stock, xval = year)
 
         if (dat@Dmodel@ns == 2) {
           obs_cumsum <- apply(obs, 1, cumsum) %>% t()

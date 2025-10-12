@@ -17,17 +17,31 @@ make_color <- function(n, type = c("fleet", "region", "stock"), alpha = 1) {
 }
 
 #' @importFrom graphics barplot box legend axis
-propplot <- function(x, cols, leg.names, xval, ylab = "Proportion", border = ifelse(nrow(x) > 20, NA, "grey60")) {
-  p <- apply(x, 1, function(x) x/sum(x, na.rm = TRUE))
+barplot2 <- function(x, cols, leg.names, xval, ylab = ifelse(prop, "Proportion", "Value"),
+                     border = ifelse(nrow(x) > 60, NA, "grey60"), prop = TRUE) {
+
+  if (prop) {
+    p <- apply(x, 1, function(x) x/sum(x, na.rm = TRUE))
+    if (is.null(dim(p))) p <- matrix(p, 1, length(xval))
+    ylim <- c(0, 1)
+  } else {
+    p <- t(x)
+    ylim <- c(0, 1.1) * range(rowSums(x))
+  }
+
   colnames(p) <- NULL
-  if (is.null(dim(p))) p <- matrix(p, length(xval), 1)
+  if (nrow(p) == 1) {
+    plot(xval, p, xlab = "Year", ylab = ylab, ylim = ylim, pch = 16, type = "o", zero_line = TRUE)
+    return(invisible())
+  }
 
   if (missing(cols)) {
     ncat <- nrow(p)
     cols <- make_color(ncat)
   }
 
-  plot(NULL, xlab = "Year", ylab = ylab, xlim = c(0, ncol(p)), xaxt = "n", ylim = c(0, 1), yaxs = "i", xaxs = "i")
+  plot(NULL, xlab = "Year", ylab = ylab, xlim = c(0, ncol(p)), xaxt = "n", ylim = ylim,
+       yaxs = "i", xaxs = "i")
   barplot(p, add = TRUE, col = cols, width = 1, space = 0, border = border)
   if (!missing(leg.names) && length(leg.names) > 1) {
     legend("topleft", legend = leg.names, fill = cols, border = border, horiz = TRUE)
@@ -100,18 +114,13 @@ plot_S <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
   color <- make_color(ncol(x), type = ifelse(by == "total", "stock", by))
 
   if (prop) {
-    propplot(x, cols = color, leg.names = name, xval = year, ylab = "Spawning fraction")
+    ylab <- "Spawning fraction"
+  } else if (by == "total" && !missing(s)) {
+    ylab <- paste(name, "spawning output")
   } else {
-
-    if (by == "total" && !missing(s)) {
-      ylab <- paste(name, "spawning output")
-    } else {
-      ylab <- "Spawning output"
-    }
-    matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
-            ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
-    if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+    ylab <- "Spawning output"
   }
+  barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
 
   out <- array2DF(x, responseName = ifelse(prop, "p", "S"))
   invisible(out)
@@ -165,18 +174,13 @@ plot_B <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
   color <- make_color(ncol(x), type = ifelse(by == "total", "stock", by))
 
   if (prop) {
-    propplot(x, cols = color, leg.names = name, xval = year, ylab = "Biomass fraction")
+    ylab <- "Biomass fraction"
+  } else if (by == "total" && !missing(s)) {
+    ylab <- paste(name, "total biomass")
   } else {
-
-    if (by == "total" && !missing(s)) {
-      ylab <- paste(name, "spawning output")
-    } else {
-      ylab <- "Spawning output"
-    }
-    matplot(year, x, xlab = "Year", ylab = "Total biomass", type = "o", col = color, pch = 16,
-            ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
-    if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+    ylab <- "Total biomass"
   }
+  barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
 
   out <- array2DF(x, responseName = ifelse(prop, "p", "B"))
   invisible(out)
@@ -606,15 +610,13 @@ plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE) {
   color <- make_color(ncol(x), type = by)
 
   fname <- Dlabel@fleet[f]
-  ylab <- paste("Biomass available to", fname)
 
   if (prop) {
-    propplot(x, cols = color, leg.names = name, xval = year, ylab = ylab)
+    ylab <- paste("Proportion biomass available to", fname)
   } else {
-    matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
-            ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
-    if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+    ylab <- paste("Biomass available to", fname)
   }
+  barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
 
   invisible()
 }
