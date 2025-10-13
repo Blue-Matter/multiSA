@@ -451,6 +451,33 @@ calc_index <- function(N, Z, sel, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3]
   return(IN_ais)
 }
 
+calc_index2 <- function(N_ymars, Z_ymars, sel_ymais,
+                        ny = dim(N_ymars)[1], nm = dim(N_ymars[2]),
+                        na = dim(N_ymars)[3], nr = dim(N_ymars)[4], ns = dim(N_ymars)[5],
+                        ni = dim(sel_ymais)[4],
+                        samp_irs = array(1, c(ni, nr, ns)), delta_i = rep(0, ni)) {
+
+  `[<-` <- RTMB::ADoverload("[<-")
+
+  ind_ymarsi <- as.matrix(expand.grid(y = 1:ny, m = 1:nm, a = 1:na, r = 1:nr, s = 1:ns, i = 1:ni))
+  ymars_ymarsi <- ind_ymarsi[, c("y", "m", "a", "r", "s")]
+  irs_ymarsi <- ind_ymarsi[, c("i", "r", "s")]
+  ymais_ymarsi <- ind_ymarsi[, c("y", "m", "a", "i", "s")]
+
+  duration_ymarsi <- sapply2(1:ni, function(i) {
+    if (delta_i[i] < 0) {
+      (1 - exp(-Z_ymars))/Z_ymars
+    } else {
+      exp(-delta_i[i] * Z_ymars)
+    }
+  })
+
+  IN_ymarsi <- array(NA_real_, c(ny, nm, na, nr, ns, ni))
+  IN_ymarsi[] <- N_ymars[ymars_ymarsi] * samp_irs[irs_ymarsi] * sel_ymais[ymais_ymarsi] * duration_ymarsi
+  IN_ymais <- apply(IN_ymarsi, c(1:4, 6, 5), sum)
+  return(IN_ymais)
+}
+
 calc_q <- function(Iobs, B) {
   i <- !is.na(Iobs) & Iobs > 0
   n <- sum(i)
