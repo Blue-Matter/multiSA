@@ -101,10 +101,11 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
 #' @aliases plot_CAA
 #' @param f Integer, indexes the fleet
 #' @param r Integer, indexes the region
+#' @param do_mean Logical, whether to plot full compositions or time series of mean length or mean age
 #' @details
 #' - `plot_CAA` plots the fishery catch at age
 #' @export
-plot_CAA <- function(fit, f = 1, r = 1) {
+plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE) {
   dat <- get_MSAdata(fit)
 
   if (sum(dat@Dfishery@CAAN_ymfr, na.rm = TRUE)) {
@@ -126,9 +127,19 @@ plot_CAA <- function(fit, f = 1, r = 1) {
       obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
 
       include <- rowSums(obs, na.rm = TRUE) > 0
+      if (do_mean) {
+        age <- seq(1, dat@Dmodel@na) - 1
+        mpred <- apply(pred, 1, function(w) weighted.mean(x = lmid, w = w))
+        mobs <- apply(obs, 1, function(w) weighted.mean(x = lmid, w = w))
 
-      plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = Dlabel@age, ylab = "Proportion",
-                       zval = year[include], N = N[include])
+        ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
+
+        plot(year[include], mobs[include], xlab = "Year", ylab = "Mean age", pch = 1, type = "o", ylim = ylim)
+        lines(year[include], mpred[include], col = 2, lwd = 2)
+      } else {
+        plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = Dlabel@age, ylab = "Proportion",
+                         zval = year[include], N = N[include])
+      }
     }
   }
 
@@ -140,7 +151,7 @@ plot_CAA <- function(fit, f = 1, r = 1) {
 #' @details
 #' - `plot_CAL` plots the catch at length
 #' @export
-plot_CAL <- function(fit, f = 1, r = 1) {
+plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE) {
   dat <- get_MSAdata(fit)
 
   if (sum(dat@Dfishery@CALN_ymfr, na.rm = TRUE)) {
@@ -162,10 +173,19 @@ plot_CAL <- function(fit, f = 1, r = 1) {
       obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
 
       include <- rowSums(obs, na.rm = TRUE) > 0
+      if (do_mean) {
+        mpred <- apply(pred, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
+        mobs <- apply(obs, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
 
-      plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = dat@Dmodel@lmid,
-                       xlab = "Length", ylab = "Proportion",
-                       zval = year[include], N = N[include])
+        ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
+
+        plot(year[include], mobs[include], xlab = "Year", ylab = "Mean length", pch = 1, type = "o", ylim = ylim)
+        lines(year[include], mpred[include], col = 2, lwd = 2)
+      } else {
+        plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = dat@Dmodel@lmid,
+                         xlab = "Length", ylab = "Proportion",
+                         zval = year[include], N = N[include])
+      }
     }
   }
 
@@ -199,9 +219,20 @@ plot_IAA <- function(fit, i = 1) {
       obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
 
       include <- rowSums(obs, na.rm = TRUE) > 0
+      if (do_mean) {
+        age <- seq(1, dat@Dmodel@na) - 1
+        mpred <- apply(pred, 1, function(w) weighted.mean(x = lmid, w = w))
+        mobs <- apply(obs, 1, function(w) weighted.mean(x = lmid, w = w))
 
-      plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = Dlabel@age, ylab = "Proportion",
-                       zval = year[include], N = N[include])
+        ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
+
+        plot(year[include], mobs[include], xlab = "Year", ylab = "Mean age", pch = 1, type = "o", ylim = ylim)
+        lines(year[include], mpred[include], col = 2, lwd = 2)
+      } else {
+        plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = Dlabel@age, ylab = "Proportion",
+                         zval = year[include], N = N[include])
+      }
+
     }
   }
 
@@ -213,7 +244,7 @@ plot_IAA <- function(fit, i = 1) {
 #' @details
 #' - `plot_IAL` plots the index length composition
 #' @export
-plot_IAL <- function(fit, i = 1) {
+plot_IAL <- function(fit, i = 1, do_mean = FALSE) {
   dat <- get_MSAdata(fit)
 
   if (sum(dat@Dsurvey@IALN_ymi, na.rm = TRUE)) {
@@ -235,10 +266,20 @@ plot_IAL <- function(fit, i = 1) {
       obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
 
       include <- rowSums(obs, na.rm = TRUE) > 0
+      if (do_mean) {
+        mpred <- apply(pred, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
+        mobs <- apply(obs, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
 
-      plot_composition(obs[include > 0, ], pred[include > 0, ], xval = dat@Dmodel@lmid,
-                       xlab = "Length", ylab = "Proportion",
-                       zval = year[include > 0], N = N[include > 0])
+        ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
+
+        plot(year[include], mobs[include], xlab = "Year", ylab = "Mean length", pch = 1, type = "o", ylim = ylim)
+        lines(year[include], mpred[include], col = 2, lwd = 2)
+      } else {
+        plot_composition(obs[include > 0, ], pred[include > 0, ], xval = dat@Dmodel@lmid,
+                         xlab = "Length", ylab = "Proportion",
+                         zval = year[include > 0], N = N[include > 0])
+      }
+
     }
   }
 

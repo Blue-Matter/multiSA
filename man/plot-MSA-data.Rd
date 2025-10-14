@@ -16,13 +16,13 @@ plot_catch(fit, f = 1, by = c("region", "stock"), prop = FALSE, annual = FALSE)
 
 plot_index(fit, i = 1, zoom = FALSE)
 
-plot_CAA(fit, f = 1, r = 1)
+plot_CAA(fit, f = 1, r = 1, do_mean = FALSE)
 
-plot_CAL(fit, f = 1, r = 1)
+plot_CAL(fit, f = 1, r = 1, do_mean = FALSE)
 
 plot_IAA(fit, i = 1)
 
-plot_IAL(fit, i = 1)
+plot_IAL(fit, i = 1, do_mean = FALSE)
 
 plot_SC(fit, ff = 1, aa = 1, r = 1, prop = FALSE)
 
@@ -45,6 +45,8 @@ plot_tagmov(fit, s = 1, yy = 1, aa = 1)
 predicted values over all model years.}
 
 \item{r}{Integer, indexes the region}
+
+\item{do_mean}{Logical, whether to plot full compositions or time series of mean length or mean age}
 
 \item{ff}{Integer, indexes the aggregate fleet (for stock composition data)}
 
