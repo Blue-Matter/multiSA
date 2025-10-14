@@ -121,7 +121,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         CB_ymfrs[y, m, , , ] <- Fsearch[["CB_frs"]]
         VB_ymfrs[y, m, , , ] <- 0
         for (a in 1:na) {
-          VB_ymfrs[y, m, , , ] <- VB_ymfrs[y, m, , , ] +
+          VB_ymfrs[y, m, , , ] <- array(VB_ymfrs[y, m, , , ], c(nf, nr, ns)) +
             array(Fsearch[["VB_afrs"]][a, , , ], c(nf, nr, ns))
         }
       } else {
@@ -135,7 +135,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         F_ymafrs[y, m, , , , ] <- q_fs[fs_afrs] * F_ymfr[ymfr_afrs] * sel_ymafs[ymafs_afrs]
         F_ymars[y, m, , , ] <- 0
         for (f in 1:nf) {
-          F_ymars[y, m, , , ] <- F_ymars[y, m, , , ] + array(F_ymafrs[y, m, , f, , ], c(na, nr, ns))
+          F_ymars[y, m, , , ] <- array(F_ymars[y, m, , , ], c(na, nr, ns)) + array(F_ymafrs[y, m, , f, , ], c(na, nr, ns))
         }
 
         ind_ars <- as.matrix(expand.grid(y = y, m = m, a = 1:na, r = 1:nr, s = 1:ns))

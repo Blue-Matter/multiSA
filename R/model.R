@@ -181,9 +181,9 @@ update_report <- function(r, MSAdata) {
   if (any_CAL) CN_ymlfrs <- array(NA_real_, c(ny, nm, nl, nf, nr, ns))
 
   # Identify index lengths predicted from fishery selectivity
-  any_IAL <- ni > 0 && any(Dsurvey@IALobs_ymli, na.rm = TRUE)
+  any_IAL <- ni > 0 && any(Dsurvey@IALobs_ymli > 0, na.rm = TRUE)
   if (any_IAL) {
-    has_IAL_i <- apply(Dsurvey@IALobs_ymli, 4, sum(i, na.rm = TRUE) > 0)
+    has_IAL_i <- apply(Dsurvey@IALobs_ymli, 4, function(i) sum(i, na.rm = TRUE) > 0)
     Isel_f <- suppressWarnings(as.numeric(Dsurvey@sel_i))
     Isel_fleet <- !is.na(Isel_f) & Isel_f > 0
     is_IALfsel_i <- has_IAL_i & Isel_fleet
