@@ -68,34 +68,34 @@ observed catch with the dimension following the underscore, following this templ
 <dd><p>Character vector, units of the index. Set to <code>"B"</code> to use stock weight at age (default) or <code>"N"</code> for abundance (numbers).</p></dd>
 
 <dt><code>IAAobs_ymai</code></dt>
-<dd><p>Survey age composition</p></dd>
+<dd><p>Array, survey age composition</p></dd>
 
 <dt><code>IALobs_ymli</code></dt>
-<dd><p>Survey length composition</p></dd>
+<dd><p>Array, survey length composition</p></dd>
 
 <dt><code>icomp_like</code></dt>
 <dd><p>Character, likelihood for the composition data. See <code><a href="like_comp.html">like_comp()</a></code> for options</p></dd>
 
 <dt><code>IAAN_ymi</code></dt>
-<dd><p>Sample size of the index age composition by season if using the multinomial or Dirichlet-multinomial likelihoods</p></dd>
+<dd><p>Array, sample size of the index age composition by season if using the multinomial or Dirichlet-multinomial likelihoods</p></dd>
 
 <dt><code>IALN_ymi</code></dt>
-<dd><p>Sample size of the index length composition by season if using the multinomial or Dirichlet-multinomial likelihoods</p></dd>
+<dd><p>Array, sample size of the index length composition by season if using the multinomial or Dirichlet-multinomial likelihoods</p></dd>
 
 <dt><code>IAAtheta_i</code></dt>
-<dd><p>Index age composition dispersion parameter if using the Dirichlet-multinomial likelihood</p></dd>
+<dd><p>Numeric vector, survey age composition dispersion parameter if using the Dirichlet-multinomial likelihood</p></dd>
 
 <dt><code>IALtheta_i</code></dt>
-<dd><p>Index length composition dispersion parameter if using the Dirichlet-multinomial likelihood</p></dd>
+<dd><p>Numeric vector, index length composition dispersion parameter if using the Dirichlet-multinomial likelihood</p></dd>
 
 <dt><code>samp_irs</code></dt>
 <dd><p>Boolean array that specifies the regions and stocks sampled by the index. <code>samp[i, r, s]</code> indicates whether index <code>i</code> operates in region <code>r</code> and catches stock <code>s</code>.</p></dd>
 
 <dt><code>sel_i</code></dt>
-<dd><p>Character matrix of functional forms for selectivity. See <code>"type"</code> argument in <code><a href="conv_selpar.html">conv_selpar()</a></code> for options.</p></dd>
+<dd><p>Character vector, functional forms for selectivity. See <code>"type"</code> argument in <code><a href="conv_selpar.html">conv_selpar()</a></code> for options.</p></dd>
 
 <dt><code>delta_i</code></dt>
-<dd><p>The elapsed fraction of time in the seasonal time step when the index samples the population.</p></dd>
+<dd><p>Numeric vector, The elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., <code>(1 - exp(-Z))/Z</code>.</p></dd>
 
 
 </dl></div>
