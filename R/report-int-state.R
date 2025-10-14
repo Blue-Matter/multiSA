@@ -225,17 +225,30 @@ plot_R <- function(fit, s) {
 #' @param phi Logical, whether to plot unfished replacement line
 #' @details
 #' - `plot_SRR` plots the stock-recruitment relationship and history (realized recruitment) by stock
-#' @importFrom graphics points
+#' @importFrom graphics points lines
 #' @export
 plot_SRR <- function(fit, s = 1, phi = TRUE) {
+  dat <- get_MSAdata(fit)
   Dlabel <- get_MSAdata(fit)@Dlabel
 
   S_y <- apply(fit@report$S_yrs[, , s, drop = FALSE], 1, sum)
   R_y <- fit@report$R_ys[, s]
+
   Rpred_y <- R_y/fit@report$Rdev_ys[, s]
 
-  plot(S_y[order(S_y)], Rpred_y[order(S_y)], type = "l", lwd = 2, xlab = "Spawning output", ylab = "Recruitment",
+  a <- fit@report$sralpha_s[s]
+  b <- fit@report$srbeta_s[s]
+
+  S_SRR <- seq(0, max(S_y), length.out = 100)
+  R_SRR <- calc_recruitment(S_SRR, SRR = dat@Dstock@SRR_s[s], a = a, b = b)
+
+  S2 <- S_y[-1]
+  R2 <- Rpred_y[-1]
+
+  plot(S_SRR, R_SRR, type = "l", lwd = 1, lty = 3,
+       xlab = "Spawning output", ylab = "Recruitment",
        xaxs = "i", yaxs = "i", xlim = c(0, 1.1) * range(S_y), ylim = c(0, 1.1) * range(R_y))
+  lines(S2[order(S2)], R2[order(R2)], lwd = 2)
   points(S_y, R_y, pch = 16)
 
   if (phi) {
