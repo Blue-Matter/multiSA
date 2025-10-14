@@ -74,9 +74,9 @@
 <span></span>
 <span><span class="fu">plot_Ffleet</span><span class="op">(</span><span class="va">fit</span>, f <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_mov</span><span class="op">(</span><span class="va">fit</span>, s <span class="op">=</span> <span class="fl">1</span>, <span class="va">y</span>, <span class="va">a</span><span class="op">)</span></span>
+<span><span class="fu">plot_mov</span><span class="op">(</span><span class="va">fit</span>, s <span class="op">=</span> <span class="fl">1</span>, <span class="va">y</span>, <span class="va">a</span>, palette <span class="op">=</span> <span class="st">"Peach"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_recdist</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">plot_recdist</span><span class="op">(</span><span class="va">fit</span>, palette <span class="op">=</span> <span class="st">"Peach"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -141,6 +141,10 @@
 
 <dt id="arg-a">a<a class="anchor" aria-label="anchor" href="#arg-a"></a></dt>
 <dd><p>Integer, corresponding age for plotting the movement matrix (age 1 is the default)</p></dd>
+
+
+<dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>
+<dd><p>Character, palette name to pass to <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::hcl.colors()</a></code>. See <code><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">grDevices::hcl.pals()</a></code> for options.</p></dd>
 
 </dl></div>
     <div class="section level2">
