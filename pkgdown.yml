@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   equations: equations.html
   introduction: introduction.html
-last_built: 2025-10-14T04:55Z
+last_built: 2025-10-14T05:29Z
 urls:
   reference: https://blue-matter.github.io/multiSA/reference
   article: https://blue-matter.github.io/multiSA/articles
