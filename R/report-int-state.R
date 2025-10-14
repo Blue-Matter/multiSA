@@ -211,7 +211,7 @@ plot_R <- function(fit, s) {
   }
 
   color <- make_color(ncol(x), "stock")
-  matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
+  matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
           ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
   if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
 
@@ -367,7 +367,7 @@ plot_Fstock <- function(fit, s, by = c("annual", "season")) {
     }
 
     color <- make_color(ncol(x), "stock")
-    matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
+    matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
             ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
     if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
   }
@@ -658,7 +658,7 @@ plot_Ffleet <- function(fit, f = 1) {
 
   fname <- Dlabel@fleet[f]
   ylab <- paste(fname, "fishing mortality")
-  matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16,
+  matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
           ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
   if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
 

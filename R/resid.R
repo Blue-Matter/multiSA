@@ -275,7 +275,8 @@ plot_resid_Cobs <- function(fit, f = 1, ...) {
   color <- make_color(ncol(x), type = "region")
   fname <- dat@Dlabel@fleet[f]
 
-  matplot(year, x, xlab = "Year", ylab = paste(fname, "catch residual"), type = "o", col = color, pch = 16)
+  matplot(year, x, xlab = "Year", ylab = paste(fname, "catch residual"), type = "o",
+          col = color, pch = 16, lty = 1)
   abline(h = 0, lty = 2, col = "grey60")
   if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
 
