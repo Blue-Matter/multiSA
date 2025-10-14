@@ -94,7 +94,7 @@ setMethod("show",
             if (length(object@SD) > 1 && !is.null(object@SD$env$hessian)) {
               h <- object@SD$env$hessian
               det_h <- det(h)
-              cat(paste("\nDeterminant of Hessian:"), round(det_h, 4))
+              cat(paste("\nDeterminant of Hessian:"), signif(det_h, 5))
 
               zero_rows <- apply(h, 1, function(x) all(x == 0, na.rm = TRUE))
               na_rows <- apply(h, 1, function(x) all(is.na(x)))

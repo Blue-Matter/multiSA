@@ -251,7 +251,7 @@ get_sdreport <- function(obj, getReportCovariance = FALSE, silent = FALSE, ...) 
     if (!silent) {
       message_oops("Check convergence. Covariance matrix is not positive-definite.")
       if (exists("h", inherits = FALSE) && !is.null(h)) {
-        message_info("Determinant of Hessian is ", round(det(h), 5), ", should be > 0")
+        message_info("Determinant of Hessian is ", signif(det(h), 5), ", should be > 0")
       }
     }
   }
