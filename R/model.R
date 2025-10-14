@@ -171,7 +171,7 @@ update_report <- function(r, MSAdata) {
   CB_ymfrs <-
     VB_ymfrs <- array(NA_real_, c(ny, nm, nf, nr, ns))
 
-  if (sum(Dfishery@CALobs_ymlfr, na.rm = TRUE)) {
+  if (sum(Dfishery@CALobs_ymlfr > 0, na.rm = TRUE)) {
     has_CAL_f <- apply(Dfishery@CALobs_ymlfr, 4, function(i) sum(i, na.rm = TRUE) > 0)
   } else {
     has_CAL_f <- rep(FALSE, nf)
