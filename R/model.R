@@ -12,7 +12,8 @@
 #' @param run_model Logical, whether to fit the model through [stats::nlminb()].
 #' @param do_sd Logical, whether to calculate the standard errors with [RTMB::sdreport()].
 #' @param report Logical, whether to return the report list with `obj$report(obj$env$last.par.best)`.
-#' @param silent Logical, whether to report progress to console. **Not passed to [TMB::MakeADFun()].**
+#' @param silent Logical, whether to report progress to console. **Not passed to [TMB::MakeADFun()].** Recommend to set to `TRUE`
+#' to speed up run time, e.g., when running simulations, multiple fits, etc.
 #' @param control Passed to [stats::nlminb()]
 #' @param ... Other arguments to [RTMB::MakeADFun()].
 #' @returns A [MSAassess-class] object.
@@ -33,7 +34,7 @@ fit_MSA <- function(MSAdata, parameters, map = list(), random = NULL,
 
   func <- function(p) .MSA(p, d = MSAdata)
 
-  if (!silent) message("Building model..")
+  if (!silent) message("Building model with RTMB::MakeADFun()..")
   obj <- RTMB::MakeADFun(
     func = func, parameters = parameters,
     map = map, random = random,
@@ -52,7 +53,6 @@ fit_MSA <- function(MSAdata, parameters, map = list(), random = NULL,
 
     } else if (is.infinite(fn)) {
       message_oops("Objective function is infinite at initial values.")
-
     }
 
     gr <- obj$gr()

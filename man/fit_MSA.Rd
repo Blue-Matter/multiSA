@@ -33,7 +33,8 @@ See \code{\link[RTMB:TMB-interface]{RTMB::MakeADFun()}}.}
 
 \item{report}{Logical, whether to return the report list with \code{obj$report(obj$env$last.par.best)}.}
 
-\item{silent}{Logical, whether to report progress to console. \strong{Not passed to \code{\link[TMB:MakeADFun]{TMB::MakeADFun()}}.}}
+\item{silent}{Logical, whether to report progress to console. \strong{Not passed to \code{\link[TMB:MakeADFun]{TMB::MakeADFun()}}.} Recommend to set to \code{TRUE}
+to speed up run time, e.g., when running simulations, multiple fits, etc.}
 
 \item{control}{Passed to \code{\link[stats:nlminb]{stats::nlminb()}}}
 

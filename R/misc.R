@@ -147,11 +147,12 @@ optimize_RTMB <- function(obj, hessian = FALSE, restart = 0, do_sd = TRUE,
 
   if (is.null(obj$env$random) && hessian) h <- obj$he else h <- NULL
 
-  if (!silent) message_info("Fitting model..")
+  if (!silent) message_info("Fitting model with stats::nlminb()..")
   opt <- tryCatch(
     nlminb(obj$par, obj$fn, obj$gr, h, control = control, lower = lower, upper = upper),
     error = function(e) as.character(e)
   )
+  if (!silent) message_info("Final gradient is ", round(max(abs(obj$gr(obj$env$last.par.best))), 5))
 
   if (do_sd) {
     SD <- get_sdreport(obj, silent = silent)
@@ -249,9 +250,8 @@ get_sdreport <- function(obj, getReportCovariance = FALSE, silent = FALSE, ...) 
   if (!res$pdHess) {
     if (!silent) {
       message_oops("Check convergence. Covariance matrix is not positive-definite.")
-      message_info("Maximum gradient is ", round(max(abs(res$gradient.fixed)), 5))
       if (exists("h", inherits = FALSE) && !is.null(h)) {
-        message_info("Determinant of Hessian is ", round(det(h), 5))
+        message_info("Determinant of Hessian is ", round(det(h), 5), ", should be > 0")
       }
     }
   }
