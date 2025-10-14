@@ -104,6 +104,7 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
 #' @param do_mean Logical, whether to plot full compositions or time series of mean length or mean age
 #' @details
 #' - `plot_CAA` plots the fishery catch at age
+#' @importFrom stats weighted.mean
 #' @export
 plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE) {
   dat <- get_MSAdata(fit)
@@ -129,8 +130,8 @@ plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE) {
       include <- rowSums(obs, na.rm = TRUE) > 0
       if (do_mean) {
         age <- seq(1, dat@Dmodel@na) - 1
-        mpred <- apply(pred, 1, function(w) weighted.mean(x = lmid, w = w))
-        mobs <- apply(obs, 1, function(w) weighted.mean(x = lmid, w = w))
+        mpred <- apply(pred, 1, function(w) weighted.mean(x = age, w = w))
+        mobs <- apply(obs, 1, function(w) weighted.mean(x = age, w = w))
 
         ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
 
@@ -197,7 +198,7 @@ plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE) {
 #' @details
 #' - `plot_IAA` plots the index age composition
 #' @export
-plot_IAA <- function(fit, i = 1) {
+plot_IAA <- function(fit, i = 1, do_mean = FALSE) {
   dat <- get_MSAdata(fit)
 
   if (sum(dat@Dsurvey@IAAN_ymi, na.rm = TRUE)) {
@@ -221,8 +222,8 @@ plot_IAA <- function(fit, i = 1) {
       include <- rowSums(obs, na.rm = TRUE) > 0
       if (do_mean) {
         age <- seq(1, dat@Dmodel@na) - 1
-        mpred <- apply(pred, 1, function(w) weighted.mean(x = lmid, w = w))
-        mobs <- apply(obs, 1, function(w) weighted.mean(x = lmid, w = w))
+        mpred <- apply(pred, 1, function(w) weighted.mean(x = age, w = w))
+        mobs <- apply(obs, 1, function(w) weighted.mean(x = age, w = w))
 
         ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
 
@@ -342,7 +343,7 @@ plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE) {
   invisible()
 }
 
-#' @importFrom graphics lines mtext
+#' @importFrom graphics lines mtext axis
 plot_composition <- function(obs, pred = NULL, xval = 1:ncol(obs), xlab = "Age",
                              ylab = "Value", zval = 1:nrow(obs), N = rowSums(obs),
                              xaxislab = xval, ncol = 4, nrow = 4) {

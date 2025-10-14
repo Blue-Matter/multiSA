@@ -20,7 +20,7 @@ plot_CAA(fit, f = 1, r = 1, do_mean = FALSE)
 
 plot_CAL(fit, f = 1, r = 1, do_mean = FALSE)
 
-plot_IAA(fit, i = 1)
+plot_IAA(fit, i = 1, do_mean = FALSE)
 
 plot_IAL(fit, i = 1, do_mean = FALSE)
 

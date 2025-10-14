@@ -16,7 +16,33 @@ make_color <- function(n, type = c("fleet", "region", "stock"), alpha = 1) {
   }
 }
 
-#' @importFrom graphics barplot box legend axis
+#' @importFrom tinyplot tinyplot
+make_tinyplot <- function(year, x, ylab, name, color, type = "o",
+                          leg = if (ncol(x) > 1) substitute(legend(title = NULL)) else "none",
+                          ylim = c(0, 1.1) * range(x, na.rm = TRUE)) {
+
+  df <- structure(x, dimnames = list(year = year, by = name)) %>%
+    reshape2::melt()
+
+  tinyplot_args <- list(
+    x = df$year, y = df$value, by = factor(df$by), xlab = "Year", ylab = ylab,
+    type = type,
+    legend = leg,
+    col = color,
+    pch = 16,
+    ylim = ylim,
+    grid = TRUE
+  )
+  do.call(tinyplot, tinyplot_args)
+  abline(h = 0, col = "grey60")
+  box()
+
+  invisible()
+}
+
+#' @importFrom graphics box legend
+#' @importFrom tinyplot tinyplot type_barplot
+#' @importFrom reshape2 melt
 barplot2 <- function(x, cols, leg.names, xval, ylab = ifelse(prop, "Proportion", "Value"),
                      border = ifelse(nrow(x) > 60, NA, "grey60"), prop = TRUE) {
 
@@ -29,7 +55,6 @@ barplot2 <- function(x, cols, leg.names, xval, ylab = ifelse(prop, "Proportion",
     ylim <- c(0, 1.1) * range(rowSums(x))
   }
 
-  colnames(p) <- NULL
   if (nrow(p) == 1) {
     plot(xval, p, xlab = "Year", ylab = ylab, ylim = ylim, pch = 16, type = "o", zero_line = TRUE)
     return(invisible())
@@ -40,19 +65,29 @@ barplot2 <- function(x, cols, leg.names, xval, ylab = ifelse(prop, "Proportion",
     cols <- make_color(ncat)
   }
 
-  plot(NULL, xlab = "Year", ylab = ylab, xlim = c(0, ncol(p)), xaxt = "n", ylim = ylim,
-       yaxs = "i", xaxs = "i")
-  barplot(p, add = TRUE, col = cols, width = 1, space = 0, border = border)
-  if (!missing(leg.names) && length(leg.names) > 1) {
-    legend("topleft", legend = leg.names, fill = cols, border = border, horiz = TRUE)
-  }
+  #plot(NULL, xlab = "Year", ylab = ylab, xlim = c(0, ncol(p)), xaxt = "n", ylim = ylim,
+  #     yaxs = "i", xaxs = "i")
+  #barplot(p, add = TRUE, col = cols, width = 1, space = 0, border = border)
+  #if (!missing(leg.names) && length(leg.names) > 1) {
+  #  legend("right", legend = leg.names, fill = cols, border = border, horiz = FALSE)
+  #}
+  #box()
+  #xt <- pretty(xval)
+  #xt <- xt[xt %in% xval]
+  #xp <- match(xt, xval)
+  #axis(1, at = xp - 0.5, labels = xt)
+
+  df <- structure(p, dimnames = list(by = leg.names, xval = xval)) %>%
+    reshape2::melt()
+
+  tinyplot_args <- list(
+    x = df$xval, y = df$value, by = df$by, grid = TRUE, legend = substitute(legend(title = NULL)),
+    xlab = "Year", ylab = ylab, type = type_barplot(width = 1), palette = cols,
+    xaxs = "i", yaxs = "i",
+    col = border
+  )
+  do.call(tinyplot, tinyplot_args)
   box()
-
-  xt <- pretty(xval)
-  xt <- xt[xt %in% xval]
-  xp <- match(xt, xval)
-
-  axis(1, at = xp - 0.5, labels = xt)
 
   invisible()
 }
@@ -211,9 +246,11 @@ plot_R <- function(fit, s) {
   }
 
   color <- make_color(ncol(x), "stock")
-  matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
-          ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
-  if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+  make_tinyplot(year, x, ylab, name, color)
+  #matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
+  #        ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
+  #if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+
 
   x <- structure(x, dimnames = list(year = year, stock = name))
   invisible(array2DF(x, "R"))
@@ -367,9 +404,11 @@ plot_Fstock <- function(fit, s, by = c("annual", "season")) {
     }
 
     color <- make_color(ncol(x), "stock")
-    matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
-            ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
-    if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+    make_tinyplot(year, x, ylab, name, color)
+    #matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
+    #        ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
+    #if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+
   }
 
   invisible()
@@ -658,11 +697,18 @@ plot_Ffleet <- function(fit, f = 1) {
 
   fname <- Dlabel@fleet[f]
   ylab <- paste(fname, "fishing mortality")
-  matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
-          ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
-  if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+
+  make_tinyplot(year, x, ylab, name, color)
+  #matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
+  #        ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
+  #if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
 
   invisible()
+
+
+
+
+
 }
 
 #' @rdname plot-MSA-state
@@ -673,7 +719,7 @@ plot_Ffleet <- function(fit, f = 1) {
 #' @details
 #' - `plot_mov` plots movement matrices and the corresponding equilibrium distribution in multi-area models
 #' @export
-#' @importFrom graphics title
+#' @importFrom tinyplot tinyplot type_text
 plot_mov <- function(fit, s = 1, y, a, palette = "Peach") {
 
   dat <- get_MSAdata(fit)
@@ -687,24 +733,54 @@ plot_mov <- function(fit, s = 1, y, a, palette = "Peach") {
 
   mov <- array(fit@report$mov_ymarrs[y, , a+1, , , s], c(nm, nr, nr))
 
-  if (nm > 1) {
-    old_mar <- par()$mar
-    old_mfrow = par()$mfrow
-    par(mar = c(4, 4, 1, 1))
-    on.exit(par(mar = old_mar, mfrow = old_mfrow))
-
-    par(mfrow = c(2, ceiling(nm/2)))
-  }
+  #if (nm > 1) {
+  #  old_mar <- par()$mar
+  #  old_mfrow = par()$mfrow
+  #  par(mar = c(4, 4, 1, 1))
+  #  on.exit(par(mar = old_mar, mfrow = old_mfrow))
+  #  par(mfrow = c(2, ceiling(nm/2)))
+  #}
 
   dist_eq <- calc_eqdist(mov, start = fit@report$recdist_rs[, s], m_start = dat@Dstock@m_spawn)
-  for(m in 1:nm) {
-    .plot_mov(m = mov[m, , ], p = dist_eq[m, ], rname = rname, xlab = "", ylab = "", palette = palette)
-    if (nm > 1) title(mname[m], font.main = 1)
-  }
 
-  par(mfrow = c(1, 1))
-  mtext("Destination", side = 1, line = 3.5)
-  mtext("Origin", side = 2, line = 3)
+  df_mov <- structure(mov, dimnames = list(Season = mname, Origin = 1:nr, Destination = 1:nr)) %>%
+    reshape2::melt()
+
+  df_eq <- structure(dist_eq, dimnames = list(Season = mname, Origin = 1:nr)) %>%
+    reshape2::melt() %>%
+    cbind("Destination" = nr + 1.5)
+
+  df <- rbind(df_mov, df_eq[, c("Season", "Origin", "Destination", "value")])
+  #df$label <- format(round(df$value, 2), nsmall = 2)
+  df$label <- round(df$value, 2)
+
+  tick_fn <- function(i) ifelse(i > nr, "Eq.", as.character(rname[i]))
+  tinyplot_args <- list(
+    xmin = df$Destination - 0.5, xmax = df$Destination + 0.5, ymin = df$Origin - 0.5, ymax = df$Origin + 0.5,
+    by = df$value,
+    facet = df$Season, xlab = "Destination", ylab = "Origin",
+    bg = "by", col = "black",
+    legend = substitute(legend(title = "Proportion")),
+    yaxs = "i", xaxs = "i",
+    yaxl = tick_fn, xaxl = tick_fn,
+    yaxb = 1:nr, xaxb = c(1:nr, nr + 1.5),
+    type = "rect", palette = palette
+  )
+  do.call(tinyplot, tinyplot_args)
+
+  tinyplot(
+    x = df$Destination, y = df$Origin, facet = df$Season,
+    type = type_text(labels = df$label, adj = 0.5),
+    add = TRUE
+  )
+
+  #for(m in 1:nm) {
+  #  .plot_mov(m = mov[m, , ], p = dist_eq[m, ], rname = rname, xlab = "", ylab = "", palette = palette)
+  #  if (nm > 1) title(mname[m], font.main = 1)
+  #}
+  #par(mfrow = c(1, 1))
+  #mtext("Destination", side = 1, line = 3.5)
+  #mtext("Origin", side = 2, line = 3)
 
   invisible()
 }
@@ -713,7 +789,6 @@ plot_mov <- function(fit, s = 1, y, a, palette = "Peach") {
 #' @aliases plot_recdist
 #' @details
 #' - `plot_recdist` plots the distribution of recruitment for each stock
-#' @importFrom grDevices hcl.colors
 #' @export
 plot_recdist <- function(fit, palette = "Peach") {
   dat <- get_MSAdata(fit)
@@ -725,55 +800,80 @@ plot_recdist <- function(fit, palette = "Peach") {
     rname <- dat@Dlabel@region
     sname <- dat@Dlabel@stock
 
-    recdist <- fit@report$recdist
+    recdist <- fit@report$recdist_rs
 
-    vcol <- hcl.colors(100, palette)
+    #vcol <- hcl.colors(100, palette)
+#
+    #graphics::plot.default(
+    #  NULL, xlab = "Stock", ylab = "Region", xaxs = "i", yaxs = "i",
+    #  xaxt = "n", yaxt = "n", xlim = c(1, ns+1), ylim = c(1, nr+1)
+    #)
+    #for(x in 1:ns) {
+    #  for(y in 1:nr) {
+    #    m_yx <- round(recdist[y, x], 2)
+    #    rect(xleft = x, ybottom = y, xright = x+1, ytop = y+1, col = vcol[100 * m_yx])
+    #    text(x + 0.5, y + 0.5, m_yx)
+    #  }
+    #}
+#
+    #axis(1, at = 1:ns + 0.5, labels = as.character(sname), font = 2, cex.axis = 0.75)
+    #axis(2, at = 1:nr + 0.5, labels = as.character(rname), font = 2, cex.axis = 0.75)
 
-    graphics::plot.default(
-      NULL, xlab = "Stock", ylab = "Region", xaxs = "i", yaxs = "i",
-      xaxt = "n", yaxt = "n", xlim = c(1, ns+1), ylim = c(1, nr+1)
+    df <- structure(recdist, dimnames = list(r = 1:nr, s = 1:ns)) %>%
+      reshape2::melt()
+    df$label <- round(df$value, 2)
+
+    tick_fnx <- function(i) sname[i]
+    tick_fny <- function(i) rname[i]
+
+    tinyplot_args <- list(
+      xmin = df$s - 0.5, xmax = df$s + 0.5, ymin = df$r - 0.5, ymax = df$r + 0.5,
+      by = df$value, xlab = "Stock", ylab = "Region",
+      bg = "by", col = "black", border = "black",
+      legend = substitute(legend(title = "Proportion")),
+      yaxs = "i", xaxs = "i",
+      yaxl = tick_fny, xaxl = tick_fnx,
+      yaxb = 1:nr, xaxb = 1:ns,
+      type = "rect", palette = palette
     )
-    for(x in 1:ns) {
-      for(y in 1:nr) {
-        m_yx <- round(recdist[y, x], 2)
-        rect(xleft = x, ybottom = y, xright = x+1, ytop = y+1, col = vcol[100 * m_yx])
-        text(x + 0.5, y + 0.5, m_yx)
-      }
-    }
+    do.call(tinyplot, tinyplot_args)
 
-    axis(1, at = 1:ns + 0.5, labels = as.character(sname), font = 2, cex.axis = 0.75)
-    axis(2, at = 1:nr + 0.5, labels = as.character(rname), font = 2, cex.axis = 0.75)
+    tinyplot(
+      x = df$s, y = df$r,
+      type = type_text(labels = df$label, adj = 0.5),
+      add = TRUE
+    )
   }
 
   invisible()
 }
 
-#' @importFrom grDevices hcl.colors
-#' @importFrom graphics rect text
-.plot_mov <- function(m, p, xlab = "Destination", ylab = "Origin",
-                      nr = length(p), rname = paste("Region", 1:nr), palette = "Peach") {
-
-  vcol <- hcl.colors(100, palette)
-
-  graphics::plot.default(
-    NULL, xlab = xlab, ylab = ylab, xaxs = "i", yaxs = "i",
-    xaxt = "n", yaxt = "n", xlim = c(1, nr+3), ylim = c(1, nr+1)
-  )
-  for(x in 1:nr) {
-    for(y in 1:nr) {
-      m_yx <- round(m[y, x], 2)
-      rect(xleft = x, ybottom = y, xright = x+1, ytop = y+1, col = vcol[100 * m_yx])
-      text(x + 0.5, y + 0.5, m_yx)
-    }
-  }
-  eq_val <- round(p, 2)
-  eq_col <- rep(NA, length(p))
-  eq_col[eq_val > 0] <- vcol[100 * eq_val]
-  rect(nr + 2, ybottom = 1:nr, xright = nr + 3, ytop = 1:nr + 1, col = eq_col)
-  text(nr + 2.5, 1:nr + 0.5, eq_val)
-
-  axis(2, at = 1:nr + 0.5, labels = as.character(rname), font = 2, cex.axis = 0.75)
-  axis(1, at = c(1:nr, nr+2) + 0.5, labels = c(as.character(rname), "Eq."), font = 2, cex.axis = 0.75)
-
-  invisible()
-}
+# #' @importFrom grDevices hcl.colors
+# #' @importFrom graphics rect text
+# .plot_mov <- function(m, p, xlab = "Destination", ylab = "Origin",
+#                       nr = length(p), rname = paste("Region", 1:nr), palette = "Peach") {
+#
+#   vcol <- hcl.colors(100, palette)
+#
+#   graphics::plot.default(
+#     NULL, xlab = xlab, ylab = ylab, xaxs = "i", yaxs = "i",
+#     xaxt = "n", yaxt = "n", xlim = c(1, nr+3), ylim = c(1, nr+1)
+#   )
+#   for(x in 1:nr) {
+#     for(y in 1:nr) {
+#       m_yx <- round(m[y, x], 2)
+#       rect(xleft = x, ybottom = y, xright = x+1, ytop = y+1, col = vcol[100 * m_yx])
+#       text(x + 0.5, y + 0.5, m_yx)
+#     }
+#   }
+#   eq_val <- round(p, 2)
+#   eq_col <- rep(NA, length(p))
+#   eq_col[eq_val > 0] <- vcol[100 * eq_val]
+#   rect(nr + 2, ybottom = 1:nr, xright = nr + 3, ytop = 1:nr + 1, col = eq_col)
+#   text(nr + 2.5, 1:nr + 0.5, eq_val)
+#
+#   axis(2, at = 1:nr + 0.5, labels = as.character(rname), font = 2, cex.axis = 0.75)
+#   axis(1, at = c(1:nr, nr+2) + 0.5, labels = c(as.character(rname), "Eq."), font = 2, cex.axis = 0.75)
+#
+#   invisible()
+# }

@@ -275,10 +275,12 @@ plot_resid_Cobs <- function(fit, f = 1, ...) {
   color <- make_color(ncol(x), type = "region")
   fname <- dat@Dlabel@fleet[f]
 
-  matplot(year, x, xlab = "Year", ylab = paste(fname, "catch residual"), type = "o",
-          col = color, pch = 16, lty = 1)
-  abline(h = 0, lty = 2, col = "grey60")
-  if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+  make_tinyplot(year, x, ylab = paste(fname, "catch residual"), name, color, ylim = NULL)
+  #matplot(year, x, xlab = "Year", ylab = paste(fname, "catch residual"), type = "o",
+  #        col = color, pch = 16, lty = 1)
+  #abline(h = 0, lty = 2, col = "grey60")
+  #if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+
 
   invisible()
 }
@@ -439,21 +441,32 @@ plot_resid_tagmov <- function(fit, yy = 1, aa = 1, s = 1, ...) {
   if (all(is.na(z))) return(invisible())
   if (do_hist) return(hist(z, xlab = "Residuals", main = ""))
 
+  #if (is.character(y)) {
+  #  yval <- y
+  #  y <- 1:ncol(z)
+  #  yaxt <- "n"
+  #} else {
+  #  yaxt <- "s"
+  #}
+
   if (is.character(y)) {
-    yval <- y
-    y <- 1:ncol(z)
-    yaxt <- "n"
+    ynum <- 1:length(y)
+    tick_y <- function(i) y[i]
+    yaxb <- 1:length(y)
   } else {
-    yaxt <- "s"
+    ynum <- y
+    yaxb <- NULL
+    tick_y <- NULL
   }
 
+  #zmax <- min(zmax, max(abs(z), na.rm = TRUE))
   zz <- pmin(z, zmax) %>% pmax(-zmax) %>% round(2)
-  zlegend <- seq(-zmax, zmax, 0.01)
-  cols <- hcl.colors(length(zlegend), palette = "Blue-Red 2", alpha = 1) %>%
-    structure(names = zlegend)
+  #zlegend <- seq(-zmax, zmax, 0.01) %>% round(2)
+  #cols <- hcl.colors(length(zlegend), palette = "Blue-Red 2", alpha = 1) %>%
+  #  structure(names = zlegend)
 
   if (missing(ydiff)) {
-    ydiff <- diff(y)
+    ydiff <- diff(ynum)
     ydiff <- c(ydiff, ydiff[1])
   }
 
@@ -465,22 +478,51 @@ plot_resid_tagmov <- function(fit, yy = 1, aa = 1, s = 1, ...) {
   border <- ifelse(any(xdiff < 0.5), NA, "grey60")
   rect_diff <- ifelse(any(xdiff < 0.5), 0.475, 0.5)
 
-  plot(NULL, type = "n", xlab = xlab, ylab = ylab, xlim = range(x), ylim = range(y), yaxt = yaxt)
-  sapply(1:nrow(z), function(i) {
-    if (any(!is.na(zz[i, ]))) {
-      rect(xleft = x[i] - rect_diff * xdiff[i], xright = x[i] + rect_diff * xdiff[i],
-           ybottom = y - rect_diff * ydiff, ytop = y + rect_diff * ydiff,
-           col = cols[as.character(zz[i, ])],
-           border = border)
-    }
+  df <- lapply(1:nrow(z), function(i) {
+    data.frame(
+      xleft = x[i] - rect_diff * xdiff[i],
+      xright = x[i] + rect_diff * xdiff[i],
+      ybottom = ynum - rect_diff * ydiff,
+      ytop = ynum + rect_diff * ydiff,
+      value = zz[i, ]
+      #col = cols[match(zz[i, ], zlegend)]
+    )
   })
-  legend("topleft", legend = c(-zmax, -zmax/2, 0, zmax/2, zmax),
-         col = "grey60", pt.cex = 1, pt.bg = cols[zlegend %in% c(-zmax, -zmax/2, 0, zmax/2, zmax)],
-         pch = 22, horiz = TRUE)
-  if (yaxt == "n") {
-    axis(2, at = y, labels = yval)
-  }
+  df <- do.call(rbind, df)
+  df <- df[!is.na(df$value), ]
+
+  #legend_val <- zlegend[c(1, c(0.25, 0.5, 0.75, 1) * length(zlegend))]
+  #legend_col <-
+  #round(seq(-1, 1, 0.5) * zmax, 2)
+
+  tinyplot(xmin = df$xleft, xmax = df$xright, ymin = df$ybottom, ymax = df$ytop,
+           by = df$value, xlab = xlab, ylab = ylab, #yaxs = "i", xaxs = "i",
+           bg = "by",
+           col = border,
+           yaxl = tick_y, yaxb = yaxb,
+           #legend = bquote(legend(title = NULL, legend = .(legend_va), 2), pt.bg = c(cols))),
+           legend = legend(title = NULL),
+           palette = "Blue-Red 2",
+           #palette = function(n) hcl.colors(100, palette = "Blue-Red 2", alpha = 0.75, rev = TRUE),
+           type = "rect")
   box()
+
+  #plot(NULL, type = "n", xlab = xlab, ylab = ylab, xlim = range(x), ylim = range(y), yaxt = yaxt)
+  #sapply(1:nrow(z), function(i) {
+  #  if (any(!is.na(zz[i, ]))) {
+  #    rect(xleft = x[i] - rect_diff * xdiff[i], xright = x[i] + rect_diff * xdiff[i],
+  #         ybottom = y - rect_diff * ydiff, ytop = y + rect_diff * ydiff,
+  #         col = cols[match(zz[i, ], zlegend)],
+  #         border = border)
+  #  }
+  #})
+  #legend("topleft", legend = c(-zmax, -zmax/2, 0, zmax/2, zmax),
+  #       col = "grey60", pt.cex = 1, pt.bg = cols[zlegend %in% c(-zmax, -zmax/2, 0, zmax/2, zmax)],
+  #       pch = 22, horiz = TRUE)
+  #if (yaxt == "n") {
+  #  axis(2, at = y, labels = yval)
+  #}
+  #box()
 
   invisible()
 }

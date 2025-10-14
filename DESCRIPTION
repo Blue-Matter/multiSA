@@ -23,6 +23,7 @@ Imports:
     rmarkdown,
     snowfall,
     stats,
+    tinyplot,
     RTMB (>= 1.7),
     TMB,
     utils

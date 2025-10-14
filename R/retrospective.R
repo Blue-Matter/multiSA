@@ -135,8 +135,8 @@ plot.MSAretro <- function(x, var = c("S_yst", "R_yst", "F_yst", "log_rdev_yst", 
   for (i in 1:length(peel)) {
     if (peel[i] > 0) y[seq(ny - peel[i] + 1, ny), i] <- NA_real_
   }
-  matplot(year, y, xlab = "Year", ylab = ylab, ylim = ylim, lty = 1, type = "l", col = rcolor, zero_line = TRUE)
-  legend("topleft", legend = peel/denom, col = rcolor, lty = 1, bty = "n", title = "Years removed:")
+
+  make_tinyplot(year, y, ylab, name = peel/denom, rcolor, type = "l", leg = substitute(legend(title = "Years\nremoved:")))
   points(year[ny - peel], y[cbind(ny - peel, 1:ncol(y))], pch = 16, col = rcolor)
 
   invisible()
