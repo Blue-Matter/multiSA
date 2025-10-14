@@ -611,15 +611,21 @@ update_report <- function(r, MSAdata) {
   ## Index ----
   Iobs_ymi <- Dsurvey@Iobs_ymi
   if (ni > 0) {
-    IN_ymais[] <- calc_index2(
-      N_ymars, Z_ymars, sel_ymais, ny, nm, na, nr, ns, ni, Dsurvey@samp_irs, Dsurvey@delta_i
-    )
-    Iw_ymais <- array(Dstock@swt_ymas, c(ny, nm, na, ns, ni)) %>%
-      aperm(c(1:3, 5, 4))
-    for(i in 1:ni) {
-      if (Dsurvey@unit_i[i] == "N") Iw_ymais[, , , i, ] <- 1
+    for(y in 1:ny) {
+      for(m in 1:nm) {
+        IN_ymais[y, m, , , ] <- calc_index(
+          N = N_ymars[y, m, , , ], Z = Z_ymars[y, m, , , ], sel = sel_ymais[y, m, , , ],
+          na = na, nr = nr, ns = ns, ni = ni, samp = Dsurvey@samp_irs, delta = Dsurvey@delta_i
+        )
+        VI_ymi[y, m, ] <- sapply(1:ni, function(i) {
+          I_s <- sapply(1:ns, function(s) {
+            w <- if (Dsurvey@unit_i[i] == "N") 1 else Dstock@swt_ymas[y, m, , s]
+            sum(IN_ymais[y, m, , i, s] * w)
+          })
+          sum(I_s)
+        })
+      }
     }
-    VI_ymi[] <- apply(IN_ymais * Iw_ymais, c(1, 2, 4), sum)
     q_i <- sapply(1:ni, function(i) calc_q(Iobs_ymi[, , i], B = VI_ymi[, , i]))
     I_ymi[] <- sapply2(1:ni, function(i) q_i[i] * VI_ymi[, , i])
 

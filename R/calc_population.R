@@ -119,7 +119,11 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         ## This season's fishery catch, vulnerable biomass, and total biomass ----
         CN_ymafrs[y, m, , , , ] <- Fsearch[["CN_afrs"]]
         CB_ymfrs[y, m, , , ] <- Fsearch[["CB_frs"]]
-        VB_ymfrs[y, m, , , ] <- apply(Fsearch[["VB_afrs"]], 2:4, sum)
+        VB_ymfrs[y, m, , , ] <- 0
+        for (a in 1:na) {
+          VB_ymfrs[y, m, , , ] <- VB_ymfrs[y, m, , , ] +
+            array(Fsearch[["VB_afrs"]][a, , , ], c(nf, nr, ns))
+        }
       } else {
 
         ind_afrs <- as.matrix(expand.grid(y = y, m = m, a = 1:na, f = 1:nf, r = 1:nr, s = 1:ns))
@@ -129,7 +133,10 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         ymars_afrs <- ind_afrs[, c("y", "m", "a", "r", "s")]
 
         F_ymafrs[y, m, , , , ] <- q_fs[fs_afrs] * F_ymfr[ymfr_afrs] * sel_ymafs[ymafs_afrs]
-        F_ymars[y, m, , , ] <- apply(F_ymafrs[y, m, , , , , drop = FALSE], c(3, 5:6), sum)
+        F_ymars[y, m, , , ] <- 0
+        for (f in 1:nf) {
+          F_ymars[y, m, , , ] <- F_ymars[y, m, , , ] + array(F_ymafrs[y, m, , f, , ], c(na, nr, ns))
+        }
 
         ind_ars <- as.matrix(expand.grid(y = y, m = m, a = 1:na, r = 1:nr, s = 1:ns))
         yas_ars <- ind_ars[, c("y", "a", "s")]
@@ -139,14 +146,22 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
 
         ymafs_afrs <- ind_afrs[, c("y", "m", "a", "f", "s")]
 
-        CB_ymfrs[y, m, , , ] <- array(CN_ymafrs[ind_afrs] * fwt_ymafs[ymafs_afrs], c(na, nf, nr, ns)) %>%
-          apply(2:4, sum)
+        CB_afrs <- array(CN_ymafrs[ind_afrs] * fwt_ymafs[ymafs_afrs], c(na, nf, nr, ns))
+        CB_ymfrs[y, m, , , ] <- 0
+        for (a in 1:na) {
+          CB_ymfrs[y, m, , , ] <- array(CB_ymfrs[y, m, , , ], c(nf, nr, ns)) +
+            array(CB_afrs[a, , , ], c(nf, nr, ns))
+        }
 
-        VB_ymfrs[y, m, , , ] <- array(
+        VB_afrs <- array(
           sel_ymafs[ymafs_afrs] * fwt_ymafs[ymafs_afrs] * N_ymars[ymars_afrs],
           c(na, nf, nr, ns)
-        ) %>%
-          apply(2:4, sum)
+        )
+        VB_ymfrs[y, m, , , ] <- 0
+        for (a in 1:na) {
+          VB_ymfrs[y, m, , , ] <- array(VB_ymfrs[y, m, , , ], c(nf, nr, ns)) +
+            array(VB_afrs[a, , , ], c(nf, nr, ns))
+        }
       }
 
       ## This year's spawning and recruitment ----
@@ -171,7 +186,8 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
           ## Enter recruitment into age structure ----
           N_ymars[y, m, 1, , ] <- sapply(1:ns, function(s) recdist_rs[, s] * R_ys[y, s])
         } else {
-          R_ys[y, ] <- apply(initN_ars[1, , , drop = FALSE], 3, sum)
+          R_ys[y, ] <- 0
+          for (s in 1:ns) R_ys[y, s] <- sum(initN_ars[1, , s])
         }
       }
 

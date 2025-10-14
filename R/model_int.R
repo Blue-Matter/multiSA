@@ -76,6 +76,8 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
                    na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3], nf = length(Cobs),
                    Fmax = 2, nitF = 5L, trans = c("log", "logit")) {
 
+  `[<-` <- RTMB::ADoverload("[<-")
+
   trans <- match.arg(trans)
   if (missing(q_fs)) q_fs <- 1
 
@@ -101,7 +103,11 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
   as_ars <- ind_ars[, c("a", "s")]
 
   VB_afrs <- array(N[ars_afrs] * sel[afs_afrs] * wt[afs_afrs], c(na, nf, nr, ns))
-  VB_fr <- apply(VB_afrs, c(2, 3), sum)
+  VB_fr <- matrix(0, nf, nr)
+  for (f in 1:nf) {
+    for (r in 1:nr) VB_fr[f, r] <- sum(VB_afrs[, f, r, ])
+  }
+
   if (inherits(Cobs, "advector")) {
     Cobs_loop <- CondExpLt(Cobs, 1e-8, 1e-9, Cobs)
   } else {
@@ -116,6 +122,15 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
   }
 
   # Run search for Findex ----
+  F_frs <- array(NA_real_, c(nf, nr, ns))
+  F_afrs <- array(NA_real_, c(na, nf, nr, ns))
+  F_ars <- Z_ars <- gamma_ars <- array(NA_real_, c(na, nr, ns))
+  CN_afrs <- CB_afrs <- deriv_Z_afrs <- deriv_gamma_afrs <-
+    deriv1_afrs <- deriv2_afrs <- deriv3_afrs <- deriv_afrs <- array(NA_real_, c(na, nf, nr, ns))
+
+  CB_fr <- matrix(NA_real_, nf, nr)
+
+  constants_afrs <- array(q_fs[fs_afrs] * sel[afs_afrs] * N[ars_afrs] * wt[afs_afrs], c(na, nf, nr, ns))
 
   penalty <- 0 # posfun penalty if F_index > Fmax
   ln_Fmax <- log(Fmax)
@@ -130,15 +145,18 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
       F_loop <- Fmax * plogis(x_loop[[i]])
     }
 
-    F_frs <- sapply2(1:ns, function(s) q_fs[, s] * F_loop) %>% array(c(nf, nr, ns))
-    F_afrs <- array(F_frs[frs_afrs] * sel[afs_afrs], c(na, nf, nr, ns))
-    F_ars <- apply(F_afrs, c(1, 3, 4), sum)
-    Z_ars <- array(F_ars + delta * M[as_ars], c(na, nr, ns))
-    .gamma_ars <- 1 - exp(-Z_ars)
+    F_frs[] <- sapply2(1:ns, function(s) q_fs[, s] * F_loop)
+    F_afrs[] <- F_frs[frs_afrs] * sel[afs_afrs]
+    F_ars[] <- 0
+    for (f in 1:nf) F_ars[] <- F_ars[] + array(F_afrs[, f, , ], c(na, nr, ns))
+    Z_ars[] <- F_ars + delta * M[as_ars]
+    gamma_ars[] <- 1 - exp(-Z_ars)
 
-    CN_afrs <- array(F_afrs * .gamma_ars[ars_afrs] * N[ars_afrs]/ Z_ars[ars_afrs], c(na, nf, nr, ns))
-    CB_afrs <- array(CN_afrs * wt[afs_afrs], c(na, nf, nr, ns))
-    CB_fr <- apply(CB_afrs, 2:3, sum)
+    CN_afrs[] <- F_afrs * gamma_ars[ars_afrs] * N[ars_afrs]/Z_ars[ars_afrs]
+    CB_afrs[] <- CN_afrs * wt[afs_afrs]
+    for (f in 1:nf) {
+      for (r in 1:nr) CB_fr[f, r] <- sum(CB_afrs[, f, r, ])
+    }
 
     fn[[i]] <- CB_fr - Cobs
 
@@ -148,28 +166,25 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
       deriv_F <- Fmax * exp(-x_loop[[i]])/(1 + exp(-x_loop[[i]]))/(1 + exp(-x_loop[[i]]))
     }
 
-    deriv_Z_afrs <- array(q_fs[fs_afrs] * deriv_F[fr_afrs] * sel[afs_afrs], c(na, nf, nr, ns))
-    deriv_gamma_afrs <- array(exp(-Z_ars[ars_afrs]) * deriv_Z_afrs, c(na, nf, nr, ns))
+    deriv_Z_afrs[] <- q_fs[fs_afrs] * deriv_F[fr_afrs] * sel[afs_afrs]
+    deriv_gamma_afrs[] <- exp(-Z_ars[ars_afrs]) * deriv_Z_afrs
 
-    constants_afrs <- array(q_fs[fs_afrs] * sel[afs_afrs] * N[ars_afrs] * wt[afs_afrs], c(na, nf, nr, ns))
+    deriv1_afrs[] <- deriv_F[fr_afrs] * gamma_ars[ars_afrs] + F_loop[fr_afrs] * deriv_gamma_afrs
+    deriv2_afrs[] <- deriv1_afrs * Z_ars[ars_afrs]
+    deriv3_afrs[] <- deriv2_afrs - gamma_ars[ars_afrs] * F_loop[fr_afrs] * deriv_Z_afrs
+    deriv_afrs[] <- deriv3_afrs/Z_ars[ars_afrs]/Z_ars[ars_afrs]
 
-    deriv1_afrs <- array(
-      deriv_F[fr_afrs] * .gamma_ars[ars_afrs] + F_loop[fr_afrs] * deriv_gamma_afrs,
-      c(na, nf, nr, ns)
-    )
-    deriv2_afrs <- array(deriv1_afrs * Z_ars[ars_afrs], c(na, nf, nr, ns))
-    deriv3_afrs <- array(
-      deriv2_afrs - .gamma_ars[ars_afrs] * F_loop[fr_afrs] * deriv_Z_afrs,
-      c(na, nf, nr, ns)
-    )
-    deriv_afrs <- array(deriv3_afrs/Z_ars[ars_afrs]/Z_ars[ars_afrs], c(na, nf, nr, ns))
-
-    gr[[i]] <- apply(constants_afrs * deriv_afrs, c(2, 3), sum)
+    gr[[i]] <- matrix(0, nf, nr)
+    for (f in 1:nf) {
+      for (r in 1:nr) gr[[i]][f, r] <- gr[[i]][f, r] + sum(constants_afrs[, f, r, ] * deriv_afrs[, f, r, ])
+    }
 
     if (i <= nitF) x_loop[[i+1]] <- x_loop[[i]] - fn[[i]]/gr[[i]]
   }
-  #browser(expr = any(Cobs >= 1e-8))
-  CB_frs <- apply(CB_afrs, 2:4, sum)
+
+  CB_frs <- array(0, c(nf, nr, ns))
+  for (a in 1:na) CB_frs[] <- CB_frs[] + array(CB_afrs[a, , , ], c(nf, nr, ns))
+
   list(F_afrs = F_afrs, F_ars = F_ars, F_index = F_loop, Z_ars = Z_ars,
        CB_frs = CB_frs, CN_afrs = CN_afrs, VB_afrs = VB_afrs,
        penalty = penalty, fn = fn[[nitF + 1]], gr = gr[[nitF + 1]])
@@ -355,16 +370,17 @@ calc_growth <- function(Linf_s, K_s, t0_s, ns = length(Linf_s), nm = 4, ny = 20,
 calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
                        advance_age = TRUE, mov = array(1/nr, c(na, nr, nr, ns)), plusgroup = TRUE) {
 
+  is_ad <- inherits(N, "advector") || inherits(surv, "advector") || inherits(mov, "advector")
+  if (is_ad) {
+    `[<-` <- RTMB::ADoverload("[<-")
+  }
+
   N <- array(N, c(na, nr, ns))
   surv <- array(surv, c(na, nr, ns))
   mov <- array(mov, c(na, nr, nr, ns))
 
   # Apply survival and advance age class ----
   if (advance_age) {
-    is_ad <- inherits(N, "advector") || inherits(surv, "advector") || inherits(mov, "advector")
-    if (is_ad) {
-      `[<-` <- RTMB::ADoverload("[<-")
-    }
     Nsurv_ars <- array(0, c(na, nr, ns))
     Nsurv_ars[2:na, , ] <- N[2:na - 1, , ] * surv[2:na - 1, , ]
     if (plusgroup) Nsurv_ars[na, , ] <- Nsurv_ars[na, , ] + N[na, , ] * surv[na, , ]
@@ -373,14 +389,20 @@ calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
   }
 
   # Distribute stock ----
+  Nnext_ars <- array(NA_real_, c(na, nr, ns))
   if (nr > 1) {
     ind_arrs <- as.matrix(expand.grid(a = 1:na, rf = 1:nr, rt = 1:nr, s = 1:ns))
     arfs_arrs <- ind_arrs[, c("a", "rf", "s")]
 
     Nnext_arrs <- array(Nsurv_ars[arfs_arrs] * mov, c(na, nr, nr, ns))
-    Nnext_ars <- apply(Nnext_arrs, c(1, 3, 4), sum)
+    Nnext_ars[] <- 0
+    for (a in 1:na) {
+      for (s in 1:ns) {
+        for (r in 1:nr) Nnext_ars[a, r, s] <- Nnext_ars[a, r, s] + sum(Nnext_arrs[a, , r, s])
+      }
+    }
   } else {
-    Nnext_ars <- Nsurv_ars
+    Nnext_ars[] <- Nsurv_ars
   }
 
   return(Nnext_ars)
@@ -425,6 +447,11 @@ calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
 calc_index <- function(N, Z, sel, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3], ni = dim(sel)[2],
                        samp = array(1, c(ni, nr, ns)), delta = rep(0, ni)) {
 
+  is_ad <- inherits(N, "advector") || inherits(Z, "advector") || inherits(sel, "advector")
+  if (is_ad) {
+    `[<-` <- RTMB::ADoverload("[<-")
+  }
+
   N <- array(N, c(na, nr, ns))
   Z <- array(Z, c(na, nr, ns))
   sel <- array(sel, c(na, ni, ns))
@@ -442,41 +469,41 @@ calc_index <- function(N, Z, sel, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3]
     }
   })
 
-  IN_arsi <- array(
+  IN_airs <- array(
     N[ars_arsi] * samp[irs_arsi] * sel[ais_arsi] * duration_arsi,
     c(na, nr, ns, ni)
-  )
-  IN_ais <- apply(IN_arsi, c(1, 4, 3), sum)
-
+  ) %>%
+    aperm(c(1, 4, 2, 3))
+  IN_ais <- array(0, c(na, ni, ns))
+  for (r in 1:nr) IN_ais[] <- IN_ais[] + array(IN_airs[, , r, ], c(na, ni, ns))
   return(IN_ais)
 }
 
-calc_index2 <- function(N_ymars, Z_ymars, sel_ymais,
-                        ny = dim(N_ymars)[1], nm = dim(N_ymars[2]),
-                        na = dim(N_ymars)[3], nr = dim(N_ymars)[4], ns = dim(N_ymars)[5],
-                        ni = dim(sel_ymais)[4],
-                        samp_irs = array(1, c(ni, nr, ns)), delta_i = rep(0, ni)) {
-
-  `[<-` <- RTMB::ADoverload("[<-")
-
-  ind_ymarsi <- as.matrix(expand.grid(y = 1:ny, m = 1:nm, a = 1:na, r = 1:nr, s = 1:ns, i = 1:ni))
-  ymars_ymarsi <- ind_ymarsi[, c("y", "m", "a", "r", "s")]
-  irs_ymarsi <- ind_ymarsi[, c("i", "r", "s")]
-  ymais_ymarsi <- ind_ymarsi[, c("y", "m", "a", "i", "s")]
-
-  duration_ymarsi <- sapply2(1:ni, function(i) {
-    if (delta_i[i] < 0) {
-      (1 - exp(-Z_ymars))/Z_ymars
-    } else {
-      exp(-delta_i[i] * Z_ymars)
-    }
-  })
-
-  IN_ymarsi <- array(NA_real_, c(ny, nm, na, nr, ns, ni))
-  IN_ymarsi[] <- N_ymars[ymars_ymarsi] * samp_irs[irs_ymarsi] * sel_ymais[ymais_ymarsi] * duration_ymarsi
-  IN_ymais <- apply(IN_ymarsi, c(1:4, 6, 5), sum)
-  return(IN_ymais)
-}
+#calc_index2 <- function(N_ymars, Z_ymars, sel_ymais,
+#                        ny = dim(N_ymars)[1], nm = dim(N_ymars[2]),
+#                        na = dim(N_ymars)[3], nr = dim(N_ymars)[4], ns = dim(N_ymars)[5],
+#                        ni = dim(sel_ymais)[4],
+#                        samp_irs = array(1, c(ni, nr, ns)), delta_i = rep(0, ni)) {
+#
+#  `[<-` <- RTMB::ADoverload("[<-")
+#
+#  ind_ymarsi <- as.matrix(expand.grid(y = 1:ny, m = 1:nm, a = 1:na, r = 1:nr, s = 1:ns, i = 1:ni))
+#  ymars_ymarsi <- ind_ymarsi[, c("y", "m", "a", "r", "s")]
+#  irs_ymarsi <- ind_ymarsi[, c("i", "r", "s")]
+#  ymais_ymarsi <- ind_ymarsi[, c("y", "m", "a", "i", "s")]
+#
+#  duration_ymarsi <- sapply2(1:ni, function(i) {
+#    if (delta_i[i] < 0) {
+#      (1 - exp(-Z_ymars))/Z_ymars
+#    } else {
+#      exp(-delta_i[i] * Z_ymars)
+#    }
+#  })
+#  IN_ymarsi <- array(NA_real_, c(ny, nm, na, nr, ns, ni))
+#  IN_ymarsi[] <- N_ymars[ymars_ymarsi] * samp_irs[irs_ymarsi] * sel_ymais[ymais_ymarsi] * duration_ymarsi
+#  IN_ymais <- apply(IN_ymarsi, c(1:4, 6, 5), sum)
+#  return(IN_ymais)
+#}
 
 calc_q <- function(Iobs, B) {
   i <- !is.na(Iobs) & Iobs > 0
