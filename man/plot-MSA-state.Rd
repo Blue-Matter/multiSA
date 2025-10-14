@@ -48,9 +48,9 @@ plot_V(fit, f = 1, by = c("stock", "region"), prop = FALSE)
 
 plot_Ffleet(fit, f = 1)
 
-plot_mov(fit, s = 1, y, a)
+plot_mov(fit, s = 1, y, a, palette = "Peach")
 
-plot_recdist(fit)
+plot_recdist(fit, palette = "Peach")
 }
 \arguments{
 \item{fit}{\linkS4class{MSAassess} object returned by \code{\link[=fit_MSA]{fit_MSA()}}}
@@ -82,6 +82,8 @@ plot_recdist(fit)
 \item{y}{Integer, year for plotting the movement matrix (last model year is the default)}
 
 \item{a}{Integer, corresponding age for plotting the movement matrix (age 1 is the default)}
+
+\item{palette}{Character, palette name to pass to \code{\link[grDevices:palettes]{grDevices::hcl.colors()}}. See \code{\link[grDevices:palettes]{grDevices::hcl.pals()}} for options.}
 }
 \value{
 Various base graphics plots

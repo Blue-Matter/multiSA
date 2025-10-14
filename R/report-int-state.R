@@ -669,11 +669,12 @@ plot_Ffleet <- function(fit, f = 1) {
 #' @aliases plot_mov
 #' @param y Integer, year for plotting the movement matrix (last model year is the default)
 #' @param a Integer, corresponding age for plotting the movement matrix (age 1 is the default)
+#' @param palette Character, palette name to pass to [grDevices::hcl.colors()]. See [grDevices::hcl.pals()] for options.
 #' @details
 #' - `plot_mov` plots movement matrices and the corresponding equilibrium distribution in multi-area models
 #' @export
 #' @importFrom graphics title
-plot_mov <- function(fit, s = 1, y, a) {
+plot_mov <- function(fit, s = 1, y, a, palette = "Peach") {
 
   dat <- get_MSAdata(fit)
 
@@ -689,7 +690,7 @@ plot_mov <- function(fit, s = 1, y, a) {
   if (nm > 1) {
     old_mar <- par()$mar
     old_mfrow = par()$mfrow
-    par(mar = c(5, 4, 1, 1))
+    par(mar = c(4, 4, 1, 1))
     on.exit(par(mar = old_mar, mfrow = old_mfrow))
 
     par(mfrow = c(2, ceiling(nm/2)))
@@ -697,12 +698,12 @@ plot_mov <- function(fit, s = 1, y, a) {
 
   dist_eq <- calc_eqdist(mov, start = fit@report$recdist_rs[, s], m_start = dat@Dstock@m_spawn)
   for(m in 1:nm) {
-    .plot_mov(m = mov[m, , ], p = dist_eq[m, ], rname = rname, xlab = "", ylab = "")
+    .plot_mov(m = mov[m, , ], p = dist_eq[m, ], rname = rname, xlab = "", ylab = "", palette = palette)
     if (nm > 1) title(mname[m], font.main = 1)
   }
 
   par(mfrow = c(1, 1))
-  mtext("Destination", side = 1, line = 4)
+  mtext("Destination", side = 1, line = 3.5)
   mtext("Origin", side = 2, line = 3)
 
   invisible()
@@ -712,8 +713,9 @@ plot_mov <- function(fit, s = 1, y, a) {
 #' @aliases plot_recdist
 #' @details
 #' - `plot_recdist` plots the distribution of recruitment for each stock
+#' @importFrom grDevices hcl.colors
 #' @export
-plot_recdist <- function(fit) {
+plot_recdist <- function(fit, palette = "Peach") {
   dat <- get_MSAdata(fit)
 
   nr <- dat@Dmodel@nr
@@ -725,7 +727,7 @@ plot_recdist <- function(fit) {
 
     recdist <- fit@report$recdist
 
-    vcol <- rainbow(100, end = 0.45)
+    vcol <- hcl.colors(100, palette)
 
     graphics::plot.default(
       NULL, xlab = "Stock", ylab = "Region", xaxs = "i", yaxs = "i",
@@ -746,12 +748,12 @@ plot_recdist <- function(fit) {
   invisible()
 }
 
-#' @importFrom grDevices rainbow
+#' @importFrom grDevices hcl.colors
 #' @importFrom graphics rect text
 .plot_mov <- function(m, p, xlab = "Destination", ylab = "Origin",
-                      nr = length(p), rname = paste("Region", 1:nr)) {
+                      nr = length(p), rname = paste("Region", 1:nr), palette = "Peach") {
 
-  vcol <- rainbow(100, end = 0.45)
+  vcol <- hcl.colors(100, palette)
 
   graphics::plot.default(
     NULL, xlab = xlab, ylab = ylab, xaxs = "i", yaxs = "i",
@@ -765,7 +767,8 @@ plot_recdist <- function(fit) {
     }
   }
   eq_val <- round(p, 2)
-  eq_col <- ifelse(eq_val > 0, vcol[100 * eq_val], NA)
+  eq_col <- rep(NA, length(p))
+  eq_col[eq_val > 0] <- vcol[100 * eq_val]
   rect(nr + 2, ybottom = 1:nr, xright = nr + 3, ytop = 1:nr + 1, col = eq_col)
   text(nr + 2.5, 1:nr + 0.5, eq_val)
 
