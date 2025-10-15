@@ -48,13 +48,13 @@
 <span></span>
 <span><span class="fu">plot_index</span><span class="op">(</span><span class="va">fit</span>, i <span class="op">=</span> <span class="fl">1</span>, zoom <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_CAA</span><span class="op">(</span><span class="va">fit</span>, f <span class="op">=</span> <span class="fl">1</span>, r <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">plot_CAA</span><span class="op">(</span><span class="va">fit</span>, f <span class="op">=</span> <span class="fl">1</span>, r <span class="op">=</span> <span class="fl">1</span>, do_mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_CAL</span><span class="op">(</span><span class="va">fit</span>, f <span class="op">=</span> <span class="fl">1</span>, r <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">plot_CAL</span><span class="op">(</span><span class="va">fit</span>, f <span class="op">=</span> <span class="fl">1</span>, r <span class="op">=</span> <span class="fl">1</span>, do_mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_IAA</span><span class="op">(</span><span class="va">fit</span>, i <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">plot_IAA</span><span class="op">(</span><span class="va">fit</span>, i <span class="op">=</span> <span class="fl">1</span>, do_mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_IAL</span><span class="op">(</span><span class="va">fit</span>, i <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">plot_IAL</span><span class="op">(</span><span class="va">fit</span>, i <span class="op">=</span> <span class="fl">1</span>, do_mean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_SC</span><span class="op">(</span><span class="va">fit</span>, ff <span class="op">=</span> <span class="fl">1</span>, aa <span class="op">=</span> <span class="fl">1</span>, r <span class="op">=</span> <span class="fl">1</span>, prop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -96,6 +96,10 @@ predicted values over all model years.</p></dd>
 
 <dt id="arg-r">r<a class="anchor" aria-label="anchor" href="#arg-r"></a></dt>
 <dd><p>Integer, indexes the region</p></dd>
+
+
+<dt id="arg-do-mean">do_mean<a class="anchor" aria-label="anchor" href="#arg-do-mean"></a></dt>
+<dd><p>Logical, whether to plot full compositions or time series of mean length or mean age</p></dd>
 
 
 <dt id="arg-ff">ff<a class="anchor" aria-label="anchor" href="#arg-ff"></a></dt>
