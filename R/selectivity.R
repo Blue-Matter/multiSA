@@ -129,7 +129,7 @@ calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length
     f <- sel_block[ff]
     if (grepl("length", type[f])) {
       v <- sel_len[, f] %*% t(LAK)
-      v <- v/max(v)
+      #v <- v/max(v)
     } else if (grepl("age", type[f])) {
 
       ex_asc <- (a - sel_par[1, f])/sel_par[2, f]
