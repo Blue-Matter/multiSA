@@ -1,7 +1,7 @@
 
 #' Multi-fleet, multi-area, multi-stock population dynamics model
 #'
-#' Project age-structured populations forward in time. Frequently used to calculate
+#' Project age-structured populations forward in time. Also used by `[calc_phi_project()]` to calculate
 #' equilibrium abundance and biomass for which there is no analytic solution
 #' due to seasonal movement.
 #'
@@ -43,7 +43,7 @@
 #' * `CB_ymfrs` Fishery catch (weight)
 #' * `VB_ymfrs` Vulnerable biomass available to the fishing fleets
 #' * `Nsp_yars` Spawning abundance (in the spawning season)
-#' * `Npsp_yars` Mature abundance (that does not if outside natal regions)
+#' * `Npsp_yars` Potentail spawners, mature animals in the spawning season that do not spawn if outside natal regions
 #' * `S_yrs` Spawning output
 #' * `R_ys` Recruitment
 #' * `penalty` Numeric quadratic penalty if apical fishing mortality (by fleet) exceeds `Fmax`. See [calc_F()].
@@ -64,40 +64,43 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
                             q_fs = matrix(1, nf, ns), sel_ymafs = array(1, c(ny, nm, na, nf, ns)),
                             condition = c("F", "catch"),
                             F_ymfr = array(0, c(ny, nm, nf, nr)),
-                            Cobs_ymfr = matrix(1e-8, c(ny, nm, nf, nr)),
+                            Cobs_ymfr = array(1e-8, c(ny, nm, nf, nr)),
                             Fmax = 2, nitF = 5L) {
 
   # Dispatch method for AD variables ----
   `[<-` <- RTMB::ADoverload("[<-")
+  `c` <- RTMB::ADoverload("c")
 
   condition <- match.arg(condition)
 
-  # Population arrays ----
+  # Population array of lists ----
   delta_m <- 1/nm
-  N_ymars <- array(0, c(ny + 1, nm, na, nr, ns))
-  Npsp_yars <-
-    Nsp_yars <- array(NA_real_, c(ny, na, nr, ns))
+
+  N_ym_ars <- array(list(), c(ny + 1, nm))
+  Npsp_y_ars <- Nsp_y_ars <- array(list(), ny)
+  F_ym_ars <-
+    Z_ym_ars <- array(list(), c(ny, nm))
+
   S_yrs <- array(NA_real_, c(ny, nr, ns))
   R_ys <- array(NA_real_, c(ny, ns))
-  F_ymars <-
-    Z_ymars <- array(NA_real_, c(ny, nm, na, nr, ns))
+
   if (missing(mov_ymarrs)) {
     mov_ymarrs <- diag(nr) %>% array(c(nr, nr, ny, nm, na, ns)) %>% aperm(c(3:5, 1:2, 6))
   }
 
   # Fishery arrays ----
   if (condition == "catch") {
-    F_ymfr <- array(NA_real_, c(ny, nm, nf, nr))
+    F_ym_fr <- array(list(), c(ny, nm))
   }
-  F_ymafrs <-
-    CN_ymafrs <- array(NA_real_, c(ny, nm, na, nf, nr, ns))
-  CB_ymfrs <-
-    VB_ymfrs <- array(NA_real_, c(ny, nm, nf, nr, ns))
+  F_ym_afrs <-
+    CN_ym_afrs <- array(list(), c(ny, nm))
+  CB_ym_frs <-
+    VB_ym_frs <- array(list(), c(ny, nm))
 
   # Penalty for exceeding Fmax (if conditioning on catch)
   penalty <- 0
 
-  N_ymars[1, 1, , , ] <- initN_ars
+  N_ym_ars[[1, 1]] <- initN_ars
 
   # Loops over years and seasons ----
   for(y in 1:ny) {
@@ -105,24 +108,23 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
       ## This season's mortality ----
       if (condition == "catch") {
         Fsearch <- calc_F(
-          Cobs = Cobs_ymfr[y, m, , ], N = N_ymars[y, m, , , ], sel = sel_ymafs[y, m, , , ],
+          Cobs = Cobs_ymfr[y, m, , ], N = N_ym_ars[[y, m]], sel = sel_ymafs[y, m, , , ],
           wt = fwt_ymafs[y, m, , , ], M = M_yas[y, , ], q_fs = q_fs, delta = delta_m,
           na = na, nr = nr, nf = nf, ns = ns, Fmax = Fmax, nitF = nitF, trans = "log"
         )
         penalty <- penalty + Fsearch[["penalty"]] # Report penalty for exceeding Fmax
 
-        F_ymafrs[y, m, , , , ] <- Fsearch[["F_afrs"]]
-        F_ymars[y, m, , , ] <- Fsearch[["F_ars"]]
-        Z_ymars[y, m, , , ] <- Fsearch[["Z_ars"]]
-        F_ymfr[y, m, , ] <- Fsearch[["F_index"]]
+        F_ym_afrs[[y, m]] <- Fsearch[["F_afrs"]]
+        F_ym_ars[[y, m]] <- Fsearch[["F_ars"]]
+        Z_ym_ars[[y, m]] <- Fsearch[["Z_ars"]]
+        F_ym_fr[[y, m]] <- Fsearch[["F_index"]]
 
         ## This season's fishery catch, vulnerable biomass, and total biomass ----
-        CN_ymafrs[y, m, , , , ] <- Fsearch[["CN_afrs"]]
-        CB_ymfrs[y, m, , , ] <- Fsearch[["CB_frs"]]
-        VB_ymfrs[y, m, , , ] <- 0
+        CN_ym_afrs[[y, m]] <- Fsearch[["CN_afrs"]]
+        CB_ym_frs[[y, m]] <- Fsearch[["CB_frs"]]
+        VB_ym_frs[[y, m]] <- array(0, c(nf, nr, ns))
         for (a in 1:na) {
-          VB_ymfrs[y, m, , , ] <- array(VB_ymfrs[y, m, , , ], c(nf, nr, ns)) +
-            array(Fsearch[["VB_afrs"]][a, , , ], c(nf, nr, ns))
+          VB_ym_frs[[y, m]] <- VB_ym_frs[[y, m]] + array(Fsearch[["VB_afrs"]][a, , , ], c(nf, nr, ns))
         }
       } else {
 
@@ -130,52 +132,49 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         fs_afrs <- ind_afrs[, c("f", "s")]
         ymfr_afrs <- ind_afrs[, c("y", "m", "f", "r")]
         ymafs_afrs <- ind_afrs[, c("y", "m", "a", "f", "s")]
-        ymars_afrs <- ind_afrs[, c("y", "m", "a", "r", "s")]
+        ars_afrs <- ind_afrs[, c("a", "r", "s")]
 
-        F_ymafrs[y, m, , , , ] <- q_fs[fs_afrs] * F_ymfr[ymfr_afrs] * sel_ymafs[ymafs_afrs]
-        F_ymars[y, m, , , ] <- 0
+        F_ym_afrs[[y, m]] <- array(q_fs[fs_afrs] * F_ymfr[ymfr_afrs] * sel_ymafs[ymafs_afrs], c(na, nf, nr, ns))
+        F_ym_ars[[y, m]] <- array(0, c(na, nr, ns))
         for (f in 1:nf) {
-          F_ymars[y, m, , , ] <- array(F_ymars[y, m, , , ], c(na, nr, ns)) + array(F_ymafrs[y, m, , f, , ], c(na, nr, ns))
+          F_ym_ars[[y, m]] <- F_ym_ars[[y, m]] + array(F_ym_afrs[[y, m]][, f, , ], c(na, nr, ns))
         }
 
         ind_ars <- as.matrix(expand.grid(y = y, m = m, a = 1:na, r = 1:nr, s = 1:ns))
         yas_ars <- ind_ars[, c("y", "a", "s")]
 
-        Z_ymars[y, m, , , ] <- F_ymars[y, m, , , ] + delta_m * M_yas[yas_ars]
-        CN_ymafrs[y, m, , , , ] <- F_ymafrs[y, m, , , , ] * (1 - exp(-Z_ymars[ymars_afrs])) * N_ymars[ymars_afrs] / Z_ymars[ymars_afrs]
+        Z_ym_ars[[y, m]] <- F_ym_ars[[y, m]] + array(delta_m * M_yas[yas_ars], c(na, nr, ns))
+        CN_ym_afrs[[y, m]] <- array(
+          F_ym_afrs[[y, m]] * (1 - exp(-Z_ym_ars[[y,m]][ars_afrs])) * N_ym_ars[[y, m]][ars_afrs] / Z_ym_ars[[y, m]][ars_afrs],
+          c(na, nf, nr, ns)
+        )
 
         ymafs_afrs <- ind_afrs[, c("y", "m", "a", "f", "s")]
 
-        CB_afrs <- array(CN_ymafrs[ind_afrs] * fwt_ymafs[ymafs_afrs], c(na, nf, nr, ns))
-        CB_ymfrs[y, m, , , ] <- 0
-        for (a in 1:na) {
-          CB_ymfrs[y, m, , , ] <- array(CB_ymfrs[y, m, , , ], c(nf, nr, ns)) +
-            array(CB_afrs[a, , , ], c(nf, nr, ns))
-        }
+        CB_afrs <- array(CN_ym_afrs[[y, m]][ind_afrs] * fwt_ymafs[ymafs_afrs], c(na, nf, nr, ns))
+        CB_ym_frs[[y, m]] <- array(0, c(nf, nr, ns))
+        for (a in 1:na) CB_ym_frs[[y, m]] <- CB_ym_frs[[y, m]] + array(CB_afrs[a, , , ], c(nf, nr, ns))
 
         VB_afrs <- array(
-          sel_ymafs[ymafs_afrs] * fwt_ymafs[ymafs_afrs] * N_ymars[ymars_afrs],
+          sel_ymafs[ymafs_afrs] * fwt_ymafs[ymafs_afrs] * N_ym_ars[[y, m]][ars_afrs],
           c(na, nf, nr, ns)
         )
-        VB_ymfrs[y, m, , , ] <- 0
-        for (a in 1:na) {
-          VB_ymfrs[y, m, , , ] <- array(VB_ymfrs[y, m, , , ], c(nf, nr, ns)) +
-            array(VB_afrs[a, , , ], c(nf, nr, ns))
-        }
+        VB_ym_frs[[y, m]] <- array(0, c(nf, nr, ns))
+        for (a in 1:na) VB_ym_frs[[y, m]] <- VB_ym_frs[[y, m]] + array(VB_afrs[a, , , ], c(nf, nr, ns))
       }
 
       ## This year's spawning and recruitment ----
       if (m == m_spawn) {
-        Npsp_yars[y, , , ] <- sapply2(1:ns, function(s) {
+        Npsp_y_ars[[y]] <- sapply2(1:ns, function(s) {
           sapply(1:nr, function(r) {
-            N_ymars[y, m, , r, s] * exp(-delta_s[s] * Z_ymars[y, m, , r, s]) * mat_yas[y, , s]
+            N_ym_ars[[y, m]][, r, s] * exp(-delta_s[s] * Z_ym_ars[[y, m]][, r, s]) * mat_yas[y, , s]
           })
         })
-        Nsp_yars[y, , , ] <- sapply2(1:ns, function(s) {
-          sapply(1:nr, function(r) natal_rs[r, s] * Npsp_yars[y, , r, s])
+        Nsp_y_ars[[y]] <- sapply2(1:ns, function(s) {
+          sapply(1:nr, function(r) natal_rs[r, s] * Npsp_y_ars[[y]][, r, s])
         })
         S_yrs[y, , ] <- sapply(1:ns, function(s) {
-          sapply(1:nr, function(r) sum(Nsp_yars[y, , r, s] * fec_yas[y, , s]))
+          sapply(1:nr, function(r) sum(Nsp_y_ars[[y]][, r, s] * fec_yas[y, , s]))
         })
 
         if (y > 1) {
@@ -184,7 +183,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
           })
 
           ## Enter recruitment into age structure ----
-          N_ymars[y, m, 1, , ] <- sapply(1:ns, function(s) recdist_rs[, s] * R_ys[y, s])
+          N_ym_ars[[y, m]][1, , ] <- sapply(1:ns, function(s) recdist_rs[, s] * R_ys[y, s])
         } else {
           R_ys[y, ] <- 0
           for (s in 1:ns) R_ys[y, s] <- sum(initN_ars[1, , s])
@@ -196,8 +195,8 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
       mnext <- ifelse(m == nm, 1, m+1)
       ylast <- min(ynext, ny)
 
-      N_ymars[ynext, mnext, , , ] <- calc_nextN(
-        N = N_ymars[y, m, , , ], surv = exp(-Z_ymars[y, m, , , ]),
+      N_ym_ars[[ynext, mnext]] <- calc_nextN(
+        N = N_ym_ars[[y, m]], surv = exp(-Z_ym_ars[[y, m]]),
         na = na, nr = nr, ns = ns,
         advance_age = mnext == m_advanceage,
         mov = mov_ymarrs[min(ynext, ny), mnext, , , , ]
@@ -205,7 +204,38 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
     }
   }
 
-  if (condition == "F") penalty <- penalty + sum(posfun(Fmax, F_ymfr))
+  # Fill with zeros for year ny + 1
+  if (nm > 1) {
+    for (m in 2:nm) N_ym_ars[[ny+1, m]] <- array(0, c(na, nr, ns))
+  }
+
+  # Output
+  N_ymars <- array(0, c(ny + 1, nm, na, nr, ns))
+  F_ymars <-
+    Z_ymars <- array(NA_real_, c(ny, nm, na, nr, ns))
+  Npsp_yars <-
+    Nsp_yars <- array(NA_real_, c(ny, na, nr, ns))
+
+  F_ymafrs <-
+    CN_ymafrs <- array(NA_real_, c(ny, nm, na, nf, nr, ns))
+  CB_ymfrs <-
+    VB_ymfrs <- array(NA_real_, c(ny, nm, nf, nr, ns))
+
+  N_ymars[] <- do.call(c, N_ym_ars) %>% array(c(na, nr, ns, ny+1, nm)) %>% aperm(c(4:5, 1:3))
+  F_ymars[] <- do.call(c, F_ym_ars) %>% array(c(na, nr, ns, ny, nm)) %>% aperm(c(4:5, 1:3))
+  Z_ymars[] <- do.call(c, Z_ym_ars) %>% array(c(na, nr, ns, ny, nm)) %>% aperm(c(4:5, 1:3))
+  F_ymafrs[] <- do.call(c, F_ym_afrs) %>% array(c(na, nf, nr, ns, ny, nm)) %>% aperm(c(5:6, 1:4))
+  CN_ymafrs[] <- do.call(c, CN_ym_afrs) %>% array(c(na, nf, nr, ns, ny, nm)) %>% aperm(c(5:6, 1:4))
+  CB_ymfrs[] <- do.call(c, CB_ym_frs) %>% array(c(nf, nr, ns, ny, nm)) %>% aperm(c(4:5, 1:3))
+  VB_ymfrs[] <- do.call(c, VB_ym_frs) %>% array(c(nf, nr, ns, ny, nm)) %>% aperm(c(4:5, 1:3))
+  Nsp_yars[] <- do.call(c, Nsp_y_ars) %>% array(c(na, nr, ns, ny)) %>% aperm(c(4, 1:3))
+  Npsp_yars[] <- do.call(c, Npsp_y_ars) %>% array(c(na, nr, ns, ny)) %>% aperm(c(4, 1:3))
+
+  if (condition == "catch") {
+    F_ymfr <- do.call(c, F_ym_fr) %>% array(c(nf, nr, ny, nm)) %>% aperm(c(3:4, 1:2))
+  } else {
+    penalty <- penalty + sum(posfun(Fmax, F_ymfr))
+  }
 
   out <- list(
     N_ymars = N_ymars,

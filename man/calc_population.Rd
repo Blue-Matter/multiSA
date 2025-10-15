@@ -30,7 +30,7 @@ calc_population(
   sel_ymafs = array(1, c(ny, nm, na, nf, ns)),
   condition = c("F", "catch"),
   F_ymfr = array(0, c(ny, nm, nf, nr)),
-  Cobs_ymfr = matrix(1e-08, c(ny, nm, nf, nr)),
+  Cobs_ymfr = array(1e-08, c(ny, nm, nf, nr)),
   Fmax = 2,
   nitF = 5L
 )
@@ -105,14 +105,14 @@ A named list containing:
 \item \code{CB_ymfrs} Fishery catch (weight)
 \item \code{VB_ymfrs} Vulnerable biomass available to the fishing fleets
 \item \code{Nsp_yars} Spawning abundance (in the spawning season)
-\item \code{Npsp_yars} Mature abundance (that does not if outside natal regions)
+\item \code{Npsp_yars} Potentail spawners, mature animals in the spawning season that do not spawn if outside natal regions
 \item \code{S_yrs} Spawning output
 \item \code{R_ys} Recruitment
 \item \code{penalty} Numeric quadratic penalty if apical fishing mortality (by fleet) exceeds \code{Fmax}. See \code{\link[=calc_F]{calc_F()}}.
 }
 }
 \description{
-Project age-structured populations forward in time. Frequently used to calculate
+Project age-structured populations forward in time. Also used by \verb{[calc_phi_project()]} to calculate
 equilibrium abundance and biomass for which there is no analytic solution
 due to seasonal movement.
 }
