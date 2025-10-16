@@ -18,9 +18,9 @@
 \alias{plot_recdist}
 \title{Plotting functions for fitted MSA model}
 \usage{
-plot_S(fit, by = c("total", "stock", "region"), r, s, prop = FALSE)
+plot_S(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE)
 
-plot_B(fit, by = c("total", "stock", "region"), r, s, prop = FALSE)
+plot_B(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE)
 
 plot_R(fit, s)
 
@@ -44,7 +44,7 @@ plot_selstock(
 
 plot_N(fit, m = 1, r, s = 1, plot2d = c("contour", "filled.contour"), ...)
 
-plot_V(fit, f = 1, by = c("stock", "region"), prop = FALSE)
+plot_V(fit, f = 1, by = c("stock", "region"), prop = FALSE, facet_free = FALSE)
 
 plot_Ffleet(fit, f = 1)
 
@@ -62,6 +62,8 @@ plot_recdist(fit, palette = "Peach")
 \item{s}{Integer for the corresponding stock}
 
 \item{prop}{Logical, whether to plot proportions (TRUE) or absolute numbers}
+
+\item{facet_free}{Logical, whether to allow the y-axis limits to vary by panel in facetted plots}
 
 \item{phi}{Logical, whether to plot unfished replacement line}
 

@@ -353,23 +353,23 @@ make_yearseason <- function(year, nm = 4) {
   do.call(c, year_long)
 }
 
-# x must be a three dimensional array due to rbind()
-collapse_yearseason <- function(x, MARGIN = c(1, 2)) {
+#' @importFrom reshape2 acast
+collapse_yearseason <- function(x) {
+  dim_x <- dim(x)
+  if (length(dim_x) > 2) {
+    dimnames(x)[[1]] <- 1:dim_x[1]
+    dimnames(x)[[2]] <- 1:dim_x[2]
+    x_df <- array2DF(x)
+    x_df$Y <- as.numeric(x_df$Var1) + (as.numeric(x_df$Var2) - 1)/dim_x[2]
 
-  if (length(dim(x)) > 2) {
-    ny <- dim(x)[MARGIN[1]]
-    nm <- dim(x)[MARGIN[2]]
+    dims <- c("Y", paste0("Var", 3:length(dim_x))) %>% as.list()
+    xout <- reshape2::acast(x_df, dims, value.var = "Value")
+    dimnames(xout) <- NULL
 
-    xout <- lapply(1:ny, function(y) {
-      out <- array(NA_real_, c(nm, dim(x)[-MARGIN]))
-      comma <- rep(", ", length(dim(x)) - 1) %>% paste0(collapse = "")
-      eval(parse(text = paste0("out[] <- x[y", comma, "]")))
-      return(out)
-    })
+    return(xout)
 
-    do.call(rbind, xout)
   } else {
-    as.numeric(t(x))
+    return(as.numeric(t(x)))
   }
 }
 

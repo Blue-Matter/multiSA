@@ -70,11 +70,11 @@ if (length(x@SD) > 1 && length(x@SD$env$corr.fixed)) as.data.frame(x@SD$env$corr
 ### Summary
 
 ```{r SB, fig.cap="Spawning output."}
-plot_S(x, by = "total")
+plot_S(x, by = "region")
 ```
 
 ```{r B, fig.cap="Total biomass."}
-plot_B(x, by = "total")
+plot_B(x, by = "region")
 ```
 
 ```{r FF, fig.cap="Instantaneous fishing mortality (per year)."}

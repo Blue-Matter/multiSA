@@ -43,51 +43,90 @@ make_tinyplot <- function(year, x, ylab, name, color, type = "o",
 #' @importFrom graphics box legend
 #' @importFrom tinyplot tinyplot type_barplot
 #' @importFrom reshape2 melt
-barplot2 <- function(x, cols, leg.names, xval, ylab = ifelse(prop, "Proportion", "Value"),
-                     border = ifelse(nrow(x) > 60, NA, "grey60"), prop = TRUE) {
+barplot2 <- function(x, cols, leg.names, facet.names = NULL, xval, ylab = ifelse(prop, "Proportion", "Value"),
+                     border = ifelse(nrow(x) > 60, NA, "grey60"), prop = TRUE, facet.free = FALSE) {
 
-  if (prop) {
-    p <- apply(x, 1, function(x) x/sum(x, na.rm = TRUE))
-    if (is.null(dim(p))) p <- matrix(p, 1, length(xval))
-    ylim <- c(0, 1)
-  } else {
-    p <- t(x)
-    ylim <- c(0, 1.1) * range(rowSums(x))
-  }
-
-  if (nrow(p) == 1) {
-    plot(xval, p, xlab = "Year", ylab = ylab, ylim = ylim, pch = 16, type = "o", zero_line = TRUE)
+  if (length(x) == dim(x)[1]) {
+    if (prop) x[] <- 1
+    plot(xval, as.numeric(x), xlab = "Year", ylab = ylab, ylim = c(0, 1.1) * range(x), pch = 16, type = "o", zero_line = TRUE)
     return(invisible())
   }
+
+  ndim <- length(dim(x))
+  if (ndim == 2) {
+    if (prop) {
+      p <- apply(x, 1, function(x) x/sum(x, na.rm = TRUE))
+      if (is.null(dim(p))) p <- matrix(p, 1, length(xval))
+      ylim <- c(0, 1)
+    } else {
+      p <- t(x)
+      ylim <- c(0, 1.1) * range(rowSums(x))
+    }
+
+    df <- structure(p, dimnames = list(by = leg.names, xval = xval)) %>%
+      reshape2::melt()
+
+  } else if (ndim == 3) {
+    if (prop) {
+      p <- apply(x, c(1, 3), function(x) x/sum(x, na.rm = TRUE))
+      if (is.null(dim(p))) p <- matrix(p, 1, length(xval))
+      ylim <- c(0, 1)
+    } else {
+      p <- aperm(x, c(2, 1, 3))
+      ylim <- c(0, 1.1) * range(apply(p, 1:2, sum))
+    }
+
+    df <- structure(p, dimnames = list(by = leg.names, xval = xval, facet = facet.names)) %>%
+      reshape2::melt()
+
+  } else {
+    stop("Dimension not usable by barplot2")
+  }
+
+  do.facet <- ndim == 3 && length(unique(df$facet)) > 1
+  do.group <- dim(p)[1] > 1
 
   if (missing(cols)) {
     ncat <- nrow(p)
     cols <- make_color(ncat)
   }
 
-  #plot(NULL, xlab = "Year", ylab = ylab, xlim = c(0, ncol(p)), xaxt = "n", ylim = ylim,
-  #     yaxs = "i", xaxs = "i")
-  #barplot(p, add = TRUE, col = cols, width = 1, space = 0, border = border)
-  #if (!missing(leg.names) && length(leg.names) > 1) {
-  #  legend("right", legend = leg.names, fill = cols, border = border, horiz = FALSE)
-  #}
-  #box()
-  #xt <- pretty(xval)
-  #xt <- xt[xt %in% xval]
-  #xp <- match(xt, xval)
-  #axis(1, at = xp - 0.5, labels = xt)
+  if (do.group) {
 
-  df <- structure(p, dimnames = list(by = leg.names, xval = xval)) %>%
-    reshape2::melt()
+    tinyplot_args <- list(
+      x = df$xval, y = df$value,
+      by = df$by,
+      grid = TRUE,
+      legend = substitute(legend(title = NULL)),
+      facet = if (do.facet) df$facet else NULL,
+      facet.args = if (do.facet) list(free = facet.free) else NULL,
+      xlab = "Year", ylab = ylab,
+      type = type_barplot(width = 1),
+      palette = cols,
+      col = border,
+      ylim = NULL
+    )
 
-  tinyplot_args <- list(
-    x = df$xval, y = df$value, by = df$by, grid = TRUE, legend = substitute(legend(title = NULL)),
-    xlab = "Year", ylab = ylab, type = type_barplot(width = 1), palette = cols,
-    xaxs = "i", yaxs = "i",
-    col = border
-  )
+  } else {
+
+    tinyplot_args <- list(
+      x = df$xval, y = df$value,
+      by = NULL,
+      grid = TRUE,
+      legend = NULL,
+      facet = if (do.facet) df$facet else NULL,
+      facet.args = if (do.facet) list(free = facet.free) else NULL,
+      xlab = "Year", ylab = ylab,
+      type = type_lines(),
+      palette = NULL,
+      col = cols,
+      ylim = c(0, 1.1) * range(df$value)
+    )
+
+  }
+
   do.call(tinyplot, tinyplot_args)
-  box()
+  if (!do.facet) box()
 
   invisible()
 }
@@ -107,58 +146,50 @@ NULL
 #' @param by Character to indicate dimension for multivariate plots
 #' @param s Integer for the corresponding stock
 #' @param prop Logical, whether to plot proportions (TRUE) or absolute numbers
+#' @param facet_free Logical, whether to allow the y-axis limits to vary by panel in facetted plots
 #' @details
 #' - `plot_S` plots spawning output by stock or region (either whole numbers or proportions for the latter)
 #'
 #' @export
-plot_S <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) {
+plot_S <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE) {
   by <- match.arg(by)
   var <- "S_yrs"
 
-  Dlabel <- get_MSAdata(fit)@Dlabel
+  d <- get_MSAdata(fit)
+  Dlabel <- d@Dlabel
+  Dmodel <- d@Dmodel
+
   year <- Dlabel@year
   ny <- length(year)
 
-  if (by == "total") {
-    x <- apply(fit@report[[var]], c(1, 3), sum) # S_ys
-    name <- Dlabel@stock
+  if (missing(r)) r <- 1:Dmodel@nr
+  if (missing(s)) s <- 1:Dmodel@ns
+  rname <- Dlabel@region[r]
+  sname <- Dlabel@stock[s]
 
-    if (!missing(s)) {
-      x <- x[, s, drop = FALSE]
-      name <- name[s]
-    }
-
-    x <- structure(x, dimnames = list(year = year, stock = name))
-  } else if (by == "stock") {
-
-    if (missing(r)) stop("Need region integer r to plot spawning output by stock")
-
-    name <- Dlabel@stock
-    ns <- length(name)
-    x <- matrix(fit@report[[var]][, r, ], ny, ns) %>% # S_ys
-      structure(dimnames = list(year = year, stock = name))
-
-  } else if (by == "region") {
-    if (missing(s)) stop("Need stock integer s to plot spawning output by region")
-    name <- Dlabel@region
-    nr <- length(name)
-
-    x <- matrix(fit@report[[var]][, , s], ny, nr) %>% # S_yr
-      structure(dimnames = list(year = year, region = name))
+  if (by == "stock") {
+    leg.name <- sname
+    facet.name <- rname
+    x <- array(fit@report[[var]][, r, s, drop = FALSE], c(ny, length(rname), length(sname))) %>%
+      aperm(c(1, 3, 2))
+  } else {
+    leg.name <- rname
+    facet.name <- sname
+    x <- array(fit@report[[var]][, r, s, drop = FALSE], c(ny, length(rname), length(sname)))
   }
-  color <- make_color(ncol(x), type = ifelse(by == "total", "stock", by))
+
+  color <- make_color(ncol(x), type = by)
 
   if (prop) {
     ylab <- "Spawning fraction"
-  } else if (by == "total" && !missing(s)) {
-    ylab <- paste(name, "spawning output")
   } else {
     ylab <- "Spawning output"
   }
-  barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
 
-  out <- array2DF(x, responseName = ifelse(prop, "p", "S"))
-  invisible(out)
+  barplot2(x, cols = color, leg.names = leg.name, facet.names = facet.name, xval = year, ylab = ylab, prop = prop,
+           facet.free = facet_free)
+
+  invisible(array2DF(x, responseName = "S"))
 }
 
 
@@ -168,57 +199,49 @@ plot_S <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) 
 #' - `plot_B` plots total biomass by stock or region (either whole numbers or proportions for the latter)
 #'
 #' @export
-plot_B <- function(fit, by = c("total", "stock", "region"), r, s, prop = FALSE) {
+plot_B <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE) {
   by <- match.arg(by)
   var <- "B_ymrs"
 
-  Dlabel <- get_MSAdata(fit)@Dlabel
+  d <- get_MSAdata(fit)
+  Dlabel <- d@Dlabel
+  Dmodel <- d@Dmodel
+
   year <- Dlabel@year
   ny <- length(year)
   nm <- max(length(Dlabel@season), 1)
 
-  if (by == "total") {
-    x <- apply(fit@report[[var]], c(1, 2, 4), sum) # B_yms
-    name <- Dlabel@stock
+  if (missing(r)) r <- 1:Dmodel@nr
+  if (missing(s)) s <- 1:Dmodel@ns
+  rname <- Dlabel@region[r]
+  sname <- Dlabel@stock[s]
 
-    if (!missing(s)) {
-      x <- x[, , s, drop = FALSE]
-      name <- name[s]
-    }
-  } else if (by == "stock") {
-
-    if (missing(r)) stop("Need region integer r to plot spawning output by stock")
-
-    name <- Dlabel@stock
-    ns <- length(name)
-    x <- array(fit@report[[var]][, , r, ], c(ny, nm, ns)) # B_yms
-
+  if (by == "stock") {
+    leg.name <- sname
+    facet.name <- rname
+    x <- array(fit@report[[var]][, , r, s, drop = FALSE], c(ny, nm, length(rname), length(sname))) %>%
+      aperm(c(1, 2, 4, 3)) # B_ymsr
   } else {
-
-    if (missing(s)) stop("Need stock integer s to plot spawning output by region")
-    name <- Dlabel@region
-    nr <- length(name)
-
-    x <- array(fit@report[[var]][, , , s], c(ny, nm, nr)) # B_ymr
-
+    leg.name <- rname
+    facet.name <- sname
+    x <- array(fit@report[[var]][, , r, s, drop = FALSE], c(ny, nm, length(rname), length(sname))) # B_ymrs
   }
 
   year <- make_yearseason(year, nm)
-  x <- collapse_yearseason(x) # B_tr or B_ts
+  x <- collapse_yearseason(x)
 
-  color <- make_color(ncol(x), type = ifelse(by == "total", "stock", by))
+  color <- make_color(ncol(x), type = by)
 
   if (prop) {
     ylab <- "Biomass fraction"
-  } else if (by == "total" && !missing(s)) {
-    ylab <- paste(name, "total biomass")
   } else {
     ylab <- "Total biomass"
   }
-  barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
 
-  out <- array2DF(x, responseName = ifelse(prop, "p", "B"))
-  invisible(out)
+  barplot2(x, cols = color, leg.names = leg.name, facet.names = facet.name, xval = year, ylab = ylab, prop = prop,
+           facet.free = facet_free)
+
+  invisible(array2DF(x, responseName = "B"))
 }
 
 
@@ -250,7 +273,6 @@ plot_R <- function(fit, s) {
   #matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
   #        ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
   #if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
-
 
   x <- structure(x, dimnames = list(year = year, stock = name))
   invisible(array2DF(x, "R"))
@@ -639,21 +661,32 @@ plot_N <- function(fit, m = 1, r, s = 1, plot2d = c("contour", "filled.contour")
 #' @details
 #' - `plot_V` plots vulnerable biomass, availability to the fishery
 #' @export
-plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE) {
+plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE, facet_free = FALSE) {
   by <- match.arg(by)
-
   var <- "VB_ymfrs"
 
-  Dlabel <- get_MSAdata(fit)@Dlabel
+  d <- get_MSAdata(fit)
+  Dlabel <- d@Dlabel
+  Dmodel <- d@Dmodel
+
   year <- Dlabel@year
+  ny <- length(year)
   nm <- max(length(Dlabel@season), 1)
 
+  r <- 1:Dmodel@nr
+  s <- 1:Dmodel@ns
+  rname <- Dlabel@region[r]
+  sname <- Dlabel@stock[s]
+
   if (by == "stock") {
-    x <- apply(fit@report[[var]][, , f, , , drop = FALSE], c(1, 2, 5), sum)
-    name <- Dlabel@stock
+    leg.name <- sname
+    facet.name <- rname
+    x <- array(fit@report[[var]][, , f, , , drop = FALSE], c(ny, nm, length(rname), length(sname))) %>%
+      aperm(c(1, 2, 4, 3)) # B_ymsr
   } else {
-    x <- apply(fit@report[[var]][, , f, , , drop = FALSE], c(1, 2, 4), sum)
-    name <- Dlabel@region
+    leg.name <- rname
+    facet.name <- sname
+    x <- array(fit@report[[var]][, , f, , , drop = FALSE], c(ny, nm, length(rname), length(sname))) # B_ymrs
   }
 
   year <- make_yearseason(year, nm)
@@ -668,9 +701,11 @@ plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE) {
   } else {
     ylab <- paste("Biomass available to", fname)
   }
-  barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
 
-  invisible()
+  barplot2(x, cols = color, leg.names = leg.name, facet.names = facet.name, xval = year, ylab = ylab, prop = prop,
+           facet.free = facet_free)
+
+  invisible(array2DF(x, responseName = "V"))
 }
 
 
