@@ -55,9 +55,15 @@ fit_MSA <- function(MSAdata, parameters, map = list(), random = NULL,
     }
 
     gr <- obj$gr()
-    if (any(is.na(gr))) message_oops("Gradients of NA at initial values were found.")
+    if (any(is.na(gr))) {
+      par_NA <- unique(names(obj$par)[!is.na(gr)])
+      message_oops("Gradients of NA at initial values were found.")
+      message_info(paste0(par_NA, collapse = ", "))
+    }
     if (any(!gr, na.rm = TRUE)) {
-      message_oops("Gradients of zero at initial values, can be indicative of over-parameterization or non-identifiable parameters.")
+      par_zero <- unique(names(obj$par)[!gr])
+      message_oops("Gradients of zero at initial values for these parameters (may not be identifiable):")
+      message_info(paste0(par_zero, collapse = ", "))
     }
   }
 
