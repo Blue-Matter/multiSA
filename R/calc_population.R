@@ -149,9 +149,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
           c(na, nf, nr, ns)
         )
 
-        ymafs_afrs <- ind_afrs[, c("y", "m", "a", "f", "s")]
-
-        CB_afrs <- array(CN_ym_afrs[[y, m]][ind_afrs] * fwt_ymafs[ymafs_afrs], c(na, nf, nr, ns))
+        CB_afrs <- array(CN_ym_afrs[[y, m]] * fwt_ymafs[ymafs_afrs], c(na, nf, nr, ns))
         CB_ym_frs[[y, m]] <- array(0, c(nf, nr, ns))
         for (a in 1:na) CB_ym_frs[[y, m]] <- CB_ym_frs[[y, m]] + array(CB_afrs[a, , , ], c(nf, nr, ns))
 
