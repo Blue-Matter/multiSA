@@ -108,9 +108,10 @@ update_report <- function(r, MSAdata) {
 
       if (any(is.na(r$F_yas))) message_oops("NA in predicted catch at age")
       if (any(is.infinite(r$F_yas))) {
-        message_oops("Annual catch-at-age exceeds abundance-at-age at beginning of year")
-        if (nm > 1) {
-          message_oops("However, this is mathemetically possible in multi-season models with recruitment in the middle of the year")
+        if (MSAdata@Dstock@m_spawn > 1) {
+          message_info("Annual catch-at-age exceeds abundance-at-age at beginning of year, but this is mathemetically possible in seasonal models with recruitment during the year")
+        } else {
+          message_oops("Annual catch-at-age exceeds abundance-at-age at beginning of year")
         }
       }
     }
