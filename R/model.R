@@ -27,10 +27,9 @@ fit_MSA <- function(MSAdata, parameters, map = list(), random = NULL,
   MSAdata@Misc$map <- map
   MSAdata@Misc$random <- random
 
-  old_comparison <- TapeConfig()["comparison"]
-
-  on.exit(TapeConfig(comparison = old_comparison))
-  TapeConfig(comparison = "tape")
+  #old_comparison <- TapeConfig()["comparison"]
+  #on.exit(TapeConfig(comparison = old_comparison))
+  #TapeConfig(comparison = "tape")
 
   func <- function(p) .MSA(p, d = MSAdata)
 

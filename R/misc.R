@@ -198,9 +198,9 @@ get_sdreport <- function(obj, getReportCovariance = FALSE, silent = FALSE, ...) 
   options(warn = -1)
   on.exit(options(warn = old_warn))
 
-  old_comparison <- TapeConfig()["comparison"]
-  on.exit(TapeConfig(comparison = old_comparison), add = TRUE)
-  TapeConfig(comparison = "tape")
+  #old_comparison <- TapeConfig()["comparison"]
+  #on.exit(TapeConfig(comparison = old_comparison), add = TRUE)
+  #TapeConfig(comparison = "tape")
 
   par.fixed <- obj$env$last.par.best
 
