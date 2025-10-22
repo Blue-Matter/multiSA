@@ -382,9 +382,11 @@ update_report <- function(r, MSAdata) {
   h_s <- sapply(1:ns, function(s) conv_steepness(p$t_h_s[s], Dstock@SRR_s[s]))
   kappa_s <- sapply(1:ns, function(s) SRkconv(h_s[s], Dstock@SRR_s[s]))
 
-  if (nr == 1 && nm == 1) {
+  if (nm == 1 && nr == 1) {
     nyinit <- 1L
-    initNPR0_yars <- sapply2(1:ns, function(s) calc_NPR(M_yas[Dmodel@y_phi, , s])) %>% array(c(nyinit, na, nr, ns))
+    NPR0_mars <- sapply2(1:ns, function(s) calc_NPR(M_yas[Dmodel@y_phi, , s])) %>%
+      array(c(na, ns, nm, nr)) %>%
+      aperm(c(3, 1, 4, 2))
     phi_s <- sapply(1:ns, function(s) {
       calc_phi_simple(M_yas[Dmodel@y_phi, , s], mat_a = mat_yas[Dmodel@y_phi, , s], fec_a = Dstock@fec_yas[Dmodel@y_phi, , s],
                       delta = Dstock@delta_s[s])
@@ -396,9 +398,10 @@ update_report <- function(r, MSAdata) {
       mat_as = mat_yas[Dmodel@y_phi, , ], fec_as = Dstock@fec_yas[Dmodel@y_phi, , ], m_spawn = Dstock@m_spawn, m_advanceage = Dstock@m_advanceage,
       delta_s = Dstock@delta_s, natal_rs = Dstock@natal_rs, recdist_rs = recdist_rs
     )
-    initNPR0_yars <- array(NPR_unfished[["N_ymars"]][1:nyinit, 1, , , ], c(nyinit, na, nr, ns))
+    NPR0_mars <- array(NPR_unfished[["N_ymars"]][nyinit, , , , ], c(nm, na, nr, ns))
     phi_s <- sapply(1:ns, function(s) sum(NPR_unfished[["S_yrs"]][nyinit, , s]))
   }
+  N0_mars <- sapply2(1:ns, function(s) array(NPR0_mars[, , , s] * R0_s[s], c(nm, na, nr)))
 
   SB0_s <- R0_s * phi_s
   sralpha_s <- kappa_s/phi_s
@@ -432,39 +435,72 @@ update_report <- function(r, MSAdata) {
   initRdev_as[1, ] <- Rdev_ys[1, ]
   initF_mfr <- exp(p$log_initF_mfr)
 
-  initNPR_yars <- array(NA_real_, c(nyinit, na, nr, ns))
+  initNPR_mars <- array(NA_real_, c(nm, na, nr, ns))
+  initNeq_mars <- initN_mars <- array(NA_real_, c(nm, na, nr, ns))
   initN_ars <- array(NA_real_, c(na, nr, ns))
 
   initZ_mars <- array(NA_real_, c(nm, na, nr, ns))
 
-  initCN_mafrs <- array(NA_real_, c(nm, na, nf, nr, ns))
-  initCB_mfrs <- array(NA_real_, c(nm, nf, nr, ns))
+  initCN_mafrs <- array(0, c(nm, na, nf, nr, ns))
+  initCB_mfrs <- array(0, c(nm, nf, nr, ns))
 
   if (all(Dfishery@Cinit_mfr < 1e-8)) {
-    initNPR_yars[] <- initNPR0_yars
+    initNPR_mars[] <- NPR0_mars
+    initN_mars[] <- initN_mars
     initphi_s <- phi_s
-    initR_s <- R0_s
+    initReq_s <- R0_s
+    initNeq_mars[] <- N0_mars
   } else {
-    NPR_init <- calc_phi_project( #nyinit = 1 if nm == 1 && nr == 1
-      nyinit, nm, na, nf, nr, ns, F_mfr = initF_mfr, sel_mafs = sel_ymafs[1, , , , ],
-      fwt_mafs = Dfishery@fwt_ymafs[1, , , , ], q_fs = q_fs,
-      M_as = M_yas[1, , ], mov_marrs = mov_ymarrs[Dmodel@y_phi, , , , , ],
-      mat_as = mat_yas[1, , ], fec_as = Dstock@fec_yas[1, , ], m_spawn = Dstock@m_spawn, m_advanceage = Dstock@m_advanceage,
-      delta_s = Dstock@delta_s, natal_rs = Dstock@natal_rs, recdist_rs = recdist_rs
-    )
-    initNPR_yars[] <- NPR_init[["N_ymars"]][1:nyinit, 1, , , ]
-    initphi_s <- sapply(1:ns, function(s) sum(NPR_init[["S_yrs"]][nyinit, , s]))
-    initZ_mars[] <- NPR_init[["Z_ymars"]][nyinit, , , , ]
+    if (nm == 1 && nr == 1) {
+      initZ_mars[1, , 1, ] <- sapply(1:ns, function(s) {
+        F_a <- lapply(1:nf, function(f) sel_ymafs[1, 1, , f, s] * q_fs[f, s] * initF_mfr[1, f, 1])
+        Z_a <- M_yas[1, , s] + Reduce("+", F_a)
+        return(Z_a)
+      })
+      initNPR_mars[1, , 1, ] <- sapply(1:ns, function(s) calc_NPR(initZ_mars[1, , 1, s]))
+      initphi_s <- sapply(1:ns, function(s) {
+        sum(initNPR_mars[1, , 1, s] * exp(-Dstock@delta_s[s] * initZ_mars[1, , 1, s]) * mat_yas[1, , s] * Dstock@fec_yas[1, , s])
+      })
+    } else {
+      NPR_init <- calc_phi_project(
+        nyinit, nm, na, nf, nr, ns, F_mfr = initF_mfr, sel_mafs = sel_ymafs[1, , , , ],
+        fwt_mafs = Dfishery@fwt_ymafs[1, , , , ], q_fs = q_fs,
+        M_as = M_yas[1, , ], mov_marrs = mov_ymarrs[Dmodel@y_phi, , , , , ],
+        mat_as = mat_yas[1, , ], fec_as = Dstock@fec_yas[1, , ], m_spawn = Dstock@m_spawn, m_advanceage = Dstock@m_advanceage,
+        delta_s = Dstock@delta_s, natal_rs = Dstock@natal_rs, recdist_rs = recdist_rs
+      )
+      initZ_mars[] <- NPR_init[["Z_ymars"]][nyinit, , , , ]
+      initNPR_mars[] <- NPR_init[["N_ymars"]][nyinit, , , , ]
+      initphi_s <- sapply(1:ns, function(s) sum(NPR_init[["S_yrs"]][nyinit, , s]))
+    }
 
-    initCN_mafrs[] <- NPR_init[["CN_ymafrs"]][nyinit, , , , , ]
-    initCB_mfrs[] <- NPR_init[["CB_ymfrs"]][nyinit, , , , ]
-
-    initR_s <- sapply(1:ns, function(s) {
+    initReq_s <- sapply(1:ns, function(s) {
       calc_recruitment(initphi_s[s], Dstock@SRR_s[s], eq = TRUE, a = sralpha_s[s], b = srbeta_s[s])
     })
+    initNeq_mars[] <- sapply2(1:ns, function(s) array(initNPR_mars[, , , s] * initReq_s[s], c(nm, na, nr)))
   }
 
-  initN_ars[] <- sapply2(1:ns, function(s) initR_s[s] * initRdev_as[, s] * initNPR_yars[nyinit, , , s])
+  initN_mars[] <- sapply2(1:ns, function(s) {
+    sapply2(1:na, function(a) array(initRdev_as[a, s] * initNeq_mars[, a, , s], c(nm, nr))) #mras
+  }) %>%
+    aperm(c(1, 3, 2, 4))
+  initN_ars[] <- initN_mars[1, , , ]
+
+  if (any(Dfishery@Cinit_mfr >= 1e-8)) {
+    ind <- as.matrix(expand.grid(m = 1:nm, a = 1:na, f = 1:nf, r = 1:nr, s = 1:ns))
+    mfr_mafrs <- ind[, c("m", "f", "r")]
+    mars_mafrs <- ind[, c("m", "a", "r", "s")]
+    initCN_mafrs[] <- initF_mfr[mfr_mafrs]/initZ_mars[mars_mafrs] * (1 - exp(-initZ_mars[mars_mafrs])) * initN_mars[mars_mafrs]
+
+    initCB_mfrs[] <- 0
+    ind <- as.matrix(expand.grid(y = 1, m = 1:nm, a = 0, f = 1:nf, r = 1:nr, s = 1:ns))
+    for (a in 1:na) {
+      ind[, "a"] <- a
+      mafrs_ind <- ind[, c("m", "a", "f", "r", "s")]
+      ymafs_ind <- ind[, c("y", "m", "a", "f", "s")]
+      initCB_mfrs[] <- initCB_mfrs[] + initCN_mafrs[mafrs_ind] * Dfishery@fwt_ymafs[ymafs_ind]
+    }
+  }
 
   # Run population model ----
   pop <- calc_population(
@@ -956,13 +992,13 @@ update_report <- function(r, MSAdata) {
   REPORT(mat_yas)
 
   ## Initial (first year, first season) calculations ----
-  REPORT(initNPR0_yars)
+  REPORT(NPR0_mars)
   REPORT(initRdev_as)
   if (any_Cinit) {
     REPORT(initF_mfr)
     REPORT(initZ_mars)
-    REPORT(initNPR_yars)
-    REPORT(initR_s)
+    REPORT(initNPR_mars)
+    REPORT(initReq_s)
     REPORT(initphi_s)
     REPORT(initCN_mafrs)
     REPORT(initCB_mfrs)

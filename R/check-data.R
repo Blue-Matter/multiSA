@@ -68,7 +68,7 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
     if (Dmodel@nm == 1 && Dmodel@nr == 1) {
       Dmodel@nyinit <- 1
     } else {
-      Dmodel@nyinit <- ceiling(1.5 * Dmodel@na)
+      Dmodel@nyinit <- 2 * Dmodel@na
       if (!silent) message("Setting ", ch, "@nyinit = ", Dmodel@nyinit)
     }
   }
