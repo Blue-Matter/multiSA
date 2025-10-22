@@ -89,7 +89,7 @@ observed catch with the dimension following the underscore, following this templ
 <dd><p>Vector, length <code>ns</code>. Multiplicative scaling factor that informs relative stock size to aid parameter estimation. Larger values implies larger stocks. Default set to 1. See <code><a href="make_parameters.html">make_parameters()</a></code>.</p></dd>
 
 <dt><code>nyinit</code></dt>
-<dd><p>Integer, number of years of spool-up to calculate equilibrium unfished and starting conditions for the population model to account for seasonal and spatial dynamics. The numerical spool-up is not needed when both <code>nm = 1</code> and <code>nr = 1</code>, i.e., <code>nyinit = 1</code>. Otherwise, set to <code>1.5 * na</code> by default.</p></dd>
+<dd><p>Integer, number of years of spool-up to calculate equilibrium unfished and starting conditions for the population model to account for seasonal and spatial dynamics. The numerical spool-up is not needed when both <code>nm = 1</code> and <code>nr = 1</code>, i.e., <code>nyinit = 1</code>. Otherwise, set to <code>2 * na</code> by default.</p></dd>
 
 <dt><code>condition</code></dt>
 <dd><p>Character, either to specify the model estimates fishing mortality as a parameter (<code>"F"</code>, default) or equal to the catch (<code>"catch"</code>).</p></dd>
