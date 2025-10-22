@@ -80,6 +80,7 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
 
   } else if (type == "lognormal") {
 
+    pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
     ppred <- pred/sum(pred)
     stopifnot(length(stdev) == 1 || length(stdev) == length(obs))
     if (length(stdev) == 1) stdev <- rep(stdev, pobs)
