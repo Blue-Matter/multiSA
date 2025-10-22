@@ -64,18 +64,18 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
     }
 
     if (inherits(obs, "simref")) {
-      if (!requireNamespace("extraDistr", quietly = TRUE)) {
-        stop("Need the extraDistr package to simulate from the Dirichlet-multinomial distribution")
+      if (!requireNamespace("RTMBdist", quietly = TRUE)) {
+        stop("Need the RTMBdist package to simulate from the Dirichlet-multinomial distribution")
       }
       v <- 0
       if (sum(pred) && !is.na(N)) {
-        obs[] <- extraDistr::rdirmnom(1, size = N, alpha = alpha)
+        obs[] <- RTMBdist::rdirmult(1, size = N, alpha = alpha)
       } else {
         obs[] <- NA
       }
     } else {
       pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
-      v <- ddirmnom(obs, size = N, alpha = alpha, log = TRUE)
+      v <- ddirmult_(obs, size = N, alpha = alpha, log = TRUE)
     }
 
   } else if (type == "lognormal") {
@@ -102,7 +102,7 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
   return(v)
 }
 
-ddirmnom <- function(x, size, alpha, log = FALSE) {
+ddirmult_ <- function(x, size, alpha, log = FALSE) {
   x <- size * x/sum(x)
   val <- lgamma(sum(alpha)) + lgamma(sum(x) + 1) - lgamma(sum(alpha) + sum(x))
   val2 <- lgamma(x + alpha) - lgamma(alpha) - lgamma(x + 1)

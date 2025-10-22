@@ -754,7 +754,7 @@ update_report <- function(r, MSAdata) {
               pred <- SCpred_ymafrs[y, m, aa, ff, r, ]
               Cobs <- sum(Cobs_ymfr[y, m, ff, r])
               like_comp(obs = (Cobs >= 1e-8) * SC_ymafrs[y, m, aa, ff, r, ],
-                        pred = CondExpGt(pred, 1e-8, pred, 1e-8), type = Dfishery@SC_like,
+                        pred = pred, type = Dfishery@SC_like,
                         N = Dfishery@SCN_ymafr[y, m, aa, ff, r], theta = Dfishery@SCtheta_f[ff],
                         stdev = Dfishery@SCstdev_ymafrs[y, m, aa, ff, r, ])
             })
@@ -836,7 +836,7 @@ update_report <- function(r, MSAdata) {
               if (any(Dtag@tag_yy[yy, ] %in% y_like)) {
                 pred <- tagpred_ymarrs[yy, m, aa, rf, , s]
                 val <- like_comp(obs = tag_ymarrs[yy, m, aa, rf, , s],
-                                 pred = CondExpGt(pred, 1e-8, pred, 1e-8), type = Dtag@tag_like,
+                                 pred = pred, type = Dtag@tag_like,
                                  N = Dtag@tagN_ymars[yy, m, aa, rf, s], theta = Dtag@tagtheta_s[s],
                                  stdev = Dtag@tagstdev_s[s])
               }
@@ -862,7 +862,7 @@ update_report <- function(r, MSAdata) {
             if (any(Dtag@tag_yy[yy, ] %in% y_like)) {
               pred <- apply(N_ymars[yvec, m, avec, , s, drop = FALSE], 3, sum)
               like_comp(obs = tag_ymars[yy, m, aa, , s],
-                        pred = CondExpGt(pred, 1e-8, pred, 1e-8), type = Dtag@tag_like,
+                        pred = pred, type = Dtag@tag_like,
                         N = Dtag@tagN_ymas[yy, m, aa, s], theta = Dtag@tagtheta_s[s],
                         stdev = Dtag@tagstdev_s[s])
             }

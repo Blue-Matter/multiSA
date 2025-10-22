@@ -307,8 +307,6 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
 #'
 #' By default `p$mov_x_marrs` is zero. Set to -1000 for areas for which there is no abundance of a particular stock.
 #'
-#' @importFrom dplyr filter
-#' @importFrom rlang .data .env
 #' @return
 #' [make_map()] returns a named list containing parameter mappings (`"map"`) and a character vector of random effects (`"random"`).
 #' @export

@@ -41,7 +41,7 @@ make_tinyplot <- function(year, x, ylab, name, color, type = "o",
 }
 
 #' @importFrom graphics box legend
-#' @importFrom tinyplot tinyplot type_barplot
+#' @importFrom tinyplot tinyplot type_barplot type_lines
 #' @importFrom reshape2 melt
 barplot2 <- function(x, cols, leg.names, facet.names = NULL, xval, ylab = ifelse(prop, "Proportion", "Value"),
                      border = ifelse(nrow(x) > 60, NA, "grey60"), prop = TRUE, facet.free = FALSE) {

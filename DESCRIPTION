@@ -4,7 +4,7 @@ Version: 0.1.0
 Authors@R: 
     person("Quang", "Huynh", , "quang@bluematterscience.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7835-4376"))
-Date: 2025-10-09
+Date: 2025-10-22
 Maintainer: Quang Huynh <quang@bluematterscience.com>
 Description: Implementation of a next-generation, multi-stock age-structured fisheries assessment model. 
   `multiSA` is intended for use in mixed fisheries where stock composition can not be readily identified in 
@@ -19,7 +19,6 @@ Imports:
     methods,
     pbapply,
     reshape2,
-    rlang,
     rmarkdown,
     snowfall,
     stats,
@@ -28,8 +27,8 @@ Imports:
     TMB,
     utils
 Suggests: 
-    extraDistr,
     numDeriv,
+    RTMBdist,
     usethis
 LazyData: yes
 LazyLoad: yes
