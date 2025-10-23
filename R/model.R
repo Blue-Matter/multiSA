@@ -480,10 +480,9 @@ update_report <- function(r, MSAdata) {
     initNeq_mars[] <- sapply2(1:ns, function(s) array(initNPR_mars[, , , s] * initReq_s[s], c(nm, na, nr)))
   }
 
-  initN_mars[] <- sapply2(1:ns, function(s) {
-    sapply2(1:na, function(a) array(initRdev_as[a, s] * initNeq_mars[, a, , s], c(nm, nr))) #mras
-  }) %>%
-    aperm(c(1, 3, 2, 4))
+  ind <- as.matrix(expand.grid(m = 1:nm, a = 1:na, r = 1:nr, s = 1:ns))
+  as_ind <- ind[, c("a", "s")]
+  initN_mars[] <- initRdev_as[as_ind] * initNeq_mars[ind]
   initN_ars[] <- initN_mars[1, , , ]
 
   if (any(Dfishery@Cinit_mfr >= 1e-8)) {
