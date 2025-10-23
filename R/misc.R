@@ -22,7 +22,12 @@
 posfun <- function(x, eps) CondExpGe(x, eps, 0, 0.01 * (x - eps) * (x - eps))
 
 calc_selpar_penalty <- function(sel_pf, sel_f, lmid, na, map) {
-  if (missing(map) || is.null(map)) map <- array(TRUE, dim(sel_pf))
+  if (missing(map) || is.null(map)) {
+    map <- array(TRUE, c(2, nrow(sel_pf)))
+  } else {
+    map <- array(map, dim(sel_pf))
+    map <- map[-1, ]
+  }
 
   penalty <- array(0, c(2, nrow(sel_pf)))
   parametric_sel <- grepl("dome|logistic", sel_f)
