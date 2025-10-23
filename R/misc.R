@@ -21,19 +21,24 @@
 #' @export
 posfun <- function(x, eps) CondExpGe(x, eps, 0, 0.01 * (x - eps) * (x - eps))
 
-calc_selpar_penalty <- function(sel_pf, sel_f, lmid) {
-  penalty <- 0
+calc_selpar_penalty <- function(sel_pf, sel_f, lmid, na, map) {
+  if (missing(map) || is.null(map)) map <- array(TRUE, dim(sel_pf))
+
+  penalty <- array(0, c(2, nrow(sel_pf)))
   parametric_sel <- grepl("dome|logistic", sel_f)
   flen <- parametric_sel & grepl("length", sel_f)
   if (any(flen)) {
     log_binwidth <- log(0.5 * min(diff(lmid)))
-    penalty <- penalty + sum(posfun(sel_pf[2:3, flen], log_binwidth))
+    log_binrange <- log(max(lmid) - min(lmid))
+    penalty <- penalty + posfun(sel_pf[2:3, flen], log_binwidth) +
+      posfun(log_binrange, sel_pf[2:3, flen])
   }
   fage <- parametric_sel & grepl("age", sel_f)
   if (any(fage)) {
-    penalty <- penalty + sum(posfun(sel_pf[2:3, fage], log(0.5)))
+    penalty <- penalty + posfun(sel_pf[2:3, fage], log(0.5)) +
+      posfun(log(na), sel_pf[2:3, fage])
   }
-  return(penalty)
+  return(sum(penalty[!is.na(map)]))
 }
 
 #' Softmax function

@@ -955,8 +955,8 @@ update_report <- function(r, MSAdata) {
 
   # Penalty selectivity parameters to avoid steep ascending and descending limbs
   penalty <- penalty +
-    calc_selpar_penalty(p$sel_pf, Dfishery@sel_f, Dmodel@lmid) +
-    calc_selpar_penalty(p$sel_pi, Dsurvey@sel_i, Dmodel@lmid)
+    calc_selpar_penalty(p$sel_pf, Dfishery@sel_f, Dmodel@lmid, na, map$sel_pf) +
+    calc_selpar_penalty(p$sel_pi, Dsurvey@sel_i, Dmodel@lmid, na, map$sel_pi)
 
   # Objective function ----
   fn <- -1 * (logprior + loglike) + penalty
