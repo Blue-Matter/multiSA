@@ -46,7 +46,7 @@ retrospective <- function(MSAassess, yret = 0:5, cores = 1) {
   F_yst[] <- sapply2(ret, function(x) apply(x@report$F_yas, c(1, 3), max))
   R_yst[] <- sapply2(ret, function(x) x@report$R_ys)
   S_yst[] <- sapply2(ret, function(x) apply(x@report$S_yrs, c(1, 3), sum))
-  log_rdev_yst[] <- sapply2(ret, function(x) x@obj$env$parList()$log_rdev_ys)
+  log_rdev_yst[] <- sapply2(ret, function(x) x@obj$env$parList(x@obj$env$last.par.best)$log_rdev_ys)
   VB_ymft[] <- sapply2(ret, function(x) apply(x@report$VB_ymfrs, 1:3, sum))
 
   ret_out <- list(S_yst = S_yst, R_yst = R_yst, F_yst = F_yst, VB_ymft = VB_ymft,

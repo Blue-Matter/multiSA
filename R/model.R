@@ -329,14 +329,14 @@ update_report <- function(r, MSAdata) {
         for (y in 1:ny) {
           for (m in 1:nm) {
             sel_ymais[y, m, , , s] <- calc_isel_age(
-              sel_li, Dstock@LAK_ymals[y, m, , , s], Dsurvey@sel_i, selconv_pi, sel_ymafs[y, m, , , s], mat = mat_yas[y, , s], a = seq(1, na) - 1
+              sel_li, Dstock@LAK_ymals[y, m, , , s], Dsurvey@sel_i, selconv_pi, matrix(sel_ymafs[y, m, , , s], na, nf), mat = mat_yas[y, , s], a = seq(1, na) - 1
             )
           }
         }
       } else {
         for (m in 1:nm) {
           sel_ymais[1, m, , , s] <- calc_isel_age(
-            sel_li, Dstock@LAK_ymals[1, m, , , s], Dsurvey@sel_i, selconv_pi, sel_ymafs[1, m, , , s], mat = mat_yas[1, , s], a = seq(1, na) - 1
+            sel_li, Dstock@LAK_ymals[1, m, , , s], Dsurvey@sel_i, selconv_pi, matrix(sel_ymafs[1, m, , , s], na, nf), mat = mat_yas[1, , s], a = seq(1, na) - 1
           )
         }
         isel_ind <- isel1_ind <- as.matrix(expand.grid(y = 2:ny, m = 1:m, a = 1:na, i = 1:ni, s = s))

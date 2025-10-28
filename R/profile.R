@@ -56,7 +56,7 @@ profile.MSAassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
     names(prof_df)[2] <- attr(prof_df, "p2") <- p2
   }
 
-  p <- fitted@obj$env$parList()
+  p <- fitted@obj$env$parList(fitted@obj$env$last.par.best)
   pval1 <- eval(parse(text = paste0("p$", p1)))
   if (is.null(pval1)) pval1 <- eval(parse(text = paste0("fitted@report$", p1)))
   if (is.null(pval1)) pval1 <- NA
@@ -89,7 +89,7 @@ profile.MSAassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
   stopifnot(length(pars) == length(vals))
 
   MSAdata <- get_MSAdata(fitted)
-  p <- fitted@obj$env$parList()
+  p <- fitted@obj$env$parList(fitted@obj$env$last.par.best)
   map <- MSAdata@Misc$map
   random <- MSAdata@Misc$random
 

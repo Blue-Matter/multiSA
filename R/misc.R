@@ -23,27 +23,38 @@ posfun <- function(x, eps) CondExpGe(x, eps, 0, 0.01 * (x - eps) * (x - eps))
 
 calc_selpar_penalty <- function(sel_pf, sel_f, lmid, na, map) {
   if (missing(map) || is.null(map)) {
-    map <- array(TRUE, c(2, nrow(sel_pf)))
+    map <- array(1:length(sel_pf), dim(sel_pf))
   } else {
     map <- array(map, dim(sel_pf))
-    map <- map[-1, ]
+  }
+  map <- map[-1, ]
+  map_num <- as.numeric(map)
+
+  unique_par <- !is.na(map_num) & !duplicated(map_num)
+
+  if (inherits(sel_pf, "advector")) `[<-` <- RTMB::ADoverload("[<-")
+
+  if (all(is.na(map))) {
+    if (inherits(sel_pf, "advector")) val <- advector(0) else val <- 0
+  } else {
+    penalty <- array(0, c(2, ncol(sel_pf)))
+    parametric_sel <- grepl("dome|logistic", sel_f)
+    flen <- parametric_sel & grepl("length", sel_f)
+    if (any(flen)) {
+      log_binwidth <- log(0.5 * min(diff(lmid)))
+      log_binrange <- log(max(lmid) - min(lmid))
+      pen_len <- posfun(sel_pf[2:3, flen], log_binwidth) + posfun(log_binrange, sel_pf[2:3, flen])
+      penalty[, flen] <- penalty[, flen] + pen_len
+    }
+    fage <- parametric_sel & grepl("age", sel_f)
+    if (any(fage)) {
+      pen_age <- posfun(sel_pf[2:3, fage], log(0.5)) + posfun(log(na), sel_pf[2:3, fage])
+      penalty[, fage] <- penalty[, fage] + pen_age
+    }
+    val <- sum(penalty[unique_par])
   }
 
-  penalty <- array(0, c(2, nrow(sel_pf)))
-  parametric_sel <- grepl("dome|logistic", sel_f)
-  flen <- parametric_sel & grepl("length", sel_f)
-  if (any(flen)) {
-    log_binwidth <- log(0.5 * min(diff(lmid)))
-    log_binrange <- log(max(lmid) - min(lmid))
-    penalty <- penalty + posfun(sel_pf[2:3, flen], log_binwidth) +
-      posfun(log_binrange, sel_pf[2:3, flen])
-  }
-  fage <- parametric_sel & grepl("age", sel_f)
-  if (any(fage)) {
-    penalty <- penalty + posfun(sel_pf[2:3, fage], log(0.5)) +
-      posfun(log(na), sel_pf[2:3, fage])
-  }
-  return(sum(penalty[!is.na(map)]))
+  return(val)
 }
 
 #' Softmax function
@@ -54,7 +65,7 @@ calc_selpar_penalty <- function(sel_pf, sel_f, lmid, na, map) {
 #' @param log Logical, whether to return the value of the logarithm
 #'
 #' @return Numeric, vector length of `eta`: \eqn{\exp(\eta)/\sum\exp(\eta)}
-#' @details Uses `MSA:::logspace.add` for numerical stability
+#' @details Uses `multiSA:::logspace.add` for numerical stability
 #' @export
 softmax <- function(eta, log = FALSE) {
   den <- Reduce(logspace.add, eta)
