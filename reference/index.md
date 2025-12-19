@@ -1,0 +1,115 @@
+# Package index
+
+## Data
+
+S4 objects for data setup.
+
+- [`MSAdata-class`](https://blue-matter.github.io/multiSA/reference/MSAdata-class.md)
+  : MSAdata S4 object
+
+## Model setup
+
+Prepare the data and parameters, then run the model.
+
+- [`check_data()`](https://blue-matter.github.io/multiSA/reference/check_data.md)
+  : Check dimensions and inputs in MSAdata object
+- [`make_parameters()`](https://blue-matter.github.io/multiSA/reference/make_parameters.md)
+  [`make_map()`](https://blue-matter.github.io/multiSA/reference/make_parameters.md)
+  [`check_parameters()`](https://blue-matter.github.io/multiSA/reference/make_parameters.md)
+  : Make list of parameters for RTMB
+- [`prior_h()`](https://blue-matter.github.io/multiSA/reference/prior.md)
+  [`prior_M()`](https://blue-matter.github.io/multiSA/reference/prior.md)
+  [`prior_q()`](https://blue-matter.github.io/multiSA/reference/prior.md)
+  : Priors for MSA model
+- [`fit_MSA()`](https://blue-matter.github.io/multiSA/reference/fit_MSA.md)
+  : Fit MSA model
+- [`MSAassess-class`](https://blue-matter.github.io/multiSA/reference/MSAassess-class.md)
+  : MSAassess S4 object
+
+## Model evaluation
+
+Evaluate model fit and run diagnostics.
+
+- [`profile(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/profile.md)
+  [`plot(`*`<MSAprof>`*`)`](https://blue-matter.github.io/multiSA/reference/profile.md)
+  : Profile parameters of MSA model
+- [`report()`](https://blue-matter.github.io/multiSA/reference/report.md)
+  : Generate markdown reports
+- [`residuals(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/residuals.MSAassess.md)
+  : Calculate model residuals
+- [`retrospective()`](https://blue-matter.github.io/multiSA/reference/retrospective.md)
+  [`plot(`*`<MSAretro>`*`)`](https://blue-matter.github.io/multiSA/reference/retrospective.md)
+  [`summary(`*`<MSAretro>`*`)`](https://blue-matter.github.io/multiSA/reference/retrospective.md)
+  [`report(`*`<MSAretro>`*`)`](https://blue-matter.github.io/multiSA/reference/retrospective.md)
+  : Retrospective analysis
+- [`simulate(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/simulate.md)
+  : Simulate data
+
+## Population dynamics
+
+Functions used in the population model.
+
+- [`calc_F()`](https://blue-matter.github.io/multiSA/reference/calc_F.md)
+  : Newton-Raphson search for fishing mortality
+- [`calc_POP()`](https://blue-matter.github.io/multiSA/reference/calc_POP.md)
+  [`calc_HSP()`](https://blue-matter.github.io/multiSA/reference/calc_POP.md)
+  : Predict the probability of CKMR kinship pairs
+- [`calc_index()`](https://blue-matter.github.io/multiSA/reference/calc_index.md)
+  : Calculate index at age
+- [`calc_nextN()`](https://blue-matter.github.io/multiSA/reference/calc_nextN.md)
+  : Project stock abundance to the next time step
+- [`calc_phi_project()`](https://blue-matter.github.io/multiSA/reference/calc_phi_project.md)
+  : Equilibrium spawners per recruit by projection
+- [`calc_phi_simple()`](https://blue-matter.github.io/multiSA/reference/calc_phi_simple.md)
+  [`calc_NPR()`](https://blue-matter.github.io/multiSA/reference/calc_phi_simple.md)
+  : Simple spawners per recruit calculation
+- [`calc_population()`](https://blue-matter.github.io/multiSA/reference/calc_population.md)
+  : Multi-fleet, multi-area, multi-stock population dynamics model
+- [`calc_recruitment()`](https://blue-matter.github.io/multiSA/reference/calc_recruitment.md)
+  : Calculate recruitment from stock-recruit function
+- [`conv_mov()`](https://blue-matter.github.io/multiSA/reference/conv_mov.md)
+  : Calculate movement matrix for all age classes
+- [`conv_selpar()`](https://blue-matter.github.io/multiSA/reference/conv_selpar.md)
+  [`calc_sel_len()`](https://blue-matter.github.io/multiSA/reference/conv_selpar.md)
+  [`calc_fsel_age()`](https://blue-matter.github.io/multiSA/reference/conv_selpar.md)
+  [`calc_isel_age()`](https://blue-matter.github.io/multiSA/reference/conv_selpar.md)
+  : Selectivity at age and length
+- [`calc_eqdist()`](https://blue-matter.github.io/multiSA/reference/calc_eqdist.md)
+  : Equilibrium distribution from movement matrix
+
+## Likelihood and prior functions
+
+Calculate the log-likelihood or log-prior density functions from data
+and estimated parameters.
+
+- [`like_comp()`](https://blue-matter.github.io/multiSA/reference/like_comp.md)
+  : Likelihood for composition vectors
+- [`like_CKMR()`](https://blue-matter.github.io/multiSA/reference/like_CKMR.md)
+  : Likelihood for CKMR
+
+## Miscellaneous
+
+Other useful functions.
+
+- [`calc_LAK()`](https://blue-matter.github.io/multiSA/reference/calc_LAK.md)
+  : Length-at-age key
+- [`calc_growth()`](https://blue-matter.github.io/multiSA/reference/calc_growth.md)
+  : Calculate von Bertalanffy length-at-age
+- [`CondExpLt()`](https://blue-matter.github.io/multiSA/reference/CondExpLt.md)
+  [`CondExpLe()`](https://blue-matter.github.io/multiSA/reference/CondExpLt.md)
+  [`CondExpGt()`](https://blue-matter.github.io/multiSA/reference/CondExpLt.md)
+  [`CondExpGe()`](https://blue-matter.github.io/multiSA/reference/CondExpLt.md)
+  [`CondExpEq()`](https://blue-matter.github.io/multiSA/reference/CondExpLt.md)
+  : If statements compatible with RTMB
+- [`conv_Sigma()`](https://blue-matter.github.io/multiSA/reference/conv_Sigma.md)
+  : Calculate covariance matrix
+- [`get_MSAdata()`](https://blue-matter.github.io/multiSA/reference/get_MSAdata.md)
+  : Retrieve data object used to fit model
+- [`get_sdreport()`](https://blue-matter.github.io/multiSA/reference/get_sdreport.md)
+  : Calculate standard errors
+- [`optimize_RTMB()`](https://blue-matter.github.io/multiSA/reference/optimize_RTMB.md)
+  : Optimize RTMB model
+- [`posfun()`](https://blue-matter.github.io/multiSA/reference/posfun.md)
+  : Quadratic penalty function
+- [`softmax()`](https://blue-matter.github.io/multiSA/reference/softmax.md)
+  : Softmax function
