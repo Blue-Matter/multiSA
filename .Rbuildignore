@@ -10,3 +10,4 @@
 ^pkgdown$
 ^README\.Rmd$
 ^examples$
+^data-raw$
