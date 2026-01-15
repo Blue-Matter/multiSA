@@ -20,6 +20,9 @@ the recruitment will be calculated. See argument \code{eq}.}
 \item \code{a} and \code{b} (alpha, beta values)
 }}
 }
+\value{
+Numeric of length \code{x}
+}
 \description{
 Calculate recruitment from stock-recruit function
 }

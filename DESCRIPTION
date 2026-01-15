@@ -1,13 +1,13 @@
 Package: multiSA
-Title: Multi-Stock Assessment with Regional Spatiotemporal Dynamics
+Title: Multi-Stock Assessment
 Version: 0.1.0
 Authors@R: 
     person("Quang", "Huynh", , "quang@bluematterscience.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7835-4376"))
-Date: 2025-12-20
+Date: 2026-01-29
 Maintainer: Quang Huynh <quang@bluematterscience.com>
 Description: Implementation of a next-generation, multi-stock age-structured fisheries assessment model. 
-  `multiSA` is intended for use in mixed fisheries where stock composition can not be readily identified in 
+  'multiSA' is intended for use in mixed fisheries where stock composition can not be readily identified in 
   fishery data alone, e.g., from catch and age/length composition. Models can be fitted to genetic data, 
   e.g., stock composition of catches and close-kin pairs, with seasonal stock availability and movement.
 License: GPL (>= 3)

@@ -162,18 +162,12 @@ calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length
 #' @return
 #' [calc_isel_age()] returns a matrix `[a, i]`, i.e., `[a, length(type)]`
 #' @export
-calc_isel_age <- function(sel_len, LAK, type, sel_par, fsel_age, maxage, mat, a = seq(1, nrow(LAK)) - 1) {
-
-  old_warn <- options()$warn
-  options(warn = -1)
-  on.exit(options(warn = old_warn))
-
-  ni <- length(type)
+calc_isel_age <- function(sel_len, LAK, type, sel_par, fsel_age, maxage, mat, a = seq(1, nrow(LAK)) - 1) {  ni <- length(type)
   is_ad <- inherits(sel_par, "advector") || inherits(fsel_age, "advector")
 
   sel_ai <- sapply(1:ni, function(i) {
     ti <- type[i]
-    tii <- as.integer(ti)
+    tii <- suppressWarnings(as.integer(ti))
 
     if (is.na(tii)) {
       if (grepl("length", ti)) {
@@ -199,8 +193,10 @@ calc_isel_age <- function(sel_len, LAK, type, sel_par, fsel_age, maxage, mat, a 
         v <- plogis(sel_par[, i])
       }
 
-    } else {
+    } else if (is.integer(tii)) {
       v <- fsel_age[, tii]
+    } else {
+      stop("Error: can't identify fleet number to mirror index selectivity")
     }
     if (is_ad) v <- advector(v)
     return(v)

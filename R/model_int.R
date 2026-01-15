@@ -221,6 +221,8 @@ calc_summary_F <- function(M, N, CN, Fmax) {
 #' @examples
 #' calc_recruitment(10, SRR = "Ricker", a = 2, b = 0.5)
 #' calc_recruitment(10, SRR = "Ricker", h = 0.9, R0 = 1, phi0 = 1)
+#' @return
+#' Numeric of length `x`
 #' @export
 calc_recruitment <- function(x, SRR = c("BH", "Ricker"), eq = FALSE, ...) {
   SRR <- match.arg(SRR)

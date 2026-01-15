@@ -160,10 +160,6 @@ conv_mat <- function(x, na) {
 optimize_RTMB <- function(obj, hessian = FALSE, restart = 0, do_sd = TRUE,
                           control = list(iter.max = 2e+05, eval.max = 4e+05),
                           lower = -Inf, upper = Inf, silent = FALSE) {
-  old_warn <- options()$warn
-  options(warn = -1)
-  on.exit(options(warn = old_warn))
-
   restart <- as.integer(restart)
 
   if (is.null(obj$env$random) && hessian) h <- obj$he else h <- NULL
@@ -215,10 +211,6 @@ check_det <- function(h, abs_val = 0.1, is_null = TRUE) {
 #' @importFrom stats optimHess
 #' @export
 get_sdreport <- function(obj, getReportCovariance = FALSE, silent = FALSE, ...) {
-  old_warn <- options()$warn
-  options(warn = -1)
-  on.exit(options(warn = old_warn))
-
   #old_comparison <- TapeConfig()["comparison"]
   #on.exit(TapeConfig(comparison = old_comparison), add = TRUE)
   #TapeConfig(comparison = "tape")

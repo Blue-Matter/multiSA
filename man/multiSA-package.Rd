@@ -4,9 +4,9 @@
 \name{multiSA-package}
 \alias{multiSA}
 \alias{multiSA-package}
-\title{multiSA: Multi-Stock Assessment with Regional Spatiotemporal Dynamics}
+\title{multiSA: Multi-Stock Assessment}
 \description{
-Implementation of a next-generation, multi-stock age-structured fisheries assessment model. `multiSA` is intended for use in mixed fisheries where stock composition can not be readily identified in fishery data alone, e.g., from catch and age/length composition. Models can be fitted to genetic data, e.g., stock composition of catches and close-kin pairs, with seasonal stock availability and movement.
+Implementation of a next-generation, multi-stock age-structured fisheries assessment model. 'multiSA' is intended for use in mixed fisheries where stock composition can not be readily identified in fishery data alone, e.g., from catch and age/length composition. Models can be fitted to genetic data, e.g., stock composition of catches and close-kin pairs, with seasonal stock availability and movement.
 }
 \seealso{
 Useful links:

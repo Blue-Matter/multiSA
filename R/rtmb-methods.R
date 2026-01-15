@@ -20,6 +20,7 @@ setMethod(
 #' An alternate `sapply` function with argument `simplify = "array"` for convenience.
 #'
 #' @param X,FUN,...,USE.NAMES Same arguments as [sapply()]
+#' @returns Output of `simplify2array()`, typically an array
 #' @export
 #' @keywords internal
 sapply2 <- function(X, FUN, ..., USE.NAMES = TRUE) {

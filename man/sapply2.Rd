@@ -9,6 +9,9 @@ sapply2(X, FUN, ..., USE.NAMES = TRUE)
 \arguments{
 \item{X, FUN, ..., USE.NAMES}{Same arguments as \code{\link[=sapply]{sapply()}}}
 }
+\value{
+Output of \code{simplify2array()}, typically an array
+}
 \description{
 An alternate \code{sapply} function with argument \code{simplify = "array"} for convenience.
 }

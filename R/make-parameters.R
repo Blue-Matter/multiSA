@@ -680,16 +680,14 @@ make_map <- function(p, MSAdata, map = list(),
 
   # Survey parameters ----
   ## Fix dome parameter or all parameters or all parameters if mirrored to fleet or maturity
-  old_warn <- options()$warn
-  options(warn = -1)
-  on.exit(options(warn = old_warn))
-
   if (is.null(map$sel_pi) && any(!grepl("dome", Dsurvey@sel_i))) {
     sel_pi <- sapply(1:Dsurvey@ni, function(i) {
       sel_i <- Dsurvey@sel_i[i]
       vec <- rep(TRUE, 3)
       if (sel_i %in% c("logistic_age", "logistic_length")) vec[3] <- NA
-      if (sel_i %in% c("B", "SB") || !is.na(as.integer(sel_i))) vec[] <- NA
+
+      int_sel_i <- suppressWarnings(as.integer(sel_i))
+      if (sel_i %in% c("B", "SB") || !is.na(int_sel_i)) vec[] <- NA
       return(vec)
     })
     sel_pi[!is.na(sel_pi)] <- 1:sum(sel_pi, na.rm = TRUE)
