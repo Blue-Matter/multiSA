@@ -34,6 +34,10 @@ calc_recruitment(x, SRR = c("BH", "Ricker"), eq = FALSE, ...)
 
   2.  `a` and `b` (alpha, beta values)
 
+## Value
+
+Numeric of length `x`
+
 ## Examples
 
 ``` r

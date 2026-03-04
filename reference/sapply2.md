@@ -14,3 +14,8 @@ sapply2(X, FUN, ..., USE.NAMES = TRUE)
 - X, FUN, ..., USE.NAMES:
 
   Same arguments as [`sapply()`](https://rdrr.io/r/base/lapply.html)
+
+## Value
+
+Output of [`simplify2array()`](https://rdrr.io/r/base/lapply.html),
+typically an array
