@@ -22,7 +22,13 @@ study.
 
 ## Installation
 
-You can install the R package from GitHub with:
+`multiSA` is available on CRAN:
+
+``` r
+install.packages("multiSA")
+```
+
+You can also install the R package from GitHub with:
 
 ``` r
 # install.packages("remotes")
