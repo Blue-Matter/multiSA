@@ -52,14 +52,19 @@ setMethod("show",
           signature = "MSAassess",
           function(object) {
 
-            cat("Number of parameters:", length(object@obj$par))
+            res <- list()
+            res$npar <- paste("Number of parameters:", length(object@obj$par))
+
+            cat(res$npar)
             if (length(object@SD) > 1 && !is.null(object@SD$gradient.fixed)) {
               gr <- abs(object@SD$gradient.fixed)
               gr_max <- ifelse(all(is.na(gr)), NA, round(max(gr, na.rm = TRUE), 4))
-              cat("\nMaximum gradient:", gr_max)
+
+              res$max_grad <- paste("Maximum gradient:", gr_max)
             } else {
-              cat("\nRun model to view gradient report")
+              res$max_grad <- "Run model to view gradient report"
             }
+            cat("\n", res$max_grad)
 
             if (length(object@SD) > 1 && !is.null(object@SD$gradient.fixed)) {
               gr_na <- is.na(gr)
@@ -67,11 +72,13 @@ setMethod("show",
                 if (sum(gr_na) < length(gr_na)) {
                   gr_names <- make_unique_names(object@SD)[gr_na]
 
-                  cat("\nParameters with gradient = NA:\n")
-                  cat(paste(gr_names, collapse = ", "))
+                  res$grad_na <- paste(gr_names, collapse = ", ")
+
+                  cat("\nParameters with gradient = NA:")
                 } else {
-                  cat("\nGradient of NA for all parameters")
+                  res$grad_na <- "Gradient of NA for all parameters"
                 }
+                cat("\n", res$grad_na)
               }
 
               gr_large <- !is.na(gr) & gr > 0.1
@@ -88,28 +95,32 @@ setMethod("show",
                   Gradient = round(gr_report, 4)
                 )
                 rownames(x) <- gr_names
-                print(x[gr_order, ])
+                res$grad_large <- x[gr_order, ]
+                print(res$grad_large)
               }
             }
 
             if (length(object@SD) > 1 && !is.null(object@SD$env$hessian)) {
               h <- object@SD$env$hessian
-              det_h <- det(h)
-              cat(paste("\nDeterminant of Hessian:"), signif(det_h, 5))
+
+              res$det_h <- signif(det(h), 5)
+              cat(paste("\nDeterminant of Hessian:"), res$det_h)
 
               zero_rows <- apply(h, 1, function(x) all(x == 0, na.rm = TRUE))
               na_rows <- apply(h, 1, function(x) all(is.na(x)))
               if (any(zero_rows)) {
                 cat("\nParameters with all zeros in Hessian:\n")
                 par_zero <- names(zero_rows)[zero_rows]
+                res$hess_zero <- par_zero
                 for(i in par_zero) cat(i, "\n")
               }
               if (any(na_rows)) {
                 cat("\nParameters with all NAs in Hessian:\n")
                 par_na <- names(na_rows)[na_rows]
+                res$hess_na <- par_na
                 for(i in par_na) cat(i, "\n")
               }
             }
 
-            invisible()
+            invisible(res)
           })
