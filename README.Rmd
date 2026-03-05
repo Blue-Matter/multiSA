@@ -8,6 +8,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  eval = FALSE,
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
@@ -33,9 +34,15 @@ Atlantic bluefin tuna (*Thunnus thynnus*) is the first intended case study.
 
 ## Installation
 
-You can install the R package from GitHub with:
+`multiSA` is available on CRAN:
 
-```{r, eval = FALSE}
+```{r}
+install.packages("multiSA")
+```
+
+You can also install the R package from GitHub with:
+
+```{r}
 # install.packages("remotes")
 remotes::install_github("Blue-Matter/multiSA")
 ```
