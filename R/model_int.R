@@ -136,7 +136,8 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
   ln_Fmax <- log(Fmax)
   for(i in seq(1, nitF + 1)) {
     if (trans == "log") {
-      F_loop <- CondExpGt(x_loop[[i]], ln_Fmax, Fmax, exp(x_loop[[i]]))
+      x_loop_i <- CondExpGt(x_loop[[i]], ln_Fmax, ln_Fmax, x_loop[[i]])
+      F_loop <- exp(x_loop_i)
       if (i == nitF + 1) { # Last iteration used to calculate corresponding f and g with F and penalty
         F_loop <- CondExpLt(Cobs, 1e-8, 0, F_loop)
         penalty <- penalty + sum(posfun(Fmax, F_loop))
