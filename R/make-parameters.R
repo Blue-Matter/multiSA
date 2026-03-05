@@ -175,7 +175,8 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
   }
 
   if (is.null(p$sel_pf)) {
-    p$sel_pf <- sapply(unique(Dfishery@sel_block_yf), function(b) {
+    nb <- unique(as.numeric(Dfishery@sel_block_yf))
+    p$sel_pf <- sapply(nb, function(b) {
       sel_b <- Dfishery@sel_f[b]
       val <- numeric(3)
       f_yb <- Dfishery@sel_block_yf == b
