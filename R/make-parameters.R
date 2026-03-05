@@ -618,7 +618,8 @@ make_map <- function(p, MSAdata, map = list(),
       1:ny
     }
     no_blocks <- apply(Dfishery@sel_block_yf, 2, function(x) length(unique(x)) == 1) %>% all()
-    for (bb in unique(Dfishery@sel_block_yf)) {
+    for (bb in unique(as.numeric(Dfishery@sel_block_yf))) {
+
       if (no_blocks) {
         if (length(Dfishery@CAAobs_ymafr) > 0) {
           nage <- sum(
@@ -668,8 +669,7 @@ make_map <- function(p, MSAdata, map = list(),
         sel5 <- -sqrt(-2 * log(0.05)) * fsel_start[2, bb] + fsel_start[1, bb]
         message_info("   Selectivity start values: full sel = ", round(fsel_start[1, bb], 2),
                      ", ascending limb SD = ", round(fsel_start[2, bb], 2), " (5% sel = ", round(sel5, 2), ")")
-      }
-      if (grepl("dome", Dfishery@sel_f[bb])) {
+      } else if (grepl("dome", Dfishery@sel_f[bb])) {
         sel5 <- -sqrt(-2 * log(0.05)) * fsel_start[2, bb] + fsel_start[1, bb]
         message_info("   Selectivity start values: full sel = ", round(fsel_start[1, bb], 2),
                      ", ascending limb SD = ", round(fsel_start[2, bb], 2), " (5% sel = ", round(sel5, 2), ")",
@@ -706,23 +706,31 @@ make_map <- function(p, MSAdata, map = list(),
       } else {
         iname <- ""
       }
-      r <- which(apply(Dsurvey@samp_irs[i, , , drop = FALSE], 2, sum) > 0)
-      rtext <- paste("region", paste(r, collapse = ", "))
-      s <- which(apply(Dsurvey@samp_irs[i, , , drop = FALSE], 3, sum) > 0)
-      stext <- paste("stock", paste(s, collapse = ", "))
+
+      if (Dmodel@nr > 1) {
+        r <- which(apply(Dsurvey@samp_irs[i, , , drop = FALSE], 2, sum) > 0)
+        rtext <- paste(" in region", paste(r, collapse = ", "))
+      } else {
+        rtext <- character(0)
+      }
+      if (Dmodel@ns > 1) {
+        s <- which(apply(Dsurvey@samp_irs[i, , , drop = FALSE], 3, sum) > 0)
+        stext <- paste("; stock", paste(s, collapse = ", "))
+      } else {
+        stext <- character(0)
+      }
 
       if (!is.na(as.integer(sel_i))) {
-        message_info("Index ", i, iname, ": fleet ", sel_i, " in ", rtext, "; ", stext)
+        message_info("Index ", i, iname, ": fleet ", sel_i, rtext, stext)
       } else {
-        message_info("Index ", i, iname, ": ", sel_i, " in ", rtext, "; ", stext)
+        message_info("Index ", i, iname, ": ", sel_i, rtext, stext)
       }
 
       if (grepl("logistic", sel_i)) {
         sel5 <- -sqrt(-2 * log(0.05)) * isel_start[2, i] + isel_start[1, i]
         message_info("   Selectivity start values: full sel = ", round(isel_start[1, i], 2),
                      ", ascending limb SD = ", round(isel_start[2, i], 2), " (5% sel = ", round(sel5, 2), ")")
-      }
-      if (grepl("dome", sel_i)) {
+      } else if (grepl("dome", sel_i)) {
         sel5 <- -sqrt(-2 * log(0.05)) * isel_start[2, i] + isel_start[1, i]
         message_info("   Selectivity start values: full sel = ", round(isel_start[1, i], 2),
                      ", ascending limb SD = ", round(isel_start[2, i], 2),  " (5% sel = ", round(sel5, 2), ")",
