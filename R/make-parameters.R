@@ -714,17 +714,16 @@ make_map <- function(p, MSAdata, map = list(),
       if (!is.na(as.integer(sel_i))) {
         message_info("Index ", i, iname, ": fleet ", sel_i, " in ", rtext, "; ", stext)
       } else {
-        s <-
         message_info("Index ", i, iname, ": ", sel_i, " in ", rtext, "; ", stext)
       }
 
       if (grepl("logistic", sel_i)) {
-        sel5 <- -sqrt(-2 * log(0.05)) * isel_start[2, bb] + isel_start[1, bb]
+        sel5 <- -sqrt(-2 * log(0.05)) * isel_start[2, i] + isel_start[1, i]
         message_info("   Selectivity start values: full sel = ", round(isel_start[1, i], 2),
                      ", ascending limb SD = ", round(isel_start[2, i], 2), " (5% sel = ", round(sel5, 2), ")")
       }
       if (grepl("dome", sel_i)) {
-        sel5 <- -sqrt(-2 * log(0.05)) * isel_start[2, bb] + isel_start[1, bb]
+        sel5 <- -sqrt(-2 * log(0.05)) * isel_start[2, i] + isel_start[1, i]
         message_info("   Selectivity start values: full sel = ", round(isel_start[1, i], 2),
                      ", ascending limb SD = ", round(isel_start[2, i], 2),  " (5% sel = ", round(sel5, 2), ")",
                      ", descending limb SD = ", round(isel_start[3, i], 2))
