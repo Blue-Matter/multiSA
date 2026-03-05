@@ -542,7 +542,7 @@ update_report <- function(r, MSAdata) {
 
     Cinit_mfr <- OBS(Cinit_mfr)
     loglike_Cinit_mfr <- dnorm(log(Cinit_mfr/initCB_mfr), 0, 0.01, log = TRUE)
-    loglike_Cinit_mfr[Cinit_mfr < 1e-8] < 0
+    loglike_Cinit_mfr[Cinit_mfr < 1e-8] <- 0
   } else {
     loglike_Cinit_mfr <- 0
   }
