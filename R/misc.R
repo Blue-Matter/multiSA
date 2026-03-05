@@ -366,17 +366,18 @@ make_yearseason <- function(year, nm = 4) {
   do.call(c, year_long)
 }
 
-#' @importFrom reshape2 acast
+#' @importFrom reshape2 acast melt
 collapse_yearseason <- function(x) {
   dim_x <- dim(x)
   if (length(dim_x) > 2) {
     dimnames(x)[[1]] <- 1:dim_x[1]
     dimnames(x)[[2]] <- 1:dim_x[2]
-    x_df <- array2DF(x)
+
+    x_df <- reshape2::melt(x)
     x_df$Y <- as.numeric(x_df$Var1) + (as.numeric(x_df$Var2) - 1)/dim_x[2]
 
     dims <- c("Y", paste0("Var", 3:length(dim_x))) %>% as.list()
-    xout <- reshape2::acast(x_df, dims, value.var = "Value")
+    xout <- reshape2::acast(x_df, dims, value.var = "value")
     dimnames(xout) <- NULL
 
     return(xout)
