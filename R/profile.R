@@ -41,11 +41,15 @@ profile.MSAassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
   }
 
   if (missing(p2)) {
+    pars <- p1
     out <- expand.grid(p1 = v1)
-    prof <- .lapply(1:nrow(out), function(i) .prof(fitted, p1, out$p1[i]))
+    if (snowfall::sfIsRunning()) sfExport(list = c("fitted", "pars", "out"))
+    prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, out$p1[i]))
   } else {
+    pars <- c(p1, p2)
     out <- expand.grid(p1 = v1, p2 = v2)
-    prof <- .lapply(1:nrow(out), function(i) .prof(fitted, c(p1, p2), c(out$p1[i], out$p2[i])))
+    if (snowfall::sfIsRunning()) sfExport(list = c("fitted", "pars", "out"))
+    prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, c(out$p1[i], out$p2[i])))
   }
 
   prof_df <- cbind(out, do.call(rbind, prof)) %>%
