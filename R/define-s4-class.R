@@ -155,189 +155,200 @@ setClass(
 )
 setMethod("initialize", "MSAassess", function(.Object, ...) init_fn(.Object, list(...)))
 
+#' @name summary
+#' @title Summarize MSA model output
+#' @description Report parameter estimates, gradients, and standard errors
+#' @param object Output from MSA
+#' @param ... Not used
+#' @returns Matrix
+#' @aliases summary,MSAassess-method
 #' @export
-summary.MSAassess <- function(object, ...) {
+setMethod("summary", signature(object = "MSAassess"), function(object, ...) {
   if (length(object@SD) > 1) {
     sdreport_int(object@SD, ...)
   } else {
     invisible()
   }
-}
+})
 
-#' Generate markdown reports
+#' @name report
+#' @title Generate markdown reports
 #'
-#' Generate a markdown report of model fits and estimates.
+#' @description Generate a markdown report of model fits and estimates.
 #'
 #' @param object An object from MSA.
 #' @param ... Additional arguments to render reports.
 #'
 #' @export
-report <- function(object, ...) UseMethod("report")
+setGeneric("report", function(object, ...) standardGeneric("report"))
 
-
-#' @inheritParams report.MSAretro
+#' @param filename Character string for the name of the markdown and HTML files.
+#' @param dir The directory in which the markdown and HTML files will be saved.
+#' @param open_file Logical, whether the HTML document is opened after it is rendered.
+#' @param render_args List of arguments to pass to [rmarkdown::render()].
 #' @param name Optional character string for the model name to include in the report, e.g., model run number. Default
 #' uses `substitute(object)`
 #' @return
-#' `report.MSAassess` invisibly returns the output of [rmarkdown::render()]: character of the path of the rendered HTML markdown report.
+#' `report` generic for MSAassess invisibly returns the output of [rmarkdown::render()]: character of the path of the rendered HTML markdown report.
 #' @rdname report
+#' @aliases report.MSAassess report,MSAassess-method
 #' @export
-report.MSAassess <- function(object, name, filename = "MSA", dir = tempdir(), open_file = TRUE, render_args = list(), ...) {
+setMethod("report", signature(object = "MSAassess"),
+          function(object, name, filename = "MSA", dir = tempdir(), open_file = TRUE, render_args = list(), ...) {
 
-  if (missing(name)) name <- substitute(object) %>% as.character()
+            if (missing(name)) name <- substitute(object) %>% as.character()
 
-  dots <- list(...)
-  x <- object # Needed for markdown file
+            dots <- list(...)
+            x <- object # Needed for markdown file
 
-  dat <- get_MSAdata(object)
+            dat <- get_MSAdata(object)
 
-  nm <- dat@Dmodel@nm
+            nm <- dat@Dmodel@nm
 
-  nr <- dat@Dmodel@nr
-  rname <- dat@Dlabel@region
-  if (!length(rname)) rname <- "Region 1"
+            nr <- dat@Dmodel@nr
+            rname <- dat@Dlabel@region
+            if (!length(rname)) rname <- "Region 1"
 
-  ns <- dat@Dmodel@ns
-  sname <- dat@Dlabel@stock
-  if (!length(sname)) sname <- "Stock 1"
+            ns <- dat@Dmodel@ns
+            sname <- dat@Dlabel@stock
+            if (!length(sname)) sname <- "Stock 1"
 
-  rmd <- system.file("include", "MSAreport.Rmd", package = "multiSA") %>% readLines()
-  rmd_split <- split(rmd, 1:length(rmd))
+            rmd <- system.file("include", "MSAreport.Rmd", package = "multiSA") %>% readLines()
+            rmd_split <- split(rmd, 1:length(rmd))
 
-  name_ind <- grep("NAME", rmd)
-  rmd_split[[name_ind]] <- paste("#", name, "{.tabset}")
+            name_ind <- grep("NAME", rmd)
+            rmd_split[[name_ind]] <- paste("#", name, "{.tabset}")
 
-  hessian_ind <- grep("*ADD HESSIAN RMD*", rmd)
-  if (length(x@SD) > 1 && !x@SD$pdHess && !is.null(x@SD$env$hessian)) {
-    rmd_split[[hessian_ind]] <- c(
-      "### Hessian",
-      "```{r hessian}",
-      "as.data.frame(x@SD$env$hessian)",
-      "```",
-      ""
-    )
-  } else {
-    rmd_split[[hessian_ind]] <- ""
-  }
+            hessian_ind <- grep("*ADD HESSIAN RMD*", rmd)
+            if (length(x@SD) > 1 && !x@SD$pdHess && !is.null(x@SD$env$hessian)) {
+              rmd_split[[hessian_ind]] <- c(
+                "### Hessian",
+                "```{r hessian}",
+                "as.data.frame(x@SD$env$hessian)",
+                "```",
+                ""
+              )
+            } else {
+              rmd_split[[hessian_ind]] <- ""
+            }
 
-  fname <- dat@Dlabel@fleet
-  nf <- dat@Dfishery@nf
-  fishery_ind <- grep("*ADD FISHERY RMD*", rmd)
-  rmd_split[[fishery_ind]] <- mapply(make_rmd_fishery, f = 1:nf, fname = fname,
-                                     MoreArgs = list(nm = nm, rname = rname)) %>%
-    as.character()
+            fname <- dat@Dlabel@fleet
+            nf <- dat@Dfishery@nf
+            fishery_ind <- grep("*ADD FISHERY RMD*", rmd)
+            rmd_split[[fishery_ind]] <- mapply(make_rmd_fishery, f = 1:nf, fname = fname,
+                                               MoreArgs = list(nm = nm, rname = rname)) %>%
+              as.character()
 
-  ni <- dat@Dsurvey@ni
-  iname <- dat@Dlabel@index
-  survey_ind <- grep("*ADD SURVEY RMD*", rmd)
-  if (ni > 0) {
-    rmd_split[[survey_ind]] <- mapply(make_rmd_survey, i = 1:ni, iname = iname) %>%
-      as.character()
-  } else {
-    rmd_split[[survey_ind]] <- ""
-  }
+            ni <- dat@Dsurvey@ni
+            iname <- dat@Dlabel@index
+            survey_ind <- grep("*ADD SURVEY RMD*", rmd)
+            if (ni > 0) {
+              rmd_split[[survey_ind]] <- mapply(make_rmd_survey, i = 1:ni, iname = iname) %>%
+                as.character()
+            } else {
+              rmd_split[[survey_ind]] <- ""
+            }
 
-  sc_ind <- grep("*ADD SC RMD*", rmd)
-  if (ns > 1 && any(dat@Dfishery@SC_ymafrs > 0, na.rm = TRUE)) {
+            sc_ind <- grep("*ADD SC RMD*", rmd)
+            if (ns > 1 && any(dat@Dfishery@SC_ymafrs > 0, na.rm = TRUE)) {
 
-    r_plot <- apply(dat@Dfishery@SC_ymafrs, 5, sum) > 0
+              r_plot <- apply(dat@Dfishery@SC_ymafrs, 5, sum) > 0
 
-    rmd_split[[sc_ind]] <- local({
+              rmd_split[[sc_ind]] <- local({
 
-      sc_txt <- lapply(1:nr, function(r) {
-        if (r_plot[r]) {
-          out <- lapply(1:nrow(dat@Dfishery@SC_ff), function(ff) {
-            lapply(1:nrow(dat@Dfishery@SC_aa), function(aa) {
-              fname <- ifelse(nrow(dat@Dfishery@SC_ff) != ncol(dat@Dfishery@SC_ff), "aggregate fleet", "fleet")
-              aname <- ifelse(nrow(dat@Dfishery@SC_aa) != ncol(dat@Dfishery@SC_aa), "age class", "age")
-              make_rmd_SC(ff, aa, r, paste(fname, ff), paste(aname, aa), rname[r])
-            }) %>% unlist()
+                sc_txt <- lapply(1:nr, function(r) {
+                  if (r_plot[r]) {
+                    out <- lapply(1:nrow(dat@Dfishery@SC_ff), function(ff) {
+                      lapply(1:nrow(dat@Dfishery@SC_aa), function(aa) {
+                        fname <- ifelse(nrow(dat@Dfishery@SC_ff) != ncol(dat@Dfishery@SC_ff), "aggregate fleet", "fleet")
+                        aname <- ifelse(nrow(dat@Dfishery@SC_aa) != ncol(dat@Dfishery@SC_aa), "age class", "age")
+                        make_rmd_SC(ff, aa, r, paste(fname, ff), paste(aname, aa), rname[r])
+                      }) %>% unlist()
+                    })
+                    do.call(c, out)
+                  } else {
+                    ""
+                  }
+                }) %>%
+                  unlist() %>%
+                  as.character()
+
+                c("## Stock composition {.tabset}\n\n", sc_txt)
+              })
+
+            } else {
+              rmd_split[[sc_ind]] <- ""
+            }
+
+            tagmov_ind <- grep("*ADD TAG MOV RMD*", rmd)
+            if (nr > 1 && any(dat@Dtag@tag_ymarrs > 0, na.rm = TRUE)) {
+
+              r_plot <- apply(dat@Dfishery@SC_ymafrs, 5, sum) > 0
+
+              rmd_split[[tagmov_ind]] <- local({
+
+                tagmov_txt <- lapply(1:ns, function(s) {
+                  out <- lapply(1:nrow(dat@Dtag@tag_yy), function(yy) {
+                    lapply(1:nrow(dat@Dtag@tag_aa), function(aa) {
+                      yname <- ifelse(nrow(dat@Dtag@tag_yy) != ncol(dat@Dtag@tag_yy), "aggregate year", "year")
+                      aname <- ifelse(nrow(dat@Dtag@tag_aa) != ncol(dat@Dtag@tag_aa), "age class", "age")
+                      make_rmd_tagmov(yy, aa, s, paste(yname, yy), paste(aname, aa), sname[s], header = yy == 1 && aa == 1)
+                    }) %>% unlist()
+                  })
+                  do.call(c, out)
+                }) %>%
+                  unlist() %>%
+                  as.character()
+
+                c("## Tag movement {.tabset}\n\n", tagmov_txt)
+              })
+
+            } else {
+              rmd_split[[tagmov_ind]] <- ""
+            }
+
+            summarystock_ind <- grep("*ADD IND STOCK RMD*", rmd)
+            rmd_split[[summarystock_ind]] <- mapply(make_rmd_ind_stock, s = 1:ns, sname = sname, MoreArgs = list(ns = ns)) %>%
+              as.character()
+
+            stock_ind <- grep("*ADD STOCK REGION RMD*", rmd)
+            mov_ind <- grep("*ADD MOVEMENT RMD*", rmd)
+            if (nr > 1) {
+              year <- dat@Dlabel@year
+              rmd_split[[stock_ind]] <- mapply(make_rmd_stock_region, s = 1:ns, sname = sname, MoreArgs = list(ns = ns)) %>%
+                as.character()
+
+              if (is.null(dots$ymov)) dots$ymov <- dat@Dmodel@ny
+              if (is.null(dots$amov)) dots$amov <- 2
+
+              mov <- expand.grid(a = dots$amov, y = dots$ymov, s = 1:ns)
+              rmd_split[[mov_ind]] <- sapply(1:nrow(mov), function(i) {
+                make_rmd_mov(s = mov$s[i], y = mov$y[i], a = mov$a[i], yname = dat@Dlabel@year[mov$y[i]],
+                             sname = sname[mov$s[i]], header = i == 1)
+              }) %>% as.character()
+
+            } else {
+              rmd_split[[stock_ind]] <- rmd_split[[mov_ind]] <- ""
+            }
+
+            ####### Function arguments for rmarkdown::render
+            filename_rmd <- paste0(filename, ".Rmd")
+
+            render_args$input <- file.path(dir, filename_rmd)
+            if (is.null(render_args$quiet)) render_args$quiet <- TRUE
+
+            # Generate markdown report
+            if (!dir.exists(dir)) {
+              message_info("Creating directory: ", dir)
+              dir.create(dir)
+            }
+            write(unlist(rmd_split), file = file.path(dir, filename_rmd))
+
+            # Rendering markdown file
+            message_info("Rendering markdown file: ", file.path(dir, filename_rmd))
+            output_filename <- do.call(rmarkdown::render, render_args)
+            message("Rendered file: ", output_filename)
+
+            if (open_file) browseURL(output_filename)
+            invisible(output_filename)
           })
-          do.call(c, out)
-        } else {
-          ""
-        }
-      }) %>%
-        unlist() %>%
-        as.character()
-
-      c("## Stock composition {.tabset}\n\n", sc_txt)
-    })
-
-  } else {
-    rmd_split[[sc_ind]] <- ""
-  }
-
-  tagmov_ind <- grep("*ADD TAG MOV RMD*", rmd)
-  if (nr > 1 && any(dat@Dtag@tag_ymarrs > 0, na.rm = TRUE)) {
-
-    r_plot <- apply(dat@Dfishery@SC_ymafrs, 5, sum) > 0
-
-    rmd_split[[tagmov_ind]] <- local({
-
-      tagmov_txt <- lapply(1:ns, function(s) {
-        out <- lapply(1:nrow(dat@Dtag@tag_yy), function(yy) {
-          lapply(1:nrow(dat@Dtag@tag_aa), function(aa) {
-            yname <- ifelse(nrow(dat@Dtag@tag_yy) != ncol(dat@Dtag@tag_yy), "aggregate year", "year")
-            aname <- ifelse(nrow(dat@Dtag@tag_aa) != ncol(dat@Dtag@tag_aa), "age class", "age")
-            make_rmd_tagmov(yy, aa, s, paste(yname, yy), paste(aname, aa), sname[s], header = yy == 1 && aa == 1)
-          }) %>% unlist()
-        })
-        do.call(c, out)
-      }) %>%
-        unlist() %>%
-        as.character()
-
-      c("## Tag movement {.tabset}\n\n", tagmov_txt)
-    })
-
-  } else {
-    rmd_split[[tagmov_ind]] <- ""
-  }
-
-  summarystock_ind <- grep("*ADD IND STOCK RMD*", rmd)
-  rmd_split[[summarystock_ind]] <- mapply(make_rmd_ind_stock, s = 1:ns, sname = sname, MoreArgs = list(ns = ns)) %>%
-    as.character()
-
-  stock_ind <- grep("*ADD STOCK REGION RMD*", rmd)
-  mov_ind <- grep("*ADD MOVEMENT RMD*", rmd)
-  if (nr > 1) {
-    year <- dat@Dlabel@year
-    rmd_split[[stock_ind]] <- mapply(make_rmd_stock_region, s = 1:ns, sname = sname, MoreArgs = list(ns = ns)) %>%
-      as.character()
-
-    if (is.null(dots$ymov)) dots$ymov <- dat@Dmodel@ny
-    if (is.null(dots$amov)) dots$amov <- 2
-
-    mov <- expand.grid(a = dots$amov, y = dots$ymov, s = 1:ns)
-    rmd_split[[mov_ind]] <- sapply(1:nrow(mov), function(i) {
-      make_rmd_mov(s = mov$s[i], y = mov$y[i], a = mov$a[i], yname = dat@Dlabel@year[mov$y[i]],
-                   sname = sname[mov$s[i]], header = i == 1)
-    }) %>% as.character()
-
-  } else {
-    rmd_split[[stock_ind]] <- rmd_split[[mov_ind]] <- ""
-  }
-
-  ####### Function arguments for rmarkdown::render
-  filename_rmd <- paste0(filename, ".Rmd")
-
-  render_args$input <- file.path(dir, filename_rmd)
-  if (is.null(render_args$quiet)) render_args$quiet <- TRUE
-
-  # Generate markdown report
-  if (!dir.exists(dir)) {
-    message_info("Creating directory: ", dir)
-    dir.create(dir)
-  }
-  write(unlist(rmd_split), file = file.path(dir, filename_rmd))
-
-  # Rendering markdown file
-  message_info("Rendering markdown file: ", file.path(dir, filename_rmd))
-  output_filename <- do.call(rmarkdown::render, render_args)
-  message("Rendered file: ", output_filename)
-
-  if (open_file) browseURL(output_filename)
-  invisible(output_filename)
-}
-

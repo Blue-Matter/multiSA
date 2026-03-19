@@ -1,7 +1,9 @@
 
 
+setGeneric("simulate", function(object, ...) standardGeneric("simulate"))
+
 #' @name simulate
-#' @aliases simulate.MSAassess
+#' @aliases simulate,MSAassess-method simulate.MSAassess
 #'
 #' @title Simulate data
 #'
@@ -14,11 +16,12 @@
 #' @return A list of `nsim` length with data observations
 #' @importFrom stats simulate
 #' @export
-simulate.MSAassess <- function(object, nsim = 1, seed = NULL, ...) {
+setMethod("simulate", signature(object = "MSAassess"),
+          function(object, nsim = 1, seed = NULL, ...) {
   if (!is.null(seed)) set.seed(seed)
   sims <- lapply(1:nsim, function(...) object@obj$simulate(object@obj$env$last.par.best))
 
   var_data <- names(object@obj$env$obs)
   out <- lapply(sims, function(x) x[var_data])
   return(out)
-}
+})

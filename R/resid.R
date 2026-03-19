@@ -1,8 +1,10 @@
 
-
-#' Calculate model residuals
+#' @name residuals
+#' @aliases residuals,MSAassess-method
 #'
-#' Extract residuals from fitted model
+#' @title Calculate model residuals
+#'
+#' @description Extract residuals from fitted model
 #'
 #' @param object [MSAassess-class] object returned by `fit_MSA()`
 #' @param vars Character vector to indicate which residuals will be calculated.
@@ -17,7 +19,8 @@
 #' @aliases residuals
 #' @importFrom stats residuals
 #' @export
-residuals.MSAassess <- function(object, vars, type = c("response", "pearson"), ...) {
+setMethod("residuals", signature(object = "MSAassess"),
+          function(object, vars, type = c("response", "pearson"), ...) {
 
   vars_choices <- c("Cinit_mfr", "Cobs_ymfr", "CAAobs_ymafr", "CALobs_ymlfr",
                     "Iobs_ymi", "IAAobs_ymai", "IALobs_ymli", "SC_ymafrs", "tag_ymarrs")
@@ -226,6 +229,7 @@ residuals.MSAassess <- function(object, vars, type = c("response", "pearson"), .
 
   return(res)
 }
+)
 
 # Vectors
 resid_comp <- function(obs, pred, like, ...) {

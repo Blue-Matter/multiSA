@@ -2,10 +2,11 @@
 % Please edit documentation in R/simulate.R
 \name{simulate}
 \alias{simulate}
+\alias{simulate,MSAassess-method}
 \alias{simulate.MSAassess}
 \title{Simulate data}
 \usage{
-\method{simulate}{MSAassess}(object, nsim = 1, seed = NULL, ...)
+\S4method{simulate}{MSAassess}(object, nsim = 1, seed = NULL, ...)
 }
 \arguments{
 \item{object}{\linkS4class{MSAassess} object returned by \code{\link[=fit_MSA]{fit_MSA()}}}

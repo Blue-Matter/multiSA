@@ -2,13 +2,15 @@
 % Please edit documentation in R/profile.R
 \name{profile}
 \alias{profile}
+\alias{profile,MSAassess-method}
 \alias{profile.MSAassess}
+\alias{plot,MSAassess-method}
 \alias{plot.MSAprof}
 \title{Profile parameters of MSA model}
 \usage{
-\method{profile}{MSAassess}(fitted, p1, v1, p2, v2, cores = 1, ...)
+\S4method{profile}{MSAassess}(fitted, p1, v1, p2, v2, cores = 1, ...)
 
-\method{plot}{MSAprof}(
+\S4method{plot}{MSAassess}(
   x,
   component = "objective",
   rel = TRUE,

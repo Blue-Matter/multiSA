@@ -2,12 +2,13 @@
 % Please edit documentation in R/define-s4-class.R
 \name{report}
 \alias{report}
+\alias{report,MSAassess-method}
 \alias{report.MSAassess}
 \title{Generate markdown reports}
 \usage{
 report(object, ...)
 
-\method{report}{MSAassess}(
+\S4method{report}{MSAassess}(
   object,
   name,
   filename = "MSA",
@@ -34,7 +35,7 @@ uses \code{substitute(object)}}
 \item{render_args}{List of arguments to pass to \code{\link[rmarkdown:render]{rmarkdown::render()}}.}
 }
 \value{
-\code{report.MSAassess} invisibly returns the output of \code{\link[rmarkdown:render]{rmarkdown::render()}}: character of the path of the rendered HTML markdown report.
+\code{report} generic for MSAassess invisibly returns the output of \code{\link[rmarkdown:render]{rmarkdown::render()}}: character of the path of the rendered HTML markdown report.
 }
 \description{
 Generate a markdown report of model fits and estimates.

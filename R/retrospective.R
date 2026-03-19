@@ -98,8 +98,9 @@ retrospective <- function(MSAassess, yret = 0:5, cores = 1) {
 #' @importFrom gplots rich.colors
 #' @importFrom graphics legend
 #' @returns
-#' `plot.MSAretro` returns individual figures using base graphics.
+#' `plot` generic for MSAretro returns individual figures using base graphics.
 #' @export
+#' @method plot MSAretro
 plot.MSAretro <- function(x, var = c("S_yst", "R_yst", "F_yst", "log_rdev_yst", "VB_ymft"), s = 1, f = 1, ...) {
   var <- match.arg(var)
   Dlabel <- attr(x, "Dlabel")
@@ -145,8 +146,9 @@ plot.MSAretro <- function(x, var = c("S_yst", "R_yst", "F_yst", "log_rdev_yst", 
 #' @rdname retrospective
 #' @param by Character indicating whether to calculate to Mohn's rho on stock or fleet-based time series
 #' @return
-#' `summary.MSAretro` returns a matrix of Mohn's rho.
+#' `summary` generic for MSAretro returns a matrix of Mohn's rho.
 #' @export
+#' @method summary MSAretro
 summary.MSAretro <- function(object, by = c("stock", "fleet"), ...) {
   by <- match.arg(by)
   peel <- attr(object, "yret")
@@ -194,17 +196,15 @@ Mohn_rho <- function(x, peel) {
 }
 
 
-#' @param filename Character string for the name of the markdown and HTML files.
-#' @param dir The directory in which the markdown and HTML files will be saved.
-#' @param open_file Logical, whether the HTML document is opened after it is rendered.
-#' @param render_args List of arguments to pass to [rmarkdown::render()].
-#'
+
+#' @inheritParams report
 #' @return
-#' `report.MSAretro` invisibly returns the output of [rmarkdown::render()]: character of the path of the rendered HTML markdown report.
+#' `report` generic for MSAretro invisibly returns the output of [rmarkdown::render()]: character of the path of the rendered HTML markdown report.
 #' @rdname retrospective
 #' @importFrom rmarkdown render
 #' @importFrom utils browseURL
 #' @export
+#' @method report MSAretro
 report.MSAretro <- function(object, filename = "retro", dir = tempdir(), open_file = TRUE, render_args = list(), ...) {
 
   sname <- attr(object, "Dlabel")@stock

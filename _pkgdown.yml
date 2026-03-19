@@ -46,9 +46,10 @@ reference:
   contents:
   - profile
   - report
-  - residuals.MSAassess
+  - residuals
   - retrospective
   - simulate
+  - summary
 
 - title: Population dynamics
   desc: Functions used in the population model.

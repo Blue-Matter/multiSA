@@ -1,6 +1,6 @@
 
 #' @name profile
-#' @aliases profile.MSAassess
+#' @aliases profile,MSAassess-method profile.MSAassess
 #'
 #' @title Profile parameters of MSA model
 #'
@@ -28,66 +28,68 @@
 #' @importFrom stats profile
 #' @importFrom pbapply pblapply
 #' @export
-profile.MSAassess <- function(fitted, p1, v1, p2, v2, cores = 1, ...) {
+setMethod("profile", signature(fitted = "MSAassess"),
+          function(fitted, p1, v1, p2, v2, cores = 1, ...) {
 
-  if (cores > 1 && !snowfall::sfIsRunning()) {
-    snowfall::sfInit(parallel = TRUE, cpus = cores)
-    on.exit(snowfall::sfStop())
-  }
+            if (cores > 1 && !snowfall::sfIsRunning()) {
+              snowfall::sfInit(parallel = TRUE, cpus = cores)
+              on.exit(snowfall::sfStop())
+            }
 
-  .lapply <- pbapply::pblapply
-  if (snowfall::sfIsRunning()) {
-    formals(.lapply)$cl <- substitute(snowfall::sfGetCluster())
-  }
+            .lapply <- pbapply::pblapply
+            if (snowfall::sfIsRunning()) {
+              formals(.lapply)$cl <- substitute(snowfall::sfGetCluster())
+            }
 
-  if (missing(p2)) {
-    pars <- p1
-    out <- expand.grid(p1 = v1)
-    if (snowfall::sfIsRunning()) sfExport(list = c("fitted", "pars", "out"))
-    prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, out$p1[i]))
-  } else {
-    pars <- c(p1, p2)
-    out <- expand.grid(p1 = v1, p2 = v2)
-    if (snowfall::sfIsRunning()) sfExport(list = c("fitted", "pars", "out"))
-    prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, c(out$p1[i], out$p2[i])))
-  }
+            if (missing(p2)) {
+              pars <- p1
+              out <- expand.grid(p1 = v1)
+              if (snowfall::sfIsRunning()) sfExport(list = c("fitted", "pars", "out"))
+              prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, out$p1[i]))
+            } else {
+              pars <- c(p1, p2)
+              out <- expand.grid(p1 = v1, p2 = v2)
+              if (snowfall::sfIsRunning()) sfExport(list = c("fitted", "pars", "out"))
+              prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, c(out$p1[i], out$p2[i])))
+            }
 
-  prof_df <- cbind(out, do.call(rbind, prof)) %>%
-    structure(class = c("MSAprof", "data.frame"))
+            prof_df <- cbind(out, do.call(rbind, prof)) %>%
+              structure(class = c("MSAprof", "data.frame"))
 
-  names(prof_df)[1] <- attr(prof_df, "p1") <- p1
-  if (!missing(p2)) {
-    names(prof_df)[2] <- attr(prof_df, "p2") <- p2
-  }
+            names(prof_df)[1] <- attr(prof_df, "p1") <- p1
+            if (!missing(p2)) {
+              names(prof_df)[2] <- attr(prof_df, "p2") <- p2
+            }
 
-  p <- fitted@obj$env$parList(fitted@obj$env$last.par.best)
-  pval1 <- eval(parse(text = paste0("p$", p1)))
-  if (is.null(pval1)) pval1 <- eval(parse(text = paste0("fitted@report$", p1)))
-  if (is.null(pval1)) pval1 <- NA
+            p <- fitted@obj$env$parList(fitted@obj$env$last.par.best)
+            pval1 <- eval(parse(text = paste0("p$", p1)))
+            if (is.null(pval1)) pval1 <- eval(parse(text = paste0("fitted@report$", p1)))
+            if (is.null(pval1)) pval1 <- NA
 
-  if (missing(p2)) {
+            if (missing(p2)) {
 
-    attr(prof_df, "fitted") <- cbind(
-      pval1,
-      get_likelihood_components(fitted)
-    )
-    names(attr(prof_df, "fitted"))[1] <- p1
+              attr(prof_df, "fitted") <- cbind(
+                pval1,
+                get_likelihood_components(fitted)
+              )
+              names(attr(prof_df, "fitted"))[1] <- p1
 
-  } else {
-    pval2 <- eval(parse(text = paste0("p$", p2)))
-    if (is.null(pval2)) pval2 <- eval(parse(text = paste0("fitted@report$", p2)))
-    if (is.null(pval2)) pval2 <- NA
+            } else {
+              pval2 <- eval(parse(text = paste0("p$", p2)))
+              if (is.null(pval2)) pval2 <- eval(parse(text = paste0("fitted@report$", p2)))
+              if (is.null(pval2)) pval2 <- NA
 
-    attr(prof_df, "fitted") <- cbind(
-      pval1,
-      pval2,
-      get_likelihood_components(fitted)
-    )
-    names(attr(prof_df, "fitted"))[1:2] <- c(p1, p2)
-  }
+              attr(prof_df, "fitted") <- cbind(
+                pval1,
+                pval2,
+                get_likelihood_components(fitted)
+              )
+              names(attr(prof_df, "fitted"))[1:2] <- c(p1, p2)
+            }
 
-  return(prof_df)
-}
+            return(prof_df)
+
+          })
 
 .prof <- function(fitted, pars, vals) {
   stopifnot(length(pars) == length(vals))
@@ -185,70 +187,71 @@ get_likelihood_components <- function(fit) {
 #' @importFrom graphics contour filled.contour
 #' @importFrom reshape2 acast
 #' @export
-plot.MSAprof <- function(x, component = "objective", rel = TRUE, xlab, ylab, main,
-                          plot2d = c("contour", "filled.contour"), ...) {
+setMethod("plot", signature(x = "MSAassess", y = "ANY"),
+          function(x, component = "objective", rel = TRUE, xlab, ylab, main,
+                   plot2d = c("contour", "filled.contour"), ...) {
 
-  p1 <- attr(x, "p1")
-  p2 <- attr(x, "p2")
+            p1 <- attr(x, "p1")
+            p2 <- attr(x, "p2")
 
-  if (missing(xlab)) xlab <- p1
-  if (is.null(x[[component]])) stop("\"", component, "\" not found in ", substitute(x))
+            if (missing(xlab)) xlab <- p1
+            if (is.null(x[[component]])) stop("\"", component, "\" not found in ", substitute(x))
 
-  fitted <- attr(x, "fitted")
+            fitted <- attr(x, "fitted")
 
-  if (is.null(p2)) {
-    xplot <- x[[p1]]
-    yplot <- x[[component]]
-    yfit <- fitted[[component]]
-    if (grepl("logprior", component) || grepl("loglike", component)) {
-      yplot <- -1 * yplot
-      yfit <- -1 * yfit
-    }
-    if (rel) yplot <- yplot - yfit
-    if (missing(ylab)) {
-      if (grepl("logprior", component) || grepl("loglike", component)) {
-        ylab <- paste("Change in negative", component)
-      } else {
-        ylab <- paste("Change in", component)
-      }
-    }
-    if (missing(main)) main <- NULL
+            if (is.null(p2)) {
+              xplot <- x[[p1]]
+              yplot <- x[[component]]
+              yfit <- fitted[[component]]
+              if (grepl("logprior", component) || grepl("loglike", component)) {
+                yplot <- -1 * yplot
+                yfit <- -1 * yfit
+              }
+              if (rel) yplot <- yplot - yfit
+              if (missing(ylab)) {
+                if (grepl("logprior", component) || grepl("loglike", component)) {
+                  ylab <- paste("Change in negative", component)
+                } else {
+                  ylab <- paste("Change in", component)
+                }
+              }
+              if (missing(main)) main <- NULL
 
-    plot(xplot, yplot, xlab = xlab, ylab = ylab, type = "o", main = main, ...)
-    abline(v = fitted[[p1]], lty = 2)
+              plot(xplot, yplot, xlab = xlab, ylab = ylab, type = "o", main = main, ...)
+              abline(v = fitted[[p1]], lty = 2)
 
-  } else {
+            } else {
 
-    plot2d <- match.arg(plot2d)
-    plot2d <- match.fun(plot2d)
+              plot2d <- match.arg(plot2d)
+              plot2d <- match.fun(plot2d)
 
-    names(x)[names(x) == p1] <- "p1"
-    names(x)[names(x) == p2] <- "p2"
+              names(x)[names(x) == p1] <- "p1"
+              names(x)[names(x) == p2] <- "p2"
 
-    zplot <- reshape2::acast(x, list("p1", "p2"), value.var = component)
-    zfit <- fitted[[component]]
-    if (grepl("logprior", component) || grepl("loglike", component)) {
-      zplot <- -1 * zplot
-      zfit <- -1 * zfit
-    }
-    if (rel) zplot <- zplot - zfit
-    if (missing(ylab)) ylab <- p2
-    if (missing(main)) {
-      if (grepl("logprior", component) || grepl("loglike", component)) {
-        main <- paste("Change in negative", component)
-      } else {
-        main <- paste("Change in", component)
-      }
-    }
+              zplot <- reshape2::acast(x, list("p1", "p2"), value.var = component)
+              zfit <- fitted[[component]]
+              if (grepl("logprior", component) || grepl("loglike", component)) {
+                zplot <- -1 * zplot
+                zfit <- -1 * zfit
+              }
+              if (rel) zplot <- zplot - zfit
+              if (missing(ylab)) ylab <- p2
+              if (missing(main)) {
+                if (grepl("logprior", component) || grepl("loglike", component)) {
+                  main <- paste("Change in negative", component)
+                } else {
+                  main <- paste("Change in", component)
+                }
+              }
 
-    plot2d(
-      x = as.numeric(rownames(zplot)), y = as.numeric(colnames(zplot)), z = zplot,
-      xlab = xlab, ylab = ylab, main = main,
-      ...
-    )
-    points(fitted[[p1]], fitted[[p2]], col = "red", pch = 16)
+              plot2d(
+                x = as.numeric(rownames(zplot)), y = as.numeric(colnames(zplot)), z = zplot,
+                xlab = xlab, ylab = ylab, main = main,
+                ...
+              )
+              points(fitted[[p1]], fitted[[p2]], col = "red", pch = 16)
 
-  }
-  invisible()
-}
+            }
+            invisible()
+          })
 
