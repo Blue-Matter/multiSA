@@ -5,7 +5,7 @@ Simulate data observations from fitted MSA model.
 ## Usage
 
 ``` r
-# S3 method for class 'MSAassess'
+# S4 method for class 'MSAassess'
 simulate(object, nsim = 1, seed = NULL, ...)
 ```
 

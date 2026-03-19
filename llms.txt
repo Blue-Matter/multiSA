@@ -68,11 +68,11 @@ Prepare the data and parameters, then run the model.
 Evaluate model fit and run diagnostics.
 
 - [`profile(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/profile.md)
-  [`plot(`*`<MSAprof>`*`)`](https://blue-matter.github.io/multiSA/reference/profile.md)
+  [`plot(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/profile.md)
   : Profile parameters of MSA model
 - [`report()`](https://blue-matter.github.io/multiSA/reference/report.md)
   : Generate markdown reports
-- [`residuals(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/residuals.MSAassess.md)
+- [`residuals(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/residuals.md)
   : Calculate model residuals
 - [`retrospective()`](https://blue-matter.github.io/multiSA/reference/retrospective.md)
   [`plot(`*`<MSAretro>`*`)`](https://blue-matter.github.io/multiSA/reference/retrospective.md)
@@ -81,6 +81,8 @@ Evaluate model fit and run diagnostics.
   : Retrospective analysis
 - [`simulate(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/simulate.md)
   : Simulate data
+- [`summary(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/summary.md)
+  : Summarize MSA model output
 
 ## Population dynamics
 

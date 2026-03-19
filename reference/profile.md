@@ -6,10 +6,10 @@ to 2 parameters.
 ## Usage
 
 ``` r
-# S3 method for class 'MSAassess'
+# S4 method for class 'MSAassess'
 profile(fitted, p1, v1, p2, v2, cores = 1, ...)
 
-# S3 method for class 'MSAprof'
+# S4 method for class 'MSAassess'
 plot(
   x,
   component = "objective",

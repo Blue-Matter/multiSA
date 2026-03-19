@@ -75,9 +75,9 @@ obs <- pred * rlnorm(10, sd = 0.05)
 like_comp(obs, pred, N = 10, type = "multinomial")
 #> [1] -8.330521
 like_comp(obs, pred, N = 100, type = "multinomial")
-#> [1] -17.43297
+#> [1] -17.57996
 like_comp(obs, pred, N = 10, type = "dirmult1", theta = 1)
-#> [1] -11.32052
+#> [1] -11.33651
 like_comp(obs, pred, N = 10, type = "dirmult1", theta = 20)
-#> [1] -8.004429
+#> [1] -8.015671
 ```

@@ -109,10 +109,11 @@ retrospective analysis:
 
 - `VB_ymft` Vulnerable biomass available to each fishery `[y, m, f, t]`
 
-`plot.MSAretro` returns individual figures using base graphics.
+`plot` generic for MSAretro returns individual figures using base
+graphics.
 
-`summary.MSAretro` returns a matrix of Mohn's rho.
+`summary` generic for MSAretro returns a matrix of Mohn's rho.
 
-`report.MSAretro` invisibly returns the output of
+`report` generic for MSAretro invisibly returns the output of
 [`rmarkdown::render()`](https://pkgs.rstudio.com/rmarkdown/reference/render.html):
 character of the path of the rendered HTML markdown report.

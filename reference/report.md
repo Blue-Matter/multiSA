@@ -7,7 +7,7 @@ Generate a markdown report of model fits and estimates.
 ``` r
 report(object, ...)
 
-# S3 method for class 'MSAassess'
+# S4 method for class 'MSAassess'
 report(
   object,
   name,
@@ -53,6 +53,6 @@ report(
 
 ## Value
 
-`report.MSAassess` invisibly returns the output of
+`report` generic for MSAassess invisibly returns the output of
 [`rmarkdown::render()`](https://pkgs.rstudio.com/rmarkdown/reference/render.html):
 character of the path of the rendered HTML markdown report.
