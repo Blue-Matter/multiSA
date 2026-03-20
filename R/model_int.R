@@ -193,8 +193,6 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
 
 calc_Baranov <- function(FM, Z, N) FM/Z * (1 - exp(-Z)) * N
 
-
-#' @importFrom stats uniroot
 .calc_summary_F <- function(FM, M, N, CN) calc_Baranov(FM, FM + M, N) - CN
 calc_summary_F <- function(M, N, CN, Fmax) {
 

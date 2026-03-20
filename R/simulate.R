@@ -1,7 +1,5 @@
 
 
-setGeneric("simulate", function(object, ...) standardGeneric("simulate"))
-
 #' @name simulate
 #' @aliases simulate,MSAassess-method simulate.MSAassess
 #'
