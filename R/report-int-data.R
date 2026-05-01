@@ -65,9 +65,12 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
 
   iname <- Dlabel@index[i]
 
-  ipred <- apply(fit@report$I_ymi[, , i, drop = FALSE], 1:2, identity)
   iobs <- apply(dat@Dsurvey@Iobs_ymi[, , i, drop = FALSE], 1:2, identity)
   isd <- apply(dat@Dsurvey@Isd_ymi[, , i, drop = FALSE], 1:2, identity)
+  mobs <- seq(1, nm)[apply(iobs, 2, function(i) any(!is.na(i)))]
+  mind <- rep(1:nm, length(year))
+
+  ipred <- apply(fit@report$I_ymi[, , i, drop = FALSE], 1:2, identity)
 
   year <- make_yearseason(year, nm)
   ipred <- collapse_yearseason(ipred)
@@ -78,10 +81,12 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
 
   if (sum(ind)) {
     if (zoom) {
-      year <- year[ind]
-      ipred <- ipred[ind]
-      iobs <- iobs[ind]
-      isd <- isd[ind]
+      mz <- mind == mobs
+
+      year <- year[ind & mz]
+      ipred <- ipred[ind & mz]
+      iobs <- iobs[ind & mz]
+      isd <- isd[ind & mz]
     }
 
     iupper <- exp(log(iobs) + 1.96 * isd)

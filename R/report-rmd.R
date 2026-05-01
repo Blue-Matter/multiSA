@@ -181,7 +181,7 @@ make_rmd_survey <- function(i, iname) {
     paste0("plot_index(x, i = ", i, ")"),
     "```",
     "",
-    paste0("```{r index-zoom-", i, ", fig.cap=\"Predicted (red) and observed (black) values for ", iname, ", predicted values reported for years with data points.\"}"),
+    paste0("```{r index-zoom-", i, ", fig.cap=\"Predicted (red) and observed (black) values for ", iname, ", predicted values reported for years and seasons with data points.\"}"),
     paste0("plot_index(x, i = ", i, ", zoom = TRUE)"),
     "```",
     "",

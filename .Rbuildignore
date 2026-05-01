@@ -11,3 +11,5 @@
 ^README\.Rmd$
 ^examples$
 ^data-raw$
+^\.positai$
+^\.claude$
