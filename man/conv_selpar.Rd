@@ -9,7 +9,7 @@
 \usage{
 conv_selpar(x, type, maxage, maxL)
 
-calc_sel_len(sel_par, lmid, type)
+calc_sel_len(sel_par, lmid, type, fsel_type, fsel_len)
 
 calc_fsel_age(
   sel_len,
@@ -29,15 +29,15 @@ calc_isel_age(
   fsel_age,
   maxage,
   mat,
-  a = seq(1, nrow(LAK)) - 1
+  a = seq(1, nrow(LAK)) - 1,
+  fsel_type,
+  fsel_len
 )
 }
 \arguments{
 \item{x}{Estimated parameters. Matrix \verb{[3, f]}}
 
-\item{type}{Character string to indicate the functional form of selectivity. Options include:
-\verb{"logistic_length", "dome_length", "logistic_age", "dome_age"}, an integer (\code{f}) to map index selectivity
-to the corresponding fleet \code{f} (will be coerced to integer), \code{"SB"} to fix to maturity at age schedule, or \code{"B"} to fix to 1 for all ages.}
+\item{type, fsel_type}{Character string to indicate the functional form of selectivity. See details below.}
 
 \item{maxage}{Maximum value of the age of full selectivity}
 
@@ -46,6 +46,8 @@ to the corresponding fleet \code{f} (will be coerced to integer), \code{"SB"} to
 \item{sel_par}{Matrix of parameters returned by \code{\link[=conv_selpar]{conv_selpar()}}}
 
 \item{lmid}{Midpoints of length bins for calculating selectivity at length}
+
+\item{fsel_len}{Selectivity at length matrix for fleets, returned by previous call to \code{calc_sel_len()}}
 
 \item{sel_len}{Selectivity at length matrix returned by \code{\link[=calc_sel_len]{calc_sel_len()}}}
 
@@ -76,6 +78,20 @@ Calculate selectivity at age and length from a matrix of parameters.
 \item \code{\link[=calc_fsel_age]{calc_fsel_age()}} calculates selectivity at age for fisheries, and coordinates dummy fleets.
 \item \code{\link[=calc_isel_age]{calc_isel_age()}} calculates selectivity at age for indices, and can map selectivity from fisheries
 or population parameters (e.g, mature or total biomass).
+}
+}
+\details{
+Options for argument \code{type} include:
+\itemize{
+\item functional forms with respect to length: \verb{"logistic_length", "dome_length"}
+\item functional forms with respect to age: \verb{"logistic_age", "dome_age"}
+\item for surveys, an integer (\code{f}) to map index selectivity at age to fleet \code{f} (will be coerced to integer)
+\item \code{"SB"} to fix to maturity at age schedule
+\item \code{"B"} to fix selectivity to 1 for all ages
+\item \code{"length_x_y"} to specify selectivity to 1 between lengths \code{x} and \code{y} (example: \code{"length_20_50"})
+\item \code{"age_x_y"} to specify selectivity to 1 between age \code{x} and \code{y} (example: \code{"age_2_4"})
+\item for surveys, \code{"f_x_y"} uses selectivity values from fleet \code{f} between bins \code{x} and \code{y}
+(either length or age depending on definition of selectivity for \code{f}) (example: \code{"3_2_4"})
 }
 }
 \section{Converting selectivity parameters (conv_selpar)}{

@@ -10,11 +10,22 @@
 #' or population parameters (e.g, mature or total biomass).
 #'
 #' @param x Estimated parameters. Matrix `[3, f]`
-#' @param type Character string to indicate the functional form of selectivity. Options include:
-#' `"logistic_length", "dome_length", "logistic_age", "dome_age"`, an integer (`f`) to map index selectivity
-#' to the corresponding fleet `f` (will be coerced to integer), `"SB"` to fix to maturity at age schedule, or `"B"` to fix to 1 for all ages.
+#' @param type,fsel_type Character string to indicate the functional form of selectivity. See details below.
 #' @param maxage Maximum value of the age of full selectivity
 #' @param maxL Maximum value of the length of full selectivity
+#' @details
+#' Options for argument `type` include:
+#'
+#' - functional forms with respect to length: `"logistic_length", "dome_length"`
+#' - functional forms with respect to age: `"logistic_age", "dome_age"`
+#' - for surveys, an integer (`f`) to map index selectivity at age to fleet `f` (will be coerced to integer)
+#' - `"SB"` to fix to maturity at age schedule
+#' - `"B"` to fix selectivity to 1 for all ages
+#' - `"length_x_y"` to specify selectivity to 1 between lengths `x` and `y` (example: `"length_20_50"`)
+#' - `"age_x_y"` to specify selectivity to 1 between age `x` and `y` (example: `"age_2_4"`)
+#' - for surveys, `"f_x_y"` uses selectivity values from fleet `f` between bins `x` and `y`
+#' (either length or age depending on definition of selectivity for `f`) (example: `"3_2_4"`)
+#'
 #' @section Converting selectivity parameters (conv_selpar):
 #' The first row of `x` corresponds to the length or age of full selectivity: \eqn{\mu_f = L_{max}/(1 + \exp(-x_{1,f}))}
 #'
@@ -34,10 +45,10 @@ conv_selpar <- function(x, type, maxage, maxL) {
   sel_par <- sapply(1:nf, function(f) {
     sd_asc <- exp(x[2, f])
     sd_desc <- exp(x[3, f])
-    if (grepl("age", type[f])) {
+    if (grepl("logistic_age|dome_age", type[f])) {
       Aapical <- maxage * plogis(x[1, f])
       v <- c(Aapical, sd_asc, sd_desc)
-    } else if (grepl("length", type[f])) {
+    } else if (grepl("logistic_length|dome_length", type[f])) {
       Lapical <- maxL * plogis(x[1, f])
       v <- c(Lapical, sd_asc, sd_desc)
     } else {
@@ -53,6 +64,7 @@ conv_selpar <- function(x, type, maxage, maxL) {
 #' @aliases calc_sel_len
 #' @param sel_par Matrix of parameters returned by [conv_selpar()]
 #' @param lmid Midpoints of length bins for calculating selectivity at length
+#' @param fsel_len Selectivity at length matrix for fleets, returned by previous call to `calc_sel_len()`
 #' @section Length selectivity (calc_sel_len):
 #' The selectivity at length is
 #' \deqn{
@@ -73,15 +85,16 @@ conv_selpar <- function(x, type, maxage, maxL) {
 #' @return
 #' [calc_sel_len()] returns a matrix `[l, f]`, i.e., `[length(lmid), length(type)]`.
 #' @export
-calc_sel_len <- function(sel_par, lmid, type) {
+calc_sel_len <- function(sel_par, lmid, type, fsel_type, fsel_len) {
   nf <- length(type)
+  is_ad <- inherits(sel_par, "advector")
 
   sel_lf <- sapply(1:nf, function(f) {
-    if (grepl("length", type[f])) {
+    if (grepl("logistic_length|dome_length", type[f])) {
       ex_asc <- (lmid - sel_par[1, f])/sel_par[2, f]
       asc <- exp(-0.5 * ex_asc * ex_asc)
 
-      if (grepl("logistic", type[f])) {
+      if (grepl("logistic_length", type[f])) {
         desc <- 1
       } else {
         ex_desc <- (lmid - sel_par[1, f])/sel_par[3, f]
@@ -89,9 +102,29 @@ calc_sel_len <- function(sel_par, lmid, type) {
       }
       v <- CondExpLt(lmid, sel_par[1, f], asc, desc)
       v <- v/max(v)
+    } else if (startsWith(type[f], "length")) {
+      sel_char <- strsplit(type[f], "_")[[1]]
+      lmin <- as.numeric(sel_char[2])
+      lmax <- as.numeric(sel_char[3])
+      v <- ifelse(lmid >= lmin & lmid <= lmax, 1, 0)
     } else {
-      v <- rep(NA_real_, length(lmid))
+      sel_char <- strsplit(type[f], "_")[[1]]
+
+      if (length(sel_char) == 3) {
+        ff <- suppressWarnings(as.numeric(sel_char)[1])
+
+        if (is.numeric(ff) && grepl("length", fsel_type[ff])) {
+          lmin <- as.numeric(sel_char[2])
+          lmax <- as.numeric(sel_char[3])
+          v <- ifelse(lmid >= lmin & lmid <= lmax, fsel_len[, ff], 0)
+        } else {
+          v <- rep(NA_real_, length(lmid))
+        }
+      } else {
+        v <- rep(NA_real_, length(lmid))
+      }
     }
+    if (is_ad) v <- advector(v)
     return(v)
   })
 
@@ -130,12 +163,12 @@ calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length
     if (grepl("length", type[f])) {
       v <- sel_len[, f] %*% t(LAK)
       #v <- v/max(v)
-    } else if (grepl("age", type[f])) {
+    } else if (grepl("logistic_age|dome_age", type[f])) {
 
       ex_asc <- (a - sel_par[1, f])/sel_par[2, f]
       asc <- exp(-0.5 * ex_asc * ex_asc)
 
-      if (grepl("logistic", type[f])) {
+      if (grepl("logistic_age", type[f])) {
         desc <- 1
       } else {
         ex_desc <- (a - sel_par[1, f])/sel_par[3, f]
@@ -143,6 +176,11 @@ calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length
       }
       v <- CondExpLt(a, sel_par[1, f], asc, desc)
       v <- v/max(v)
+    } else if (startsWith(type[f], "age")) {
+      sel_char <- strsplit(type[f], "_")[[1]]
+      amin <- as.numeric(sel_char[2])
+      amax <- as.numeric(sel_char[3])
+      v <- ifelse(a >= amin & a <= amax, 1, 0)
     } else if (type[f] == "SB") {
       v <- mat
     } else if (type[f] == "B") {
@@ -162,37 +200,59 @@ calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length
 #' @return
 #' [calc_isel_age()] returns a matrix `[a, i]`, i.e., `[a, length(type)]`
 #' @export
-calc_isel_age <- function(sel_len, LAK, type, sel_par, fsel_age, maxage, mat, a = seq(1, nrow(LAK)) - 1) {  ni <- length(type)
+calc_isel_age <- function(sel_len, LAK, type, sel_par, fsel_age, maxage, mat,
+                          a = seq(1, nrow(LAK)) - 1,
+                          fsel_type, fsel_len) {
+  ni <- length(type)
   is_ad <- inherits(sel_par, "advector") || inherits(fsel_age, "advector")
 
   sel_ai <- sapply(1:ni, function(i) {
     ti <- type[i]
     tii <- suppressWarnings(as.integer(ti))
 
-    if (is.na(tii)) {
+    if (is.na(tii)) { # Not an integer
       if (grepl("length", ti)) {
         v <- sel_len[, i] %*% t(LAK)
       } else if (grepl("age", ti)) {
 
-        ex_asc <- (a - sel_par[1, i])/sel_par[2, i]
-        asc <- exp(-0.5 * ex_asc * ex_asc)
+        if (grepl("logistic_age|dome_age", ti)) {
+          ex_asc <- (a - sel_par[1, i])/sel_par[2, i]
+          asc <- exp(-0.5 * ex_asc * ex_asc)
 
-        if (grepl("logistic", ti)) {
-          desc <- 1
-        } else {
-          ex_desc <- (a - sel_par[1, i])/sel_par[3, i]
-          desc <- exp(-0.5 * ex_desc * ex_desc)
+          if (grepl("logistic_age", ti)) {
+            desc <- 1
+          } else {
+            ex_desc <- (a - sel_par[1, i])/sel_par[3, i]
+            desc <- exp(-0.5 * ex_desc * ex_desc)
+          }
+          v <- CondExpLt(a, sel_par[1, i], asc, desc)
+          v <- v/max(v)
+
+        } else if (startsWith(ti, "age")) {
+
+          sel_char <- strsplit(ti, "_")[[1]]
+          amin <- as.numeric(sel_char[2])
+          amax <- as.numeric(sel_char[3])
+          v <- ifelse(a >= amin & a <= amax, 1, 0)
+
         }
-        v <- CondExpLt(a, sel_par[1, i], asc, desc)
-        v <- v/max(v)
+
       } else if (ti == "SB") {
         v <- mat
       } else if (ti == "B") {
         v <- rep(1, length(a))
       } else if (ti == "free") {
         v <- plogis(sel_par[, i])
+      } else {
+        sel_char <- strsplit(ti, "_")[[1]]
+        ff <- suppressWarnings(as.numeric(sel_char[1]))
+        sel_f <- fsel_type[ff]
+        if (grepl("length", sel_f)) {
+          v <- sel_len[, i] %*% t(LAK)
+        } else {
+          stop("Error: can't figure out how to calculate index selectivity")
+        }
       }
-
     } else if (is.integer(tii)) {
       v <- fsel_age[, tii]
     } else {

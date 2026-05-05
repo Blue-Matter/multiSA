@@ -601,7 +601,9 @@ make_map <- function(p, MSAdata, map = list(),
       sel_f <- Dfishery@sel_f[f]
       vec <- rep(TRUE, 3)
       if (sel_f %in% c("logistic_age", "logistic_length")) vec[3] <- NA
-      if (sel_f %in% c("B", "SB")) vec[] <- NA
+      if (sel_f %in% c("B", "SB") || startsWith(sel_f, "length") || startsWith(sel_f, "age")) {
+        vec[] <- NA
+      }
       return(vec)
     })
     sel_pf[!is.na(sel_pf)] <- 1:sum(sel_pf, na.rm = TRUE)
@@ -688,7 +690,15 @@ make_map <- function(p, MSAdata, map = list(),
       if (sel_i %in% c("logistic_age", "logistic_length")) vec[3] <- NA
 
       int_sel_i <- suppressWarnings(as.integer(sel_i))
-      if (sel_i %in% c("B", "SB") || !is.na(int_sel_i)) vec[] <- NA
+      if (sel_i %in% c("B", "SB") || !is.na(int_sel_i) || startsWith(sel_i, "length") || startsWith(sel_i, "age")) {
+        vec[] <- NA
+      } else {
+        sel_char <- strsplit(sel_i, "_")[[1]]
+        ff <- suppressWarnings(is.numeric(sel_char[1]))
+        if (length(sel_char) == 3 && !is.na(ff)) {
+          vec[] <- NA
+        }
+      }
       return(vec)
     })
     sel_pi[!is.na(sel_pi)] <- 1:sum(sel_pi, na.rm = TRUE)

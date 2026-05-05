@@ -272,7 +272,7 @@ update_report <- function(r, MSAdata) {
   ## Index selectivity ----
   if (ni > 0) {
     selconv_pi <- conv_selpar(p$sel_pi, type = Dsurvey@sel_i, maxage = na - 1, maxL = 0.95 * max(Dmodel@lmid))
-    sel_li <- calc_sel_len(selconv_pi, Dmodel@lmid, type = Dsurvey@sel_i)
+    sel_li <- calc_sel_len(selconv_pi, Dmodel@lmid, type = Dsurvey@sel_i, fsel_type = Dfishery@sel_f, fsel_len = sel_lf)
   }
 
   ## Fishery and index selectivity ----
@@ -329,14 +329,20 @@ update_report <- function(r, MSAdata) {
         for (y in 1:ny) {
           for (m in 1:nm) {
             sel_ymais[y, m, , , s] <- calc_isel_age(
-              sel_li, Dstock@LAK_ymals[y, m, , , s], Dsurvey@sel_i, selconv_pi, matrix(sel_ymafs[y, m, , , s], na, nf), mat = mat_yas[y, , s], a = seq(1, na) - 1
+              sel_li, Dstock@LAK_ymals[y, m, , , s], Dsurvey@sel_i, selconv_pi,
+              matrix(sel_ymafs[y, m, , , s], na, nf), mat = mat_yas[y, , s], a = seq(1, na) - 1,
+              fsel_type = Dfishery@sel_f,
+              fsel_len = sel_lf
             )
           }
         }
       } else {
         for (m in 1:nm) {
           sel_ymais[1, m, , , s] <- calc_isel_age(
-            sel_li, Dstock@LAK_ymals[1, m, , , s], Dsurvey@sel_i, selconv_pi, matrix(sel_ymafs[1, m, , , s], na, nf), mat = mat_yas[1, , s], a = seq(1, na) - 1
+            sel_li, Dstock@LAK_ymals[1, m, , , s], Dsurvey@sel_i, selconv_pi,
+            matrix(sel_ymafs[1, m, , , s], na, nf), mat = mat_yas[1, , s], a = seq(1, na) - 1,
+            fsel_type = Dfishery@sel_f,
+            fsel_len = sel_lf
           )
         }
         isel_ind <- isel1_ind <- as.matrix(expand.grid(y = 2:ny, m = 1:m, a = 1:na, i = 1:ni, s = s))
