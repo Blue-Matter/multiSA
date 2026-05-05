@@ -3,7 +3,7 @@
 #' @name plot-MSA-data
 #' @title Plotting functions for data in MSA model
 #' @description A set of functions to plot data variables and predicted values (catch, age composition, etc.)
-#' @return Various base graphics plots
+#' @return Invisible data frame of observed and predicted values plotted in base graphics figures
 NULL
 
 #' @rdname plot-MSA-data
@@ -14,11 +14,12 @@ NULL
 #' @param f Integer for the corresponding fleet
 #' @param prop Logical, whether to plot proportions (TRUE) or absolute numbers
 #' @param annual Logical, whether to plot annual values (summed over seasons)
+#' @param figure Logical, whether to generate the plot
 #' @details
 #' - `plot_catch` plots the fishery catch by stock or region (either whole numbers or proportions)
 #'
 #' @export
-plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annual = FALSE) {
+plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annual = FALSE, figure = TRUE) {
   by <- match.arg(by)
   var <- "CB_ymfrs"
 
@@ -41,12 +42,20 @@ plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annu
     x <- collapse_yearseason(x)
   }
 
-  color <- make_color(ncol(x), type = by)
   fname <- Dlabel@fleet[f]
-  ylab <- if (prop) paste(fname, "catch proportion") else paste(fname, "catch")
-  barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
+  if (figure) {
+    color <- make_color(ncol(x), type = by)
+    ylab <- if (prop) paste(fname, "catch proportion") else paste(fname, "catch")
+    barplot2(x, cols = color, leg.names = name, xval = year, ylab = ylab, prop = prop)
+  }
 
-  invisible()
+  output <- data.frame(
+    year = year,
+    catch = x,
+    fleet = fname
+  )
+
+  invisible(output)
 }
 
 #' @rdname plot-MSA-data
@@ -54,10 +63,11 @@ plot_catch <- function(fit, f = 1, by = c("region", "stock"), prop = FALSE, annu
 #' @param i Integer, indexes the survey
 #' @param zoom Logical, for `plot_index()`. If \code{TRUE}, plots a subset of years with observed data points. Otherwise, plots
 #' predicted values over all model years.
+#' @param figure Logical, whether to generate the plot
 #' @details
 #' - `plot_index` plots indices of abundance
 #' @export
-plot_index <- function(fit, i = 1, zoom = FALSE) {
+plot_index <- function(fit, i = 1, zoom = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
   Dlabel <- dat@Dlabel
   year <- Dlabel@year
@@ -79,6 +89,8 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
 
   ind <- !is.na(iobs)
 
+  output <- NULL
+
   if (sum(ind)) {
     if (zoom) {
       mz <- mind == mobs
@@ -92,13 +104,17 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
     iupper <- exp(log(iobs) + 1.96 * isd)
     ilower <- exp(log(iobs) - 1.96 * isd)
 
-    plot(year, iobs, xlab = "Year", ylab = iname, type = "p", pch = 16,
-         ylim = c(0, 1.1) * range(ipred, iupper, na.rm = TRUE), zero_line = TRUE)
-    arrows(year, y0 = ilower, y1 = iupper, length = 0)
-    lines(year, ipred, lwd = 2, col = 2, type = ifelse(length(year) > 10, "l", "o"))
+    if (figure) {
+      plot(year, iobs, xlab = "Year", ylab = iname, type = "p", pch = 16,
+           ylim = c(0, 1.1) * range(ipred, iupper, na.rm = TRUE), zero_line = TRUE)
+      arrows(year, y0 = ilower, y1 = iupper, length = 0)
+      lines(year, ipred, lwd = 2, col = 2, type = ifelse(length(year) > 10, "l", "o"))
+    }
+
+    output <- data.frame(year = year, obs = iobs, pred = ipred, lwr = ilower, upr = iupper, name = iname)
   }
 
-  invisible(data.frame(year = year, obs = iobs, pred = ipred, lwr = ilower, upr = iupper, name = iname))
+  invisible(output)
 }
 
 
@@ -111,8 +127,9 @@ plot_index <- function(fit, i = 1, zoom = FALSE) {
 #' - `plot_CAA` plots the fishery catch at age
 #' @importFrom stats weighted.mean
 #' @export
-plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE) {
+plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
+  output <- NULL
 
   if (sum(dat@Dfishery@CAAN_ymfr, na.rm = TRUE)) {
     N <- apply(dat@Dfishery@CAAN_ymfr[, , f, r, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
@@ -138,18 +155,42 @@ plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE) {
         mpred <- apply(pred, 1, function(w) weighted.mean(x = age, w = w))
         mobs <- apply(obs, 1, function(w) weighted.mean(x = age, w = w))
 
-        ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
+        if (figure) {
+          ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
 
-        plot(year[include], mobs[include], xlab = "Year", ylab = "Mean age", pch = 1, type = "o", ylim = ylim)
-        lines(year[include], mpred[include], col = 2, lwd = 2)
+          plot(year[include], mobs[include], xlab = "Year", ylab = "Mean age", pch = 1, type = "o", ylim = ylim)
+          lines(year[include], mpred[include], col = 2, lwd = 2)
+        }
+
+        output <- data.frame(
+          year = year,
+          pred = mpred,
+          obs = mobs,
+          fleet = dat@Dlabel@fleet[f],
+          region = dat@Dlabel@region[r]
+        )
       } else {
-        plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = Dlabel@age, ylab = "Proportion",
-                         zval = year[include], N = N[include])
+        if (figure) {
+          plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = Dlabel@age, ylab = "Proportion",
+                           zval = year[include], N = N[include])
+        }
+
+        obs_df <- structure(obs, dimnames = list(year = year, age = Dlabel@age)) %>%
+          reshape2::melt(value.name = "obs")
+        pred_df <- structure(pred, dimnames = list(year = year, age = Dlabel@age)) %>%
+          reshape2::melt(value.name = "pred")
+        N_df <- data.frame(
+          year = year,
+          fleet = dat@Dlabel@fleet[f],
+          region = dat@Dlabel@region[r],
+          N = N
+        )
+        output <- merge(N_df, merge(obs_df, pred_df))
       }
     }
   }
 
-  invisible()
+  invisible(output)
 }
 
 #' @rdname plot-MSA-data
@@ -157,8 +198,9 @@ plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE) {
 #' @details
 #' - `plot_CAL` plots the catch at length
 #' @export
-plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE) {
+plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
+  output <- NULL
 
   if (sum(dat@Dfishery@CALN_ymfr, na.rm = TRUE)) {
     N <- apply(dat@Dfishery@CALN_ymfr[, , f, r, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
@@ -183,19 +225,44 @@ plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE) {
         mpred <- apply(pred, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
         mobs <- apply(obs, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
 
-        ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
+        if (figure) {
+          ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
 
-        plot(year[include], mobs[include], xlab = "Year", ylab = "Mean length", pch = 1, type = "o", ylim = ylim)
-        lines(year[include], mpred[include], col = 2, lwd = 2)
+          plot(year[include], mobs[include], xlab = "Year", ylab = "Mean length", pch = 1, type = "o", ylim = ylim)
+          lines(year[include], mpred[include], col = 2, lwd = 2)
+        }
+
+        output <- data.frame(
+          year = year,
+          pred = mpred,
+          obs = mobs,
+          fleet = dat@Dlabel@fleet[f],
+          region = dat@Dlabel@region[r]
+        )
+
       } else {
-        plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = dat@Dmodel@lmid,
-                         xlab = "Length", ylab = "Proportion",
-                         zval = year[include], N = N[include])
+        if (figure) {
+          plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = dat@Dmodel@lmid,
+                           xlab = "Length", ylab = "Proportion",
+                           zval = year[include], N = N[include])
+        }
+
+        obs_df <- structure(obs, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) %>%
+          reshape2::melt(value.name = "obs")
+        pred_df <- structure(pred, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) %>%
+          reshape2::melt(value.name = "pred")
+        N_df <- data.frame(
+          year = year,
+          fleet = dat@Dlabel@fleet[f],
+          region = dat@Dlabel@region[r],
+          N = N
+        )
+        output <- merge(N_df, merge(obs_df, pred_df))
       }
     }
   }
 
-  invisible()
+  invisible(output)
 }
 
 #' @rdname plot-MSA-data
@@ -203,8 +270,9 @@ plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE) {
 #' @details
 #' - `plot_IAA` plots the index age composition
 #' @export
-plot_IAA <- function(fit, i = 1, do_mean = FALSE) {
+plot_IAA <- function(fit, i = 1, do_mean = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
+  output <- NULL
 
   if (sum(dat@Dsurvey@IAAN_ymi, na.rm = TRUE)) {
     N <- apply(dat@Dsurvey@IAAN_ymi[, , i, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
@@ -230,19 +298,42 @@ plot_IAA <- function(fit, i = 1, do_mean = FALSE) {
         mpred <- apply(pred, 1, function(w) weighted.mean(x = age, w = w))
         mobs <- apply(obs, 1, function(w) weighted.mean(x = age, w = w))
 
-        ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
+        if (figure) {
+          ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
 
-        plot(year[include], mobs[include], xlab = "Year", ylab = "Mean age", pch = 1, type = "o", ylim = ylim)
-        lines(year[include], mpred[include], col = 2, lwd = 2)
+          plot(year[include], mobs[include], xlab = "Year", ylab = "Mean age", pch = 1, type = "o", ylim = ylim)
+          lines(year[include], mpred[include], col = 2, lwd = 2)
+        }
+
+        output <- data.frame(
+          year = year,
+          pred = mpred,
+          obs = mobs,
+          name = dat@Dlabel@index[i]
+        )
+
       } else {
-        plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = Dlabel@age, ylab = "Proportion",
-                         zval = year[include], N = N[include])
+        if (figure) {
+          plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = Dlabel@age, ylab = "Proportion",
+                           zval = year[include], N = N[include])
+        }
+
+        obs_df <- structure(obs, dimnames = list(year = year, age = Dlabel@age)) %>%
+          reshape2::melt(value.name = "obs")
+        pred_df <- structure(pred, dimnames = list(year = year, age = Dlabel@age)) %>%
+          reshape2::melt(value.name = "pred")
+        N_df <- data.frame(
+          year = year,
+          name = dat@Dlabel@index[i],
+          N = N
+        )
+        output <- merge(N_df, merge(obs_df, pred_df))
       }
 
     }
   }
 
-  invisible()
+  invisible(output)
 }
 
 #' @rdname plot-MSA-data
@@ -250,8 +341,9 @@ plot_IAA <- function(fit, i = 1, do_mean = FALSE) {
 #' @details
 #' - `plot_IAL` plots the index length composition
 #' @export
-plot_IAL <- function(fit, i = 1, do_mean = FALSE) {
+plot_IAL <- function(fit, i = 1, do_mean = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
+  output <- NULL
 
   if (sum(dat@Dsurvey@IALN_ymi, na.rm = TRUE)) {
     N <- apply(dat@Dsurvey@IALN_ymi[, , i, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
@@ -276,14 +368,37 @@ plot_IAL <- function(fit, i = 1, do_mean = FALSE) {
         mpred <- apply(pred, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
         mobs <- apply(obs, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
 
-        ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
+        if (figure) {
+          ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
 
-        plot(year[include], mobs[include], xlab = "Year", ylab = "Mean length", pch = 1, type = "o", ylim = ylim)
-        lines(year[include], mpred[include], col = 2, lwd = 2)
+          plot(year[include], mobs[include], xlab = "Year", ylab = "Mean length", pch = 1, type = "o", ylim = ylim)
+          lines(year[include], mpred[include], col = 2, lwd = 2)
+        }
+
+        output <- data.frame(
+          year = year,
+          pred = mpred,
+          obs = mobs,
+          name = dat@Dlabel@index[i]
+        )
+
       } else {
-        plot_composition(obs[include > 0, ], pred[include > 0, ], xval = dat@Dmodel@lmid,
-                         xlab = "Length", ylab = "Proportion",
-                         zval = year[include > 0], N = N[include > 0])
+        if (figure) {
+          plot_composition(obs[include, ], pred[include, ], xval = dat@Dmodel@lmid,
+                           xlab = "Length", ylab = "Proportion",
+                           zval = year[include > 0], N = N[include])
+        }
+
+        obs_df <- structure(obs, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) %>%
+          reshape2::melt(value.name = "obs")
+        pred_df <- structure(pred, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) %>%
+          reshape2::melt(value.name = "pred")
+        N_df <- data.frame(
+          year = year,
+          name = dat@Dlabel@index[i],
+          N = N
+        )
+        output <- merge(N_df, merge(obs_df, pred_df))
       }
 
     }
@@ -300,8 +415,9 @@ plot_IAL <- function(fit, i = 1, do_mean = FALSE) {
 #' - `plot_SC` plots the stock composition
 #' @importFrom graphics matlines
 #' @export
-plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE) {
+plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
+  output <- NULL
 
   if (dat@Dmodel@ns == 1) stop("Stock composition figure not needed.")
 
@@ -325,27 +441,41 @@ plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE) {
       obs <- apply(dat@Dfishery@SC_ymafrs[, , aa, ff, r, , drop = FALSE], c(1, 2, 6), identity)
       obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
 
-      if (prop) {
-        color <- make_color(ncol(pred), type = "stock")
-        barplot2(pred, cols = color, leg.names = Dlabel@stock, xval = year)
+      if (figure) {
+        if (prop) {
+          color <- make_color(ncol(pred), type = "stock")
+          barplot2(pred, cols = color, leg.names = Dlabel@stock, xval = year)
 
-        if (dat@Dmodel@ns == 2) {
-          obs_cumsum <- apply(obs, 1, cumsum) %>% t()
-          matlines(obs_cumsum[, -dat@Dmodel@ns, drop = FALSE], type = "o", col = 2, pch = 16, ylim = c(0, 1))
+          if (dat@Dmodel@ns == 2) {
+            obs_cumsum <- apply(obs, 1, cumsum) %>% t()
+            matlines(obs_cumsum[, -dat@Dmodel@ns, drop = FALSE], type = "o", col = 2, pch = 16, ylim = c(0, 1))
+          }
+        } else {
+          include <- rowSums(obs, na.rm = TRUE) > 0
+
+          plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = 1:dat@Dmodel@ns,
+                           xlab = "Stock", ylab = "Proportion",
+                           zval = year[include], N = N[include],
+                           xaxislab = Dlabel@stock)
         }
-
-      } else {
-        include <- rowSums(obs, na.rm = TRUE) > 0
-
-        plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = 1:dat@Dmodel@ns,
-                         xlab = "Stock", ylab = "Proportion",
-                         zval = year[include], N = N[include],
-                         xaxislab = Dlabel@stock)
       }
+
+      obs_df <- structure(obs, dimnames = list(year = year, stock = Dlabel@stock)) %>%
+        reshape2::melt(value.name = "obs")
+      pred_df <- structure(pred, dimnames = list(year = year, stock = Dlabel@stock)) %>%
+        reshape2::melt(value.name = "pred")
+
+      N_df <- data.frame(
+        year = year,
+        ff = ff,
+        aa = aa,
+        region = dat@Dlabel@region[r]
+      )
+      output <- merge(N_df, merge(obs_df, pred_df))
     }
   }
 
-  invisible()
+  invisible(output)
 }
 
 #' @importFrom graphics lines mtext axis
@@ -392,8 +522,9 @@ plot_composition <- function(obs, pred = NULL, xval = 1:ncol(obs), xlab = "Age",
 #' @details
 #' - `plot_tagmov` plots the tag movements
 #' @export
-plot_tagmov <- function(fit, s = 1, yy = 1, aa = 1) {
+plot_tagmov <- function(fit, s = 1, yy = 1, aa = 1, figure = TRUE) {
   dat <- get_MSAdata(fit)
+  output <- NULL
 
   if (dat@Dmodel@nr == 1) stop("Tag movement figure not needed.")
 
@@ -404,8 +535,8 @@ plot_tagmov <- function(fit, s = 1, yy = 1, aa = 1) {
     if (any(N > 0)) {
       Dlabel <- dat@Dlabel
 
-      pred <- apply(fit@report$tagpred_ymarrs[yy, , aa, , , s, drop = FALSE], c(2, 4, 5), identity) %>%
-        collapse_yearseason()
+      pred <- apply(fit@report$tagpred_ymarrs[yy, , aa, , , s, drop = FALSE], c(2, 4, 5), identity)
+      pred2 <- collapse_yearseason(pred)
 
       obs <- apply(dat@Dtag@tag_ymarrs[yy, , aa, , , s, drop = FALSE], c(2, 4, 5), identity)
       obs2 <- apply(obs, c(1, 2), function(x) x/sum(x, na.rm = TRUE)) %>% aperm(c(2, 3, 1)) %>%
@@ -414,20 +545,41 @@ plot_tagmov <- function(fit, s = 1, yy = 1, aa = 1) {
 
       N <- collapse_yearseason(N)
 
-      nrow <- dat@Dmodel@nr
-      ncol <- dat@Dmodel@nm
+      if (figure) {
+        nrow <- dat@Dmodel@nr
+        ncol <- dat@Dmodel@nm
 
-      z <- paste(
-        paste("Origin:", rep(Dlabel@region, dat@Dmodel@nm)),
-        paste(rep(paste("\nSeason", 1:dat@Dmodel@nm), each = dat@Dmodel@nr))
+        z <- paste(
+          paste("Origin:", rep(Dlabel@region, dat@Dmodel@nm)),
+          paste(rep(paste("\nSeason", 1:dat@Dmodel@nm), each = dat@Dmodel@nr))
+        )
+
+        plot_composition(obs2, pred2, xval = 1:dat@Dmodel@nr,
+                         xlab = "Destination", ylab = "Proportion",
+                         zval = z, N = N,
+                         xaxislab = Dlabel@region, ncol = ncol, nrow = nrow)
+      }
+
+      obs_df <- structure(
+        obs,
+        dimnames = list(season = Dlabel@season, from = Dlabel@region, to = Dlabel@region)
+      ) %>%
+        reshape2::melt(value.name = "obs")
+      pred_df <- structure(
+        pred,
+        dimnames = list(season = Dlabel@season, from = Dlabel@region, to = Dlabel@region)
+      ) %>%
+        reshape2::melt(value.name = "pred")
+
+      N_df <- data.frame(
+        year = yy,
+        yy = yy,
+        aa = aa,
+        stock = dat@Dlabel@stock[s]
       )
-
-      plot_composition(obs2, pred, xval = 1:dat@Dmodel@nr,
-                       xlab = "Destination", ylab = "Proportion",
-                       zval = z, N = N,
-                       xaxislab = Dlabel@region, ncol = ncol, nrow = nrow)
+      output <- merge(N_df, merge(obs_df, pred_df))
     }
   }
 
-  invisible()
+  invisible(output)
 }

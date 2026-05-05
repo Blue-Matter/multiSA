@@ -136,7 +136,7 @@ barplot2 <- function(x, cols, leg.names, facet.names = NULL, xval, ylab = ifelse
 #' @name plot-MSA-state
 #' @title Plotting functions for fitted MSA model
 #' @description A set of functions to plot state variables (biomass, recruitment time series, etc.)
-#' @return Various base graphics plots
+#' @return Invisible data frame of state variables that were plotted in base graphics figures
 NULL
 
 #' @rdname plot-MSA-state
@@ -147,13 +147,17 @@ NULL
 #' @param s Integer for the corresponding stock
 #' @param prop Logical, whether to plot proportions (TRUE) or absolute numbers
 #' @param facet_free Logical, whether to allow the y-axis limits to vary by panel in facetted plots
+#' @param figure, Logical, whether to generate the plot
+#' @param ylab Optional character string for custom y-axis label
 #' @details
 #' - `plot_S` plots spawning output by stock or region (either whole numbers or proportions for the latter)
 #'
 #' @export
-plot_S <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE) {
+plot_S <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE, figure = TRUE,
+                   ylab) {
   by <- match.arg(by)
   var <- "S_yrs"
+  output <- NULL
 
   d <- get_MSAdata(fit)
   Dlabel <- d@Dlabel
@@ -172,24 +176,27 @@ plot_S <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_fre
     facet.name <- rname
     x <- array(fit@report[[var]][, r, s, drop = FALSE], c(ny, length(rname), length(sname))) %>%
       aperm(c(1, 3, 2))
+
+    output <- structure(x, dimnames = list(year = year, stock = sname, region = rname))
   } else {
     leg.name <- rname
     facet.name <- sname
     x <- array(fit@report[[var]][, r, s, drop = FALSE], c(ny, length(rname), length(sname)))
+
+    output <- structure(x, dimnames = list(year = year, region = rname, stock = sname))
   }
 
-  color <- make_color(ncol(x), type = by)
+  if (figure) {
+    color <- make_color(ncol(x), type = by)
 
-  if (prop) {
-    ylab <- "Spawning fraction"
-  } else {
-    ylab <- "Spawning output"
+    if (missing(ylab)) {
+      ylab <- ifelse(prop, "Spawning fraction", "Spawning output")
+    }
+    barplot2(x, cols = color, leg.names = leg.name, facet.names = facet.name, xval = year, ylab = ylab, prop = prop,
+             facet.free = facet_free)
   }
 
-  barplot2(x, cols = color, leg.names = leg.name, facet.names = facet.name, xval = year, ylab = ylab, prop = prop,
-           facet.free = facet_free)
-
-  invisible(array2DF(x, responseName = "S"))
+  invisible(reshape2::melt(output, value.name = "S"))
 }
 
 
@@ -199,9 +206,10 @@ plot_S <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_fre
 #' - `plot_B` plots total biomass by stock or region (either whole numbers or proportions for the latter)
 #'
 #' @export
-plot_B <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE) {
+plot_B <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE, figure = TRUE) {
   by <- match.arg(by)
   var <- "B_ymrs"
+  output <- NULL
 
   d <- get_MSAdata(fit)
   Dlabel <- d@Dlabel
@@ -230,6 +238,12 @@ plot_B <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_fre
   year <- make_yearseason(year, nm)
   x <- collapse_yearseason(x)
 
+  if (by == "stock") {
+    output <- structure(x, dimnames = list(year = year, stock = sname, region = rname))
+  } else {
+    output <- structure(x, dimnames = list(year = year, region = rname, stock = sname))
+  }
+
   color <- make_color(ncol(x), type = by)
 
   if (prop) {
@@ -241,7 +255,7 @@ plot_B <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_fre
   barplot2(x, cols = color, leg.names = leg.name, facet.names = facet.name, xval = year, ylab = ylab, prop = prop,
            facet.free = facet_free)
 
-  invisible(array2DF(x, responseName = "B"))
+  invisible(reshape2::melt(x, value.name = "B"))
 }
 
 
@@ -252,7 +266,7 @@ plot_B <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_fre
 #' - `plot_R` plots recruitment by stock
 #'
 #' @export
-plot_R <- function(fit, s) {
+plot_R <- function(fit, s, figure = TRUE) {
   var <- "R_ys"
 
   Dlabel <- get_MSAdata(fit)@Dlabel
@@ -268,11 +282,10 @@ plot_R <- function(fit, s) {
     ylab <- paste(name, "recruitment")
   }
 
-  color <- make_color(ncol(x), "stock")
-  make_tinyplot(year, x, ylab, name, color)
-  #matplot(year, x, xlab = "Year", ylab = ylab, type = "o", col = color, pch = 16, lty = 1,
-  #        ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
-  #if (ncol(x) > 1) legend("topleft", legend = name, col = color, lwd = 1, pch = 16, horiz = TRUE)
+  if (figure) {
+    color <- make_color(ncol(x), "stock")
+    make_tinyplot(year, x, ylab, name, color)
+  }
 
   x <- structure(x, dimnames = list(year = year, stock = name))
   invisible(array2DF(x, "R"))
@@ -325,7 +338,7 @@ plot_SRR <- function(fit, s = 1, phi = TRUE) {
 #' - `plot_Rdev` plots recruitment deviations by stock
 #' @importFrom graphics arrows
 #' @export
-plot_Rdev <- function(fit, s = 1, log = TRUE) {
+plot_Rdev <- function(fit, s = 1, log = TRUE, figure = TRUE) {
 
   Dlabel <- get_MSAdata(fit)@Dlabel
   year <- Dlabel@year
@@ -340,22 +353,32 @@ plot_Rdev <- function(fit, s = 1, log = TRUE) {
       std <- numeric(length(x))
     }
 
-    upper <- x + 1.96 * std
-    lower <- x - 1.96 * std
 
-    plot(year, x, xlab = "Year", ylab = "log Recruitment deviations", type = "o", pch = 16,
-         ylim = range(lower, upper), lty = 3)
-    arrows(x0 = year, y0 = lower, y1 = upper, length = 0)
-    abline(h = 0, lty = 2)
+    if (figure) {
+      upper <- x + 1.96 * std
+      lower <- x - 1.96 * std
+
+      plot(year, x, xlab = "Year", ylab = "log Recruitment deviations", type = "o", pch = 16,
+           ylim = range(lower, upper), lty = 3)
+      arrows(x0 = year, y0 = lower, y1 = upper, length = 0)
+      abline(h = 0, lty = 2)
+    }
 
   } else {
     x <- fit@report$Rdev_ys[, s]
-    plot(year, x, xlab = "Year", ylab = "Recruitment deviations", type = "o", pch = 16,
-         ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
 
-    abline(h = 1, lty = 2)
+    if (figure) {
+      plot(year, x, xlab = "Year", ylab = "Recruitment deviations", type = "o", pch = 16,
+           ylim = c(0, 1.1) * range(x, na.rm = TRUE), zero_line = TRUE)
+      abline(h = 1, lty = 2)
+    }
   }
-  invisible()
+  output <- data.frame(
+    year = year,
+    dev = x,
+    stock = Dlabel@stock[s]
+  )
+  invisible(output)
 }
 
 #' @rdname plot-MSA-state
@@ -445,7 +468,7 @@ plot_Fstock <- function(fit, s, by = c("annual", "season")) {
 #' @details
 #' - `plot_self` plots fishery selectivity
 #' @export
-plot_self <- function(fit, f = 1, type = c("length", "age")) {
+plot_self <- function(fit, f = 1, type = c("length", "age"), figure = TRUE) {
   type <- match.arg(type)
 
   dat <- get_MSAdata(fit)
@@ -457,14 +480,12 @@ plot_self <- function(fit, f = 1, type = c("length", "age")) {
 
   year <- dat@Dlabel@year
 
+  output <- NULL
+
   if (type == "length" && all(grepl("length", sel_b))) {
     lmid <- dat@Dmodel@lmid
     x <- fit@report$sel_lf[, unique(sel_block), drop = FALSE]
 
-    color <- make_color(ncol(x), "fleet")
-    matplot(lmid, x, xlab = "Length", ylab = paste(fname, "selectivity"),
-            type = "o", col = color, pch = 16,
-            ylim = c(0, 1), lty = 1, zero_line = TRUE)
     if (ncol(x) > 1) {
       name <- sapply(unique(sel_block), function(i) {
         y <- year[sel_block == i]
@@ -474,8 +495,21 @@ plot_self <- function(fit, f = 1, type = c("length", "age")) {
           return(paste(range(y), collapse = "-"))
         }
       })
-      legend("topright", legend = name, col = color, lwd = 1, pch = 16)
+    } else {
+      name <- "all"
     }
+
+    if (figure) {
+      color <- make_color(ncol(x), "fleet")
+      matplot(lmid, x, xlab = "Length", ylab = paste(fname, "selectivity"),
+              type = "o", col = color, pch = 16,
+              ylim = c(0, 1), lty = 1, zero_line = TRUE)
+      if (ncol(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
+    }
+    output <- structure(t(x), dimnames = list(year = name, length = lmid)) %>%
+      reshape2::melt(value.name = "sel")
+    output$fleet <- fname
+
   } else if (type == "age") {
 
     m <- 1
@@ -484,6 +518,8 @@ plot_self <- function(fit, f = 1, type = c("length", "age")) {
     x <- fit@report$sel_ymafs[, m, , f, s]
     xx <- apply(x, 2, diff)
 
+    age <- dat@Dlabel@age
+
     if (any(xx != 0)) {
       ybreak <- c(1, which(rowSums(xx) > 0) + 1)
       name <- sapply(1:length(ybreak), function(i) {
@@ -496,18 +532,31 @@ plot_self <- function(fit, f = 1, type = c("length", "age")) {
       })
       x <- x[ybreak, , drop = FALSE]
 
+      output <- structure(x, dimnames = list(year = name, age = age)) %>%
+        reshape2::melt(value.name = "sel")
+      output$fleet <- fname
+
     } else {
       x <- x[1, , drop = FALSE]
-    }
-    age <- dat@Dlabel@age
 
-    color <- make_color(nrow(x), "fleet")
-    matplot(age, t(x), xlab = "Age", ylab = paste(fname, "selectivity"),
-            type = "o", col = color, pch = 16,
-            ylim = c(0, 1), lty = 1, zero_line = TRUE)
-    if (nrow(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
+      output <- data.frame(
+        year = "all",
+        age = age,
+        sel = x[1, ],
+        fleet = fname
+      )
+    }
+
+    if (figure) {
+      color <- make_color(nrow(x), "fleet")
+      matplot(age, t(x), xlab = "Age", ylab = paste(fname, "selectivity"),
+              type = "o", col = color, pch = 16,
+              ylim = c(0, 1), lty = 1, zero_line = TRUE)
+      if (nrow(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
+    }
+
   }
-  invisible()
+  invisible(output)
 }
 
 #' @rdname plot-MSA-state
@@ -516,55 +565,89 @@ plot_self <- function(fit, f = 1, type = c("length", "age")) {
 #' @details
 #' - `plot_seli` plots index selectivity
 #' @export
-plot_seli <- function(fit, i = 1) {
+plot_seli <- function(fit, i = 1, figure = TRUE) {
   dat <- get_MSAdata(fit)
+  output <- NULL
+
   sel_i <- dat@Dsurvey@sel_i[i]
   mirror_f <- suppressWarnings(as.numeric(sel_i))
 
   iname <- dat@Dlabel@index[i]
 
   if (!is.na(mirror_f)) {
-    plot_self(fit, f = mirror_f)
-  } else if (grepl("length", sel_i)) {
-    lmid <- dat@Dmodel@lmid
-    x <- fit@report$sel_li[, i]
-
-    plot(lmid, x, xlab = "Length", ylab = paste(iname, "selectivity"),
-         type = "o", pch = 16,
-         ylim = c(0, 1), lty = 1, zero_line = TRUE)
+    output <- plot_self(fit, f = mirror_f, figure = figure)
+    output <- output[, 1:3]
+    output$name <- iname
   } else {
 
-    m <- 1
-    s <- 1
+    age_sel <- grepl("age", sel_i) || sel_i %in% c("B", "SB")
+    len_sel <- grepl("length", sel_i) || all(!is.na(fit@report$sel_li[, i]))
 
-    x <- fit@report$sel_ymais[, m, , i, s]
-    xx <- apply(x, 2, diff)
+    if (!age_sel && len_sel) {
+      lmid <- dat@Dmodel@lmid
+      x <- fit@report$sel_li[, i]
 
-    if (any(xx != 0)) {
-      year <- dat@Dlabel@year
-      ybreak <- c(1, which(rowSums(xx) > 0) + 1)
-      name <- sapply(1:length(ybreak), function(i) {
-        if (i == length(ybreak)) {
-          y <- c(year[ybreak[i]], year[length(year)])
-        } else {
-          y <- year[c(ybreak[i], ybreak[i+1] - 1)]
-        }
-        paste(range(y), collapse = "-")
-      })
-      x <- x[ybreak, , drop = FALSE]
+      if (figure) {
+        plot(lmid, x, xlab = "Length", ylab = paste(iname, "selectivity"),
+             type = "o", pch = 16,
+             ylim = c(0, 1), lty = 1, zero_line = TRUE)
+      }
+      output <- data.frame(
+        year = "all",
+        length = lmid,
+        sel = x,
+        name = iname
+      )
 
     } else {
-      x <- x[1, , drop = FALSE]
-    }
-    age <- dat@Dlabel@age
-    color <- make_color(nrow(x), "fleet")
 
-    matplot(age, t(x), xlab = "Age", ylab = paste(iname, "selectivity"),
-            type = "o", col = color, pch = 16,
-            ylim = c(0, 1), lty = 1, zero_line = TRUE)
-    if (nrow(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
+      m <- 1
+      s <- 1
+
+      x <- fit@report$sel_ymais[, m, , i, s]
+      xx <- apply(x, 2, diff)
+
+      age <- dat@Dlabel@age
+
+      if (any(xx != 0)) {
+        year <- dat@Dlabel@year
+        ybreak <- c(1, which(rowSums(xx) > 0) + 1)
+        name <- sapply(1:length(ybreak), function(i) {
+          if (i == length(ybreak)) {
+            y <- c(year[ybreak[i]], year[length(year)])
+          } else {
+            y <- year[c(ybreak[i], ybreak[i+1] - 1)]
+          }
+          paste(range(y), collapse = "-")
+        })
+        x <- x[ybreak, , drop = FALSE]
+
+        output <- structure(x, dimnames = list(year = name, age = age)) %>%
+          reshape2::melt(value.name = "sel")
+        output$name <- iname
+
+      } else {
+        x <- x[1, , drop = FALSE]
+
+        output <- data.frame(
+          year = "all",
+          age = age,
+          sel = x[1, ],
+          name = iname
+        )
+      }
+    }
+
+    if (figure) {
+      color <- make_color(nrow(x), "fleet")
+
+      matplot(age, t(x), xlab = "Age", ylab = paste(iname, "selectivity"),
+              type = "o", col = color, pch = 16,
+              ylim = c(0, 1), lty = 1, zero_line = TRUE)
+      if (nrow(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
+    }
   }
-  invisible()
+  invisible(output)
 }
 
 
@@ -755,9 +838,10 @@ plot_Ffleet <- function(fit, f = 1) {
 #' - `plot_mov` plots movement matrices and the corresponding equilibrium distribution in multi-area models
 #' @export
 #' @importFrom tinyplot tinyplot type_text
-plot_mov <- function(fit, s = 1, y, a, palette = "Peach") {
+plot_mov <- function(fit, s = 1, y, a, palette = "Peach", figure = TRUE) {
 
   dat <- get_MSAdata(fit)
+  output <- NULL
 
   nm <- dat@Dmodel@nm
   nr <- dat@Dmodel@nr
@@ -768,56 +852,76 @@ plot_mov <- function(fit, s = 1, y, a, palette = "Peach") {
 
   mov <- array(fit@report$mov_ymarrs[y, , a+1, , , s], c(nm, nr, nr))
 
-  #if (nm > 1) {
-  #  old_mar <- par()$mar
-  #  old_mfrow = par()$mfrow
-  #  par(mar = c(4, 4, 1, 1))
-  #  on.exit(par(mar = old_mar, mfrow = old_mfrow))
-  #  par(mfrow = c(2, ceiling(nm/2)))
-  #}
-
   dist_eq <- calc_eqdist(mov, start = fit@report$recdist_rs[, s], m_start = dat@Dstock@m_spawn)
 
   df_mov <- structure(mov, dimnames = list(Season = mname, Origin = 1:nr, Destination = 1:nr)) %>%
-    reshape2::melt()
+    reshape2::melt(value.name = "proportion")
 
   df_eq <- structure(dist_eq, dimnames = list(Season = mname, Origin = 1:nr)) %>%
-    reshape2::melt() %>%
+    reshape2::melt(value.name = "proportion") %>%
     cbind("Destination" = nr + 1.5)
 
-  df <- rbind(df_mov, df_eq[, c("Season", "Origin", "Destination", "value")])
-  #df$label <- format(round(df$value, 2), nsmall = 2)
-  df$label <- round(df$value, 2)
+  df <- rbind(df_mov, df_eq[, c("Season", "Origin", "Destination", "proportion")])
+  output <- local({
 
-  tick_fn <- function(i) ifelse(i > nr, "Eq.", as.character(rname[i]))
-  tinyplot_args <- list(
-    xmin = df$Destination - 0.5, xmax = df$Destination + 0.5, ymin = df$Origin - 0.5, ymax = df$Origin + 0.5,
-    by = df$value,
-    facet = df$Season, xlab = "Destination", ylab = "Origin",
-    bg = "by", col = "black",
-    legend = substitute(legend(title = "Proportion")),
-    yaxs = "i", xaxs = "i",
-    yaxl = tick_fn, xaxl = tick_fn,
-    yaxb = 1:nr, xaxb = c(1:nr, nr + 1.5),
-    type = "rect", palette = palette
-  )
-  do.call(tinyplot, tinyplot_args)
+    df2_mov <- df_mov
+    df2_mov$Origin <- rname[df2_mov$Origin]
+    df2_mov$Destination <- rname[df2_mov$Destination]
 
-  tinyplot(
-    x = df$Destination, y = df$Origin, facet = df$Season,
-    type = type_text(labels = df$label, adj = 0.5),
-    add = TRUE
-  )
+    df2_eq <- df_eq
+    df2_eq$Origin <- rname[df2_eq$Origin]
+    df2_eq$Destination <- "Equilibrium"
 
-  #for(m in 1:nm) {
-  #  .plot_mov(m = mov[m, , ], p = dist_eq[m, ], rname = rname, xlab = "", ylab = "", palette = palette)
-  #  if (nm > 1) title(mname[m], font.main = 1)
-  #}
-  #par(mfrow = c(1, 1))
-  #mtext("Destination", side = 1, line = 3.5)
-  #mtext("Origin", side = 2, line = 3)
+    df2 <- rbind(df2_mov, df2_eq[, c("Season", "Origin", "Destination", "proportion")])
+    df2$stock <- dat@Dlabel@stock[s]
+    df2$y <- y
+    df2$a <- a
 
-  invisible()
+    df2
+  })
+
+  if (figure) {
+    #if (nm > 1) {
+    #  old_mar <- par()$mar
+    #  old_mfrow = par()$mfrow
+    #  par(mar = c(4, 4, 1, 1))
+    #  on.exit(par(mar = old_mar, mfrow = old_mfrow))
+    #  par(mfrow = c(2, ceiling(nm/2)))
+    #}
+
+    df$label <- round(df$proportion, 2) %>% format()
+
+    tick_fn <- function(i) ifelse(i > nr, "Eq.", as.character(rname[i]))
+    tinyplot_args <- list(
+      xmin = df$Destination - 0.5, xmax = df$Destination + 0.5, ymin = df$Origin - 0.5, ymax = df$Origin + 0.5,
+      by = df$proportion,
+      facet = df$Season, xlab = "Destination", ylab = "Origin",
+      bg = "by", col = "black",
+      legend = substitute(legend(title = "Proportion")),
+      yaxs = "i", xaxs = "i",
+      yaxl = tick_fn, xaxl = tick_fn,
+      yaxb = 1:nr, xaxb = c(1:nr, nr + 1.5),
+      type = "rect", palette = palette
+    )
+    do.call(tinyplot, tinyplot_args)
+
+    tinyplot(
+      x = df$Destination, y = df$Origin, facet = df$Season,
+      type = type_text(labels = df$label, adj = 0.5),
+      add = TRUE
+    )
+
+    #for(m in 1:nm) {
+    #  .plot_mov(m = mov[m, , ], p = dist_eq[m, ], rname = rname, xlab = "", ylab = "", palette = palette)
+    #  if (nm > 1) title(mname[m], font.main = 1)
+    #}
+    #par(mfrow = c(1, 1))
+    #mtext("Destination", side = 1, line = 3.5)
+    #mtext("Origin", side = 2, line = 3)
+  }
+
+
+  invisible(output)
 }
 
 #' @rdname plot-MSA-state
@@ -825,8 +929,9 @@ plot_mov <- function(fit, s = 1, y, a, palette = "Peach") {
 #' @details
 #' - `plot_recdist` plots the distribution of recruitment for each stock
 #' @export
-plot_recdist <- function(fit, palette = "Peach") {
+plot_recdist <- function(fit, palette = "Peach", figure = TRUE) {
   dat <- get_MSAdata(fit)
+  output <- NULL
 
   nr <- dat@Dmodel@nr
 
@@ -837,50 +942,57 @@ plot_recdist <- function(fit, palette = "Peach") {
 
     recdist <- fit@report$recdist_rs
 
-    #vcol <- hcl.colors(100, palette)
-#
-    #graphics::plot.default(
-    #  NULL, xlab = "Stock", ylab = "Region", xaxs = "i", yaxs = "i",
-    #  xaxt = "n", yaxt = "n", xlim = c(1, ns+1), ylim = c(1, nr+1)
-    #)
-    #for(x in 1:ns) {
-    #  for(y in 1:nr) {
-    #    m_yx <- round(recdist[y, x], 2)
-    #    rect(xleft = x, ybottom = y, xright = x+1, ytop = y+1, col = vcol[100 * m_yx])
-    #    text(x + 0.5, y + 0.5, m_yx)
-    #  }
-    #}
-#
-    #axis(1, at = 1:ns + 0.5, labels = as.character(sname), font = 2, cex.axis = 0.75)
-    #axis(2, at = 1:nr + 0.5, labels = as.character(rname), font = 2, cex.axis = 0.75)
+    output <- structure(recdist, dimnames = list(region = rname, stock = sname)) %>%
+      reshape2::melt(value.name = "proportion")
 
-    df <- structure(recdist, dimnames = list(r = 1:nr, s = 1:ns)) %>%
-      reshape2::melt()
-    df$label <- round(df$value, 2)
+    if (figure) {
 
-    tick_fnx <- function(i) sname[i]
-    tick_fny <- function(i) rname[i]
 
-    tinyplot_args <- list(
-      xmin = df$s - 0.5, xmax = df$s + 0.5, ymin = df$r - 0.5, ymax = df$r + 0.5,
-      by = df$value, xlab = "Stock", ylab = "Region",
-      bg = "by", col = "black", border = "black",
-      legend = substitute(legend(title = "Proportion")),
-      yaxs = "i", xaxs = "i",
-      yaxl = tick_fny, xaxl = tick_fnx,
-      yaxb = 1:nr, xaxb = 1:ns,
-      type = "rect", palette = palette
-    )
-    do.call(tinyplot, tinyplot_args)
+      #vcol <- hcl.colors(100, palette)
 
-    tinyplot(
-      x = df$s, y = df$r,
-      type = type_text(labels = df$label, adj = 0.5),
-      add = TRUE
-    )
+      #graphics::plot.default(
+      #  NULL, xlab = "Stock", ylab = "Region", xaxs = "i", yaxs = "i",
+      #  xaxt = "n", yaxt = "n", xlim = c(1, ns+1), ylim = c(1, nr+1)
+      #)
+      #for(x in 1:ns) {
+      #  for(y in 1:nr) {
+      #    m_yx <- round(recdist[y, x], 2)
+      #    rect(xleft = x, ybottom = y, xright = x+1, ytop = y+1, col = vcol[100 * m_yx])
+      #    text(x + 0.5, y + 0.5, m_yx)
+      #  }
+      #}
+
+      #axis(1, at = 1:ns + 0.5, labels = as.character(sname), font = 2, cex.axis = 0.75)
+      #axis(2, at = 1:nr + 0.5, labels = as.character(rname), font = 2, cex.axis = 0.75)
+
+      df <- structure(recdist, dimnames = list(r = 1:nr, s = 1:ns)) %>%
+        reshape2::melt()
+      df$label <- round(df$value, 2)
+
+      tick_fnx <- function(i) sname[i]
+      tick_fny <- function(i) rname[i]
+
+      tinyplot_args <- list(
+        xmin = df$s - 0.5, xmax = df$s + 0.5, ymin = df$r - 0.5, ymax = df$r + 0.5,
+        by = df$value, xlab = "Stock", ylab = "Region",
+        bg = "by", col = "black", border = "black",
+        legend = substitute(legend(title = "Proportion")),
+        yaxs = "i", xaxs = "i",
+        yaxl = tick_fny, xaxl = tick_fnx,
+        yaxb = 1:nr, xaxb = 1:ns,
+        type = "rect", palette = palette
+      )
+      do.call(tinyplot, tinyplot_args)
+
+      tinyplot(
+        x = df$s, y = df$r,
+        type = type_text(labels = df$label, adj = 0.5),
+        add = TRUE
+      )
+    }
   }
 
-  invisible()
+  invisible(output)
 }
 
 # #' @importFrom grDevices hcl.colors

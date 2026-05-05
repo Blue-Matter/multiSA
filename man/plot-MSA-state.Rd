@@ -18,21 +18,38 @@
 \alias{plot_recdist}
 \title{Plotting functions for fitted MSA model}
 \usage{
-plot_S(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE)
+plot_S(
+  fit,
+  by = c("stock", "region"),
+  r,
+  s,
+  prop = FALSE,
+  facet_free = FALSE,
+  figure = TRUE,
+  ylab
+)
 
-plot_B(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE)
+plot_B(
+  fit,
+  by = c("stock", "region"),
+  r,
+  s,
+  prop = FALSE,
+  facet_free = FALSE,
+  figure = TRUE
+)
 
-plot_R(fit, s)
+plot_R(fit, s, figure = TRUE)
 
 plot_SRR(fit, s = 1, phi = TRUE)
 
-plot_Rdev(fit, s = 1, log = TRUE)
+plot_Rdev(fit, s = 1, log = TRUE, figure = TRUE)
 
 plot_Fstock(fit, s, by = c("annual", "season"))
 
-plot_self(fit, f = 1, type = c("length", "age"))
+plot_self(fit, f = 1, type = c("length", "age"), figure = TRUE)
 
-plot_seli(fit, i = 1)
+plot_seli(fit, i = 1, figure = TRUE)
 
 plot_selstock(
   fit,
@@ -48,9 +65,9 @@ plot_V(fit, f = 1, by = c("stock", "region"), prop = FALSE, facet_free = FALSE)
 
 plot_Ffleet(fit, f = 1)
 
-plot_mov(fit, s = 1, y, a, palette = "Peach")
+plot_mov(fit, s = 1, y, a, palette = "Peach", figure = TRUE)
 
-plot_recdist(fit, palette = "Peach")
+plot_recdist(fit, palette = "Peach", figure = TRUE)
 }
 \arguments{
 \item{fit}{\linkS4class{MSAassess} object returned by \code{\link[=fit_MSA]{fit_MSA()}}}
@@ -64,6 +81,10 @@ plot_recdist(fit, palette = "Peach")
 \item{prop}{Logical, whether to plot proportions (TRUE) or absolute numbers}
 
 \item{facet_free}{Logical, whether to allow the y-axis limits to vary by panel in facetted plots}
+
+\item{figure, }{Logical, whether to generate the plot}
+
+\item{ylab}{Optional character string for custom y-axis label}
 
 \item{phi}{Logical, whether to plot unfished replacement line}
 
@@ -88,7 +109,7 @@ plot_recdist(fit, palette = "Peach")
 \item{palette}{Character, palette name to pass to \code{\link[grDevices:palettes]{grDevices::hcl.colors()}}. See \code{\link[grDevices:palettes]{grDevices::hcl.pals()}} for options.}
 }
 \value{
-Various base graphics plots
+Invisible data frame of state variables that were plotted in base graphics figures
 }
 \description{
 A set of functions to plot state variables (biomass, recruitment time series, etc.)
