@@ -136,13 +136,13 @@ The gradient with respect to \\\vec{x}\\ is \$\$ f'(x\_{f,r}) = \sum_s
 
 where
 
-|                                                                                  |
-|----------------------------------------------------------------------------------|
-| \\\alpha\_{f,r} = F\_{f,r}\\                                                     |
+|  |
+|----|
+| \\\alpha\_{f,r} = F\_{f,r}\\ |
 | \\\beta\_{a,r,s} = Z\_{a,r,s} = M\_{a,s} + \sum_f v\_{a,f,s} q\_{f,s} F\_{f,r}\\ |
-| \\\gamma\_{a,r,s} = 1 - \exp(-Z\_{a,r,s})\\                                      |
-| \\\beta'\_{a,f,r,s} = v\_{a,f} q\_{f,s} \alpha'\_{f,r}\\                         |
-| \\\gamma'\_{a,f,r,s} = \exp(-Z\_{a,r,s})\beta'\_{a,f,r,s}\\                      |
+| \\\gamma\_{a,r,s} = 1 - \exp(-Z\_{a,r,s})\\ |
+| \\\beta'\_{a,f,r,s} = v\_{a,f} q\_{f,s} \alpha'\_{f,r}\\ |
+| \\\gamma'\_{a,f,r,s} = \exp(-Z\_{a,r,s})\beta'\_{a,f,r,s}\\ |
 
 If `trans = "log"`, \\\alpha'\_{f,r} = \alpha\_{f,r}\\.
 

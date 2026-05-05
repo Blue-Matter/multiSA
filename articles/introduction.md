@@ -74,6 +74,7 @@ These objects can then be passed to
 which creates and fits the model:
 
 ``` r
+
 MSAdata <- check_data(MSAdata)
 tmb_list <- make_parameters(MSAdata)
 
@@ -88,6 +89,7 @@ Markdown reports generate a figures and tables for model estimates,
 ascertain goodness of fit, residuals, etc.
 
 ``` r
+
 report(fit)
 ```
 
@@ -115,6 +117,7 @@ parameter is informed by the various data. A two-parameter profile can
 identify potentially strong correlations between parameters.
 
 ``` r
+
 prof_df <- profile(fit, "R0_s[1]", v1 = seq(750, 850, 25), "h_s[1]", v2 = seq(0.75, 0.95, 0.05))
 plot(prof_df)
 ```
@@ -131,6 +134,7 @@ truncated, starting with the most recent years. This diagnostic can
 inform model behavior in future assessments.
 
 ``` r
+
 ret <- retrospective(fit)
 report(ret)
 summary(ret)
