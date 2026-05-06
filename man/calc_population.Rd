@@ -112,7 +112,7 @@ A named list containing:
 }
 }
 \description{
-Project age-structured populations forward in time. Also used by \verb{[calc_phi_project()]} to calculate
+Project age-structured populations forward in time. Also used by \code{\link[=calc_phi_project]{calc_phi_project()}} to calculate
 equilibrium abundance and biomass for which there is no analytic solution
 due to seasonal movement.
 }

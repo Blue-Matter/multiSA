@@ -1,7 +1,7 @@
 
 #' Multi-fleet, multi-area, multi-stock population dynamics model
 #'
-#' Project age-structured populations forward in time. Also used by `[calc_phi_project()]` to calculate
+#' Project age-structured populations forward in time. Also used by [calc_phi_project()] to calculate
 #' equilibrium abundance and biomass for which there is no analytic solution
 #' due to seasonal movement.
 #'
@@ -256,8 +256,8 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
 
 #' Initial population projection
 #'
-#' Project a population forward in time using [calc_population()], an alternative to [calc_phi_project()] to
-#' establish initial age structure.
+#' Project a population forward in time with constant parameters (biology and F) with [calc_population()],
+#' an alternative to [calc_phi_project()] to establish initial age structure.
 #'
 #' @inheritParams calc_phi_project
 #' @inheritParams calc_population
@@ -269,8 +269,6 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
 #' @param M_as Natural mortality. Matrix `[a, s]`
 #' @param mat_as Maturity at age. Matrix `[a, s]`
 #' @param fec_as Fecundity at age. Matrix `[a, s]`
-#' @details
-#' The initial population vector will be the survival at age evenly divided by the number of regions `nr`.
 #' @return A named list returned by [calc_population()].
 #' @export
 calc_init_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 1,

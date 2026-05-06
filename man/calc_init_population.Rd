@@ -83,9 +83,6 @@ time of spawning. See example in \linkS4class{Dstock}.}
 A named list returned by \code{\link[=calc_population]{calc_population()}}.
 }
 \description{
-Project a population forward in time using \code{\link[=calc_population]{calc_population()}}, an alternative to \code{\link[=calc_phi_project]{calc_phi_project()}} to
-establish initial age structure.
-}
-\details{
-The initial population vector will be the survival at age evenly divided by the number of regions \code{nr}.
+Project a population forward in time with constant parameters (biology and F) with \code{\link[=calc_population]{calc_population()}},
+an alternative to \code{\link[=calc_phi_project]{calc_phi_project()}} to establish initial age structure.
 }
