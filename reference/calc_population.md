@@ -1,8 +1,9 @@
 # Multi-fleet, multi-area, multi-stock population dynamics model
 
 Project age-structured populations forward in time. Also used by
-`[calc_phi_project()]` to calculate equilibrium abundance and biomass
-for which there is no analytic solution due to seasonal movement.
+[`calc_phi_project()`](https://blue-matter.github.io/multiSA/reference/calc_phi_project.md)
+to calculate equilibrium abundance and biomass for which there is no
+analytic solution due to seasonal movement.
 
 ## Usage
 

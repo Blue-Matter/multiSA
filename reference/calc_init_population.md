@@ -1,6 +1,7 @@
 # Initial population projection
 
-Project a population forward in time using
+Project a population forward in time with constant parameters (biology
+and F) with
 [`calc_population()`](https://blue-matter.github.io/multiSA/reference/calc_population.md),
 an alternative to
 [`calc_phi_project()`](https://blue-matter.github.io/multiSA/reference/calc_phi_project.md)
@@ -143,8 +144,3 @@ calc_init_population(
 
 A named list returned by
 [`calc_population()`](https://blue-matter.github.io/multiSA/reference/calc_population.md).
-
-## Details
-
-The initial population vector will be the survival at age evenly divided
-by the number of regions `nr`.
