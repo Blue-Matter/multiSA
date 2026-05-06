@@ -62,6 +62,10 @@ calc_init_population(
 
   Integer, number of stocks
 
+- initN_ars:
+
+  Abundance in the first year, first season. Array `[a, r, s]`
+
 - F_mfr:
 
   Equilibrium fishing mortality (per season). Matrix `[m, f, r]`
@@ -96,6 +100,20 @@ calc_init_population(
 - fec_as:
 
   Fecundity at age. Matrix `[a, s]`
+
+- SRR_s:
+
+  Character vector by `s` for the stock recruit relationship. See
+  [`calc_recruitment()`](https://blue-matter.github.io/multiSA/reference/calc_recruitment.md)
+  for options
+
+- sralpha_s:
+
+  Numeric vector by `s` for the stock recruit alpha parameter
+
+- srbeta_s:
+
+  Numeric vector by `s` for the stock recruit beta parameter
 
 - m_spawn:
 
