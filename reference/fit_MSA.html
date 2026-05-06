@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fit_MSA</span><span class="op">(</span></span>
-<span>  <span class="va">MSAdata</span>,</span>
+<span>  <span class="va">x</span>,</span>
 <span>  <span class="va">parameters</span>,</span>
 <span>  map <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  random <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -62,8 +62,8 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-msadata">MSAdata<a class="anchor" aria-label="anchor" href="#arg-msadata"></a></dt>
-<dd><p>Data object. Class <a href="MSAdata-class.html">MSAdata</a>, validated by <code><a href="check_data.html">check_data()</a></code></p></dd>
+<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>Data object. Class <a href="MSAdata-class.html">MSAdata</a>, validated by <code><a href="check_data.html">check_data()</a></code>. Alternatively, <a href="MSAassess-class.html">MSAassess</a> that will be fitted again.</p></dd>
 
 
 <dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>

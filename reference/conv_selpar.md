@@ -19,7 +19,7 @@ Calculate selectivity at age and length from a matrix of parameters.
 ``` r
 conv_selpar(x, type, maxage, maxL)
 
-calc_sel_len(sel_par, lmid, type)
+calc_sel_len(sel_par, lmid, type, fsel_type, fsel_len)
 
 calc_fsel_age(
   sel_len,
@@ -39,7 +39,9 @@ calc_isel_age(
   fsel_age,
   maxage,
   mat,
-  a = seq(1, nrow(LAK)) - 1
+  a = seq(1, nrow(LAK)) - 1,
+  fsel_type,
+  fsel_len
 )
 ```
 
@@ -49,14 +51,10 @@ calc_isel_age(
 
   Estimated parameters. Matrix `[3, f]`
 
-- type:
+- type, fsel_type:
 
-  Character string to indicate the functional form of selectivity.
-  Options include:
-  `"logistic_length", "dome_length", "logistic_age", "dome_age"`, an
-  integer (`f`) to map index selectivity to the corresponding fleet `f`
-  (will be coerced to integer), `"SB"` to fix to maturity at age
-  schedule, or `"B"` to fix to 1 for all ages.
+  Character string to indicate the functional form of selectivity. See
+  details below.
 
 - maxage:
 
@@ -73,6 +71,11 @@ calc_isel_age(
 - lmid:
 
   Midpoints of length bins for calculating selectivity at length
+
+- fsel_len:
+
+  Selectivity at length matrix for fleets, returned by previous call to
+  `calc_sel_len()`
 
 - sel_len:
 
@@ -110,6 +113,32 @@ calc_isel_age(
 `[a, length(sel_block)]`
 
 `calc_isel_age()` returns a matrix `[a, i]`, i.e., `[a, length(type)]`
+
+## Details
+
+Options for argument `type` include:
+
+- functional forms with respect to length:
+  `"logistic_length", "dome_length"`
+
+- functional forms with respect to age: `"logistic_age", "dome_age"`
+
+- for surveys, an integer (`f`) to map index selectivity at age to fleet
+  `f` (will be coerced to integer)
+
+- `"SB"` to fix to maturity at age schedule
+
+- `"B"` to fix selectivity to 1 for all ages
+
+- `"length_x_y"` to specify selectivity to 1 between lengths `x` and `y`
+  (example: `"length_20_50"`)
+
+- `"age_x_y"` to specify selectivity to 1 between age `x` and `y`
+  (example: `"age_2_4"`)
+
+- for surveys, `"f_x_y"` uses selectivity values from fleet `f` between
+  bins `x` and `y` (either length or age depending on definition of
+  selectivity for `f`) (example: `"3_2_4"`)
 
 ## Converting selectivity parameters (conv_selpar)
 

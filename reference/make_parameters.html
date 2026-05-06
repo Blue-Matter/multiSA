@@ -13,7 +13,7 @@ checks whether custom made parameter lists are of the correct dimension."></head
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -150,11 +150,11 @@ frequently, <code>log</code> or <code>logit</code>. Prefix <code>t</code> indica
 <p>Third is the dimension of the parameter variable and the indexing for the vectors, matrices, and arrays, e.g., <code>y</code> for year, <code>s</code> for stock.
 See <a href="MSAdata-class.html">MSAdata</a>. Here, an additional index <code>p</code> represents some other number of parameters that is described below.</p>
 <dl><dt><code>t_R0_s</code></dt>
-<dd><p>Vector by <code>s</code>. Unfished recruitment, i.e., intersection of unfished replacement line and average stock recruit function,
+<dd><p>Vector by <code>s</code>. Unfished recruitment, i.e., intersection of unfished replacement line and stock recruit function,
 is represented as: <code>R0_s &lt;- exp(t_R0_s) * MSAdata@Dmodel@scale_s</code>. By default, <code>t_R0_s = 3</code></p></dd>
 
 <dt><code>t_h_s</code></dt>
-<dd><p>Vector by <code>s</code>. Steepness of the stock-recruit function. Logit space for Beverton-Holt and log space for Ricker functions.
+<dd><p>Vector by <code>s</code>. Steepness of the stock-recruit function. Logit space for Beverton-Holt (<code>h = 0.8 * plogis(t_h_s) + 0.2</code>) and log space for Ricker function (<code>h = exp(t_h_s) + 0.2</code>).
 Default steepness value of 0.8</p></dd>
 
 <dt><code>mat_ps</code></dt>
@@ -188,10 +188,10 @@ F_{y,m,f,r} = \begin{cases}
 $$</p></dd>
 
 <dt><code>sel_pf</code></dt>
-<dd><p>Matrix <code>[3, f]</code>. Fishery selectivity parameters in logit or log space. See equations <code><a href="conv_selpar.html">conv_selpar()</a></code>, where <code>sel_pf</code> is the <code>x</code> matrix.</p></dd>
+<dd><p>Matrix <code>[3, f]</code>. Fishery selectivity parameters in logit or log space. See equations in <code><a href="conv_selpar.html">conv_selpar()</a></code>, where <code>sel_pf</code> is the <code>x</code> matrix.</p></dd>
 
 <dt><code>sel_pi</code></dt>
-<dd><p>Matrix <code>[3, i]</code>. Index selectivity parameters in logit or log space. See equations <code><a href="conv_selpar.html">conv_selpar()</a></code>, where <code>sel_pi</code> is the <code>x</code> matrix.</p></dd>
+<dd><p>Matrix <code>[3, i]</code>. Index selectivity parameters in logit or log space. See equations in <code><a href="conv_selpar.html">conv_selpar()</a></code>, where <code>sel_pi</code> is the <code>x</code> matrix.</p></dd>
 
 <dt><code>mov_x_marrs</code></dt>
 <dd><p>Array <code>[m, a, r, r, s]</code>. Base movement matrix. Set to -1000 to effectively exclude movements from region pairs.
@@ -213,10 +213,10 @@ Only used when <code>est_mov = "dist_random"</code>. Default SD of 0.1.</p></dd>
 Cholesky factorization. Only used when <code>est_mov = dist_random</code>. Default values of zero.</p></dd>
 
 <dt><code>log_initF_mfr</code></dt>
-<dd><p>Array <code>[m, f, r]</code>. Initial F corresponding to the equilibrium catch.</p></dd>
+<dd><p>Array <code>[m, f, r]</code>. Initial F corresponding to the equilibrium catch. Default is <code>log(0.1)</code> for seasons, fleets, and regions where <code>Dfishery@Cinit_mfr &gt; 1e-8</code>, otherwise, not estimated (Finit = 0).</p></dd>
 
 <dt><code>log_initrdev_as</code></dt>
-<dd><p>Array <code>[na - 1, s]</code>. Recruitment deviations for the initial abundance-at-age vector.</p></dd>
+<dd><p>Array <code>[na - 1, s]</code>. Recruitment deviations for the initial abundance-at-age vector. Default is zero.</p></dd>
 
 
 </dl></div>

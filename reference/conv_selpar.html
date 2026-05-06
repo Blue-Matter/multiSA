@@ -21,7 +21,7 @@ or population parameters (e.g, mature or total biomass).
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@ or population parameters (e.g, mature or total biomass).</p></li>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">conv_selpar</span><span class="op">(</span><span class="va">x</span>, <span class="va">type</span>, <span class="va">maxage</span>, <span class="va">maxL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">calc_sel_len</span><span class="op">(</span><span class="va">sel_par</span>, <span class="va">lmid</span>, <span class="va">type</span><span class="op">)</span></span>
+<span><span class="fu">calc_sel_len</span><span class="op">(</span><span class="va">sel_par</span>, <span class="va">lmid</span>, <span class="va">type</span>, <span class="va">fsel_type</span>, <span class="va">fsel_len</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">calc_fsel_age</span><span class="op">(</span></span>
 <span>  <span class="va">sel_len</span>,</span>
@@ -84,7 +84,9 @@ or population parameters (e.g, mature or total biomass).</p></li>
 <span>  <span class="va">fsel_age</span>,</span>
 <span>  <span class="va">maxage</span>,</span>
 <span>  <span class="va">mat</span>,</span>
-<span>  a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">LAK</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span>  a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">LAK</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">fsel_type</span>,</span>
+<span>  <span class="va">fsel_len</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -96,10 +98,8 @@ or population parameters (e.g, mature or total biomass).</p></li>
 <dd><p>Estimated parameters. Matrix <code>[3, f]</code></p></dd>
 
 
-<dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Character string to indicate the functional form of selectivity. Options include:
-<code>"logistic_length", "dome_length", "logistic_age", "dome_age"</code>, an integer (<code>f</code>) to map index selectivity
-to the corresponding fleet <code>f</code> (will be coerced to integer), <code>"SB"</code> to fix to maturity at age schedule, or <code>"B"</code> to fix to 1 for all ages.</p></dd>
+<dt id="arg-type-fsel-type">type, fsel_type<a class="anchor" aria-label="anchor" href="#arg-type-fsel-type"></a></dt>
+<dd><p>Character string to indicate the functional form of selectivity. See details below.</p></dd>
 
 
 <dt id="arg-maxage">maxage<a class="anchor" aria-label="anchor" href="#arg-maxage"></a></dt>
@@ -116,6 +116,10 @@ to the corresponding fleet <code>f</code> (will be coerced to integer), <code>"S
 
 <dt id="arg-lmid">lmid<a class="anchor" aria-label="anchor" href="#arg-lmid"></a></dt>
 <dd><p>Midpoints of length bins for calculating selectivity at length</p></dd>
+
+
+<dt id="arg-fsel-len">fsel_len<a class="anchor" aria-label="anchor" href="#arg-fsel-len"></a></dt>
+<dd><p>Selectivity at length matrix for fleets, returned by previous call to <code>calc_sel_len()</code></p></dd>
 
 
 <dt id="arg-sel-len">sel_len<a class="anchor" aria-label="anchor" href="#arg-sel-len"></a></dt>
@@ -149,6 +153,18 @@ to the corresponding fleet <code>f</code> (will be coerced to integer), <code>"S
 <p><code>calc_fsel_age()</code> returns a matrix <code>[a, f]</code>, i.e., <code>[a, length(sel_block)]</code></p>
 <p><code>calc_isel_age()</code> returns a matrix <code>[a, i]</code>, i.e., <code>[a, length(type)]</code></p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Options for argument <code>type</code> include:</p><ul><li><p>functional forms with respect to length: <code>"logistic_length", "dome_length"</code></p></li>
+<li><p>functional forms with respect to age: <code>"logistic_age", "dome_age"</code></p></li>
+<li><p>for surveys, an integer (<code>f</code>) to map index selectivity at age to fleet <code>f</code> (will be coerced to integer)</p></li>
+<li><p><code>"SB"</code> to fix to maturity at age schedule</p></li>
+<li><p><code>"B"</code> to fix selectivity to 1 for all ages</p></li>
+<li><p><code>"length_x_y"</code> to specify selectivity to 1 between lengths <code>x</code> and <code>y</code> (example: <code>"length_20_50"</code>)</p></li>
+<li><p><code>"age_x_y"</code> to specify selectivity to 1 between age <code>x</code> and <code>y</code> (example: <code>"age_2_4"</code>)</p></li>
+<li><p>for surveys, <code>"f_x_y"</code> uses selectivity values from fleet <code>f</code> between bins <code>x</code> and <code>y</code>
+(either length or age depending on definition of selectivity for <code>f</code>) (example: <code>"3_2_4"</code>)</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="converting-selectivity-parameters-conv-selpar-">Converting selectivity parameters (conv_selpar)<a class="anchor" aria-label="anchor" href="#converting-selectivity-parameters-conv-selpar-"></a></h2>
 

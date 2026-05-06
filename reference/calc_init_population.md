@@ -1,22 +1,22 @@
-# Equilibrium spawners per recruit by projection
+# Initial population projection
 
 Project a population forward in time using
-[`calc_population()`](https://blue-matter.github.io/multiSA/reference/calc_population.md)
-with constant recruitment and seasonal dynamics (growth,
-movement-by-season) to obtain per recruit parameters. Note that the
-fishing mortality among fleets and stocks remain linked by matrix
-`q_fs`.
+[`calc_population()`](https://blue-matter.github.io/multiSA/reference/calc_population.md),
+an alternative to
+[`calc_phi_project()`](https://blue-matter.github.io/multiSA/reference/calc_phi_project.md)
+to establish initial age structure.
 
 ## Usage
 
 ``` r
-calc_phi_project(
-  ny,
-  nm,
-  na,
+calc_init_population(
+  ny = 10,
+  nm = 4,
+  na = 20,
   nf = 1,
-  nr,
+  nr = 4,
   ns = 1,
+  initN_ars = array(1, c(na, nr, ns)),
   F_mfr = array(0, c(nm, nf, nr)),
   sel_mafs = array(1, c(nm, na, nf, ns)),
   fwt_mafs = array(1, c(nm, na, nf, ns)),
@@ -25,6 +25,9 @@ calc_phi_project(
   mov_marrs,
   mat_as,
   fec_as,
+  SRR_s,
+  sralpha_s,
+  srbeta_s,
   m_spawn = 1,
   m_advanceage = 1,
   delta_s = rep(0, ns),
@@ -127,8 +130,3 @@ A named list returned by
 
 The initial population vector will be the survival at age evenly divided
 by the number of regions `nr`.
-
-## See also
-
-[`calc_phi_simple()`](https://blue-matter.github.io/multiSA/reference/calc_phi_simple.md)
-[`calc_init_population()`](https://blue-matter.github.io/multiSA/reference/calc_init_population.md)

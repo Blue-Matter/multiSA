@@ -104,6 +104,8 @@ Functions used in the population model.
 - [`calc_phi_simple()`](https://blue-matter.github.io/multiSA/reference/calc_phi_simple.md)
   [`calc_NPR()`](https://blue-matter.github.io/multiSA/reference/calc_phi_simple.md)
   : Simple spawners per recruit calculation
+- [`calc_init_population()`](https://blue-matter.github.io/multiSA/reference/calc_init_population.md)
+  : Initial population projection
 - [`calc_population()`](https://blue-matter.github.io/multiSA/reference/calc_population.md)
   : Multi-fleet, multi-area, multi-stock population dynamics model
 - [`calc_recruitment()`](https://blue-matter.github.io/multiSA/reference/calc_recruitment.md)

@@ -7,7 +7,7 @@ numerical optimization
 
 ``` r
 fit_MSA(
-  MSAdata,
+  x,
   parameters,
   map = list(),
   random = NULL,
@@ -22,12 +22,15 @@ fit_MSA(
 
 ## Arguments
 
-- MSAdata:
+- x:
 
   Data object. Class
   [MSAdata](https://blue-matter.github.io/multiSA/reference/MSAdata-class.md),
   validated by
-  [`check_data()`](https://blue-matter.github.io/multiSA/reference/check_data.md)
+  [`check_data()`](https://blue-matter.github.io/multiSA/reference/check_data.md).
+  Alternatively,
+  [MSAassess](https://blue-matter.github.io/multiSA/reference/MSAassess-class.md)
+  that will be fitted again.
 
 - parameters:
 

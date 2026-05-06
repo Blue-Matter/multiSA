@@ -131,15 +131,16 @@ that is described below.
 - `t_R0_s`:
 
   Vector by `s`. Unfished recruitment, i.e., intersection of unfished
-  replacement line and average stock recruit function, is represented
-  as: `R0_s <- exp(t_R0_s) * MSAdata@Dmodel@scale_s`. By default,
+  replacement line and stock recruit function, is represented as:
+  `R0_s <- exp(t_R0_s) * MSAdata@Dmodel@scale_s`. By default,
   `t_R0_s = 3`
 
 - `t_h_s`:
 
   Vector by `s`. Steepness of the stock-recruit function. Logit space
-  for Beverton-Holt and log space for Ricker functions. Default
-  steepness value of 0.8
+  for Beverton-Holt (`h = 0.8 * plogis(t_h_s) + 0.2`) and log space for
+  Ricker function (`h = exp(t_h_s) + 0.2`). Default steepness value of
+  0.8
 
 - `mat_ps`:
 
@@ -188,14 +189,14 @@ that is described below.
 - `sel_pf`:
 
   Matrix `[3, f]`. Fishery selectivity parameters in logit or log space.
-  See equations
+  See equations in
   [`conv_selpar()`](https://blue-matter.github.io/multiSA/reference/conv_selpar.md),
   where `sel_pf` is the `x` matrix.
 
 - `sel_pi`:
 
   Matrix `[3, i]`. Index selectivity parameters in logit or log space.
-  See equations
+  See equations in
   [`conv_selpar()`](https://blue-matter.github.io/multiSA/reference/conv_selpar.md),
   where `sel_pi` is the `x` matrix.
 
@@ -234,11 +235,13 @@ that is described below.
 - `log_initF_mfr`:
 
   Array `[m, f, r]`. Initial F corresponding to the equilibrium catch.
+  Default is `log(0.1)` for seasons, fleets, and regions where
+  `Dfishery@Cinit_mfr > 1e-8`, otherwise, not estimated (Finit = 0).
 
 - `log_initrdev_as`:
 
   Array `[na - 1, s]`. Recruitment deviations for the initial
-  abundance-at-age vector.
+  abundance-at-age vector. Default is zero.
 
 ## Start list
 
