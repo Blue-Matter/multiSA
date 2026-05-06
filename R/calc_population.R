@@ -260,6 +260,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
 #' establish initial age structure.
 #'
 #' @inheritParams calc_phi_project
+#' @inheritParams calc_population
 #' @param F_mfr Equilibrium fishing mortality (per season). Matrix `[m, f, r]`
 #' @param sel_mafs Selectivity by season, age, fleet, stock. Array `[m, a, f, s]`
 #' @param fwt_mafs Fishery weight array by season, age, fleet, stock. Array `[m, a, r, r]`. Can be used

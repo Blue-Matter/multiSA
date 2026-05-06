@@ -43,6 +43,8 @@ calc_init_population(
 
 \item{ns}{Integer, number of stocks}
 
+\item{initN_ars}{Abundance in the first year, first season. Array \verb{[a, r, s]}}
+
 \item{F_mfr}{Equilibrium fishing mortality (per season). Matrix \verb{[m, f, r]}}
 
 \item{sel_mafs}{Selectivity by season, age, fleet, stock. Array \verb{[m, a, f, s]}}
@@ -59,6 +61,12 @@ calculate yield per recruit.}
 \item{mat_as}{Maturity at age. Matrix \verb{[a, s]}}
 
 \item{fec_as}{Fecundity at age. Matrix \verb{[a, s]}}
+
+\item{SRR_s}{Character vector by \code{s} for the stock recruit relationship. See \code{\link[=calc_recruitment]{calc_recruitment()}} for options}
+
+\item{sralpha_s}{Numeric vector by \code{s} for the stock recruit alpha parameter}
+
+\item{srbeta_s}{Numeric vector by \code{s} for the stock recruit beta parameter}
 
 \item{m_spawn}{Integer, season of spawning}
 
