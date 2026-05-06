@@ -60,6 +60,7 @@ reference:
   - calc_nextN
   - calc_phi_project
   - calc_phi_simple
+  - calc_init_population
   - calc_population
   - calc_recruitment
   - conv_mov
