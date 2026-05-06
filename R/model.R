@@ -4,7 +4,7 @@
 #'
 #' Wrapper function that calls RTMB to create the model and perform the numerical optimization
 #'
-#' @param MSAdata Data object. Class [MSAdata-class], validated by [check_data()]
+#' @param x Data object. Class [MSAdata-class], validated by [check_data()]. Alternatively, [MSAassess-class] that will be fitted again.
 #' @param parameters List of parameters, e.g., returned by [make_parameters()] and validated by [check_parameters()].
 #' @param map List of parameters indicated whether they are fixed and how they are shared, e.g., returned by [make_parameters()].
 #' See [RTMB::MakeADFun()].
@@ -20,33 +20,37 @@
 #' @importFrom methods new
 #' @seealso [report()] [retrospective()]
 #' @export
-fit_MSA <- function(MSAdata, parameters, map = list(), random = NULL,
-                     run_model = TRUE, do_sd = TRUE, report = TRUE, silent = FALSE,
-                     control = list(iter.max = 2e+05, eval.max = 4e+05), ...) {
+fit_MSA <- function(x, parameters, map = list(), random = NULL,
+                    run_model = TRUE, do_sd = TRUE, report = TRUE, silent = FALSE,
+                    control = list(iter.max = 2e+05, eval.max = 4e+05), ...) {
 
-  MSAdata@Misc$map <- map
-  MSAdata@Misc$random <- random
+  if (inherits(x, "MSAdata")) {
+    x@Misc$map <- map
+    x@Misc$random <- random
 
-  #old_comparison <- TapeConfig()["comparison"]
-  #on.exit(TapeConfig(comparison = old_comparison))
-  #TapeConfig(comparison = "tape")
+    #old_comparison <- TapeConfig()["comparison"]
+    #on.exit(TapeConfig(comparison = old_comparison))
+    #TapeConfig(comparison = "tape")
 
-  func <- function(p) .MSA(p, d = MSAdata)
+    func <- function(p) .MSA(p, d = x)
 
-  if (!silent) message("Building model with RTMB::MakeADFun()..")
-  obj <- RTMB::MakeADFun(
-    func = func, parameters = parameters,
-    map = map, random = random,
-    silent = TRUE,
-    ...
-  )
+    if (!silent) message("Building model with RTMB::MakeADFun()..")
+    obj <- RTMB::MakeADFun(
+      func = func, parameters = parameters,
+      map = map, random = random,
+      silent = TRUE,
+      ...
+    )
+  } else if (inherits(x, "MSAassess")) {
+    obj <- x@obj
+  }
 
   if (!silent) {
     fn <- obj$fn()
     if (is.na(fn)) {
       message_oops("Objective function is NA at initial values.")
       report_start <- obj$report()
-      if (MSAdata@Dmodel@condition == "catch" && any(is.na(report_start$F_ymfr))) {
+      if (x@Dmodel@condition == "catch" && any(is.na(report_start$F_ymfr))) {
         message_oops("NA's found in F array. Try increasing start value of R0.")
       }
 
@@ -62,7 +66,7 @@ fit_MSA <- function(MSAdata, parameters, map = list(), random = NULL,
     }
     if (any(!gr, na.rm = TRUE)) {
       par_zero <- unique(names(obj$par)[!gr])
-      message_oops("Gradients of zero at initial values for these parameters (may not be identifiable):")
+      message_oops("Gradients of zero at initial values for these parameters (may not be identifiable without prior):")
       message_info(paste0(par_zero, collapse = ", "))
     }
   }
@@ -81,7 +85,7 @@ fit_MSA <- function(MSAdata, parameters, map = list(), random = NULL,
 
   if (report) {
     if (!silent) message("Generating report list..")
-    M@report <- obj$report(obj$env$last.par.best) %>% update_report(MSAdata)
+    M@report <- update_report(obj$report(obj$env$last.par.best), MSAdata = x)
   }
   if (!silent) message("Complete.")
   return(M)
@@ -468,16 +472,36 @@ update_report <- function(r, MSAdata) {
         sum(initNPR_mars[1, , 1, s] * exp(-Dstock@delta_s[s] * initZ_mars[1, , 1, s]) * mat_yas[1, , s] * Dstock@fec_yas[1, , s])
       })
     } else {
-      NPR_init <- calc_phi_project(
-        nyinit, nm, na, nf, nr, ns, F_mfr = initF_mfr, sel_mafs = sel_ymafs[1, , , , ],
+      # This does not work when F > 0
+      #NPR_init <- calc_phi_project(
+      #  nyinit, nm, na, nf, nr, ns, F_mfr = initF_mfr, sel_mafs = sel_ymafs[1, , , , ],
+      #  fwt_mafs = Dfishery@fwt_ymafs[1, , , , ], q_fs = q_fs,
+      #  M_as = M_yas[1, , ], mov_marrs = mov_ymarrs[Dmodel@y_phi, , , , , ],
+      #  mat_as = mat_yas[1, , ], fec_as = Dstock@fec_yas[1, , ], m_spawn = Dstock@m_spawn, m_advanceage = Dstock@m_advanceage,
+      #  delta_s = Dstock@delta_s, natal_rs = Dstock@natal_rs, recdist_rs = recdist_rs
+      #)
+      #initZ_mars[] <- NPR_init[["Z_ymars"]][nyinit, , , , ]
+      #initNPR_mars[] <- NPR_init[["N_ymars"]][nyinit, , , , ]
+      #initphi_s <- sapply(1:ns, function(s) sum(NPR_init[["S_yrs"]][nyinit, , s]))
+
+      init_proj <- calc_init_population(
+        nyinit, nm, na, nf, nr, ns,
+        initN_ars = array(N0_mars[Dstock@m_spawn, , , ], c(na, nr, ns)),
+        F_mfr = initF_mfr, sel_mafs = sel_ymafs[1, , , , ],
         fwt_mafs = Dfishery@fwt_ymafs[1, , , , ], q_fs = q_fs,
         M_as = M_yas[1, , ], mov_marrs = mov_ymarrs[Dmodel@y_phi, , , , , ],
-        mat_as = mat_yas[1, , ], fec_as = Dstock@fec_yas[1, , ], m_spawn = Dstock@m_spawn, m_advanceage = Dstock@m_advanceage,
+        mat_as = mat_yas[1, , ], fec_as = Dstock@fec_yas[1, , ],
+        SRR_s = Dstock@SRR_s, sralpha_s = sralpha_s, srbeta_s = srbeta_s,
+        m_spawn = Dstock@m_spawn, m_advanceage = Dstock@m_advanceage,
         delta_s = Dstock@delta_s, natal_rs = Dstock@natal_rs, recdist_rs = recdist_rs
       )
-      initZ_mars[] <- NPR_init[["Z_ymars"]][nyinit, , , , ]
-      initNPR_mars[] <- NPR_init[["N_ymars"]][nyinit, , , , ]
-      initphi_s <- sapply(1:ns, function(s) sum(NPR_init[["S_yrs"]][nyinit, , s]))
+
+      initZ_mars[] <- init_proj[["Z_ymars"]][nyinit, , , , ]
+      initNPR_mars[] <- sapply2(1:ns, function(s) {
+        init_proj[["N_ymars"]][nyinit, , , , s]/init_proj[["R_ys"]][nyinit, s]
+      })
+      initphi_s <- sapply(1:ns, function(s) sum(init_proj[["S_yrs"]][nyinit, , s]))/
+        init_proj[["R_ys"]][nyinit, ]
     }
 
     initReq_s <- sapply(1:ns, function(s) {

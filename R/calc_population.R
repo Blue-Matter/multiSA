@@ -254,6 +254,70 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
   return(out)
 }
 
+#' Initial population projection
+#'
+#' Project a population forward in time using [calc_population()], an alternative to [calc_phi_project()] to
+#' establish initial age structure.
+#'
+#' @inheritParams calc_phi_project
+#' @param F_mfr Equilibrium fishing mortality (per season). Matrix `[m, f, r]`
+#' @param sel_mafs Selectivity by season, age, fleet, stock. Array `[m, a, f, s]`
+#' @param fwt_mafs Fishery weight array by season, age, fleet, stock. Array `[m, a, r, r]`. Can be used
+#' calculate yield per recruit.
+#' @param mov_marrs Movement array `[m, a, r, r, s]`. If missing, uses a diagonal matrix (no movement among areas).
+#' @param M_as Natural mortality. Matrix `[a, s]`
+#' @param mat_as Maturity at age. Matrix `[a, s]`
+#' @param fec_as Fecundity at age. Matrix `[a, s]`
+#' @details
+#' The initial population vector will be the survival at age evenly divided by the number of regions `nr`.
+#' @return A named list returned by [calc_population()].
+#' @export
+calc_init_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 1,
+                                 initN_ars = array(1, c(na, nr, ns)),
+                                 F_mfr = array(0, c(nm, nf, nr)),
+                                 sel_mafs = array(1, c(nm, na, nf, ns)),
+                                 fwt_mafs = array(1, c(nm, na, nf, ns)),
+                                 q_fs = matrix(1, nf, ns),
+                                 M_as, mov_marrs,
+                                 mat_as, fec_as,
+                                 SRR_s, sralpha_s, srbeta_s,
+                                 m_spawn = 1, m_advanceage = 1,
+                                 delta_s = rep(0, ns),
+                                 natal_rs = matrix(1, nr, ns),
+                                 recdist_rs = matrix(1/nr, nr, ns)) {
+  delta_m <- 1/nm
+
+  if (missing(mov_marrs)) {
+    mov_ymarrs <- diag(nr) %>% array(c(nr, nr, ny, nm, na, ns)) %>% aperm(c(3:5, 1:2, 6))
+  } else {
+    mov_marrs <- array(mov_marrs, c(nm, na, nr, nr, ns))
+    mov_ymarrs <- array(mov_marrs, c(nm, na, nr, nr, ns, ny)) %>% aperm(c(6, 1:5))
+  }
+  M_yas <- array(M_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
+
+  #SRR <- rep("BH", ns)
+  #sralpha <- srbeta <- rep(1e16, ns)
+
+  mat_yas <- array(mat_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
+  fec_yas <- array(fec_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
+  sel_ymafs <- array(sel_mafs, c(nm, na, nf, ns, ny)) %>% aperm(c(5, 1:4))
+  fwt_ymafs <- array(fwt_mafs, c(nm, na, nf, ns, ny)) %>% aperm(c(5, 1:4))
+  F_ymfr <- array(F_mfr, c(nm, nf, nr, ny)) %>% aperm(c(4, 1:3))
+
+  pop_phi <- calc_population(
+    ny, nm, na, nf, nr, ns, initN_ars = initN_ars,
+    mov_ymarrs, M_yas,
+    SRR_s = SRR_s, sralpha_s = sralpha_s, srbeta_s = srbeta_s,
+    mat_yas, fec_yas, Rdev_ys = matrix(1, ny, ns),
+    m_spawn, m_advanceage, delta_s, natal_rs, recdist_rs,
+    fwt_ymafs = fwt_ymafs, q_fs,
+    sel_ymafs = sel_ymafs,
+    condition = "F",
+    F_ymfr = F_ymfr
+  )
+  return(pop_phi)
+}
+
 #' Equilibrium spawners per recruit by projection
 #'
 #' Project a population forward in time using [calc_population()] with constant recruitment and
@@ -273,7 +337,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
 #' @details
 #' The initial population vector will be the survival at age evenly divided by the number of regions `nr`.
 #' @return A named list returned by [calc_population()].
-#' @seealso [calc_phi_simple()]
+#' @seealso [calc_phi_simple()] [calc_init_population()]
 #' @export
 calc_phi_project <- function(ny, nm, na, nf = 1, nr, ns = 1,
                              F_mfr = array(0, c(nm, nf, nr)),

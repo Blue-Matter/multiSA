@@ -5,7 +5,7 @@
 \title{Fit MSA model}
 \usage{
 fit_MSA(
-  MSAdata,
+  x,
   parameters,
   map = list(),
   random = NULL,
@@ -18,7 +18,7 @@ fit_MSA(
 )
 }
 \arguments{
-\item{MSAdata}{Data object. Class \linkS4class{MSAdata}, validated by \code{\link[=check_data]{check_data()}}}
+\item{x}{Data object. Class \linkS4class{MSAdata}, validated by \code{\link[=check_data]{check_data()}}. Alternatively, \linkS4class{MSAassess} that will be fitted again.}
 
 \item{parameters}{List of parameters, e.g., returned by \code{\link[=make_parameters]{make_parameters()}} and validated by \code{\link[=check_parameters]{check_parameters()}}.}
 

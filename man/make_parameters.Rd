@@ -85,9 +85,9 @@ Third is the dimension of the parameter variable and the indexing for the vector
 See \linkS4class{MSAdata}. Here, an additional index \code{p} represents some other number of parameters that is described below.
 
 \describe{
-\item{\code{t_R0_s}}{Vector by \code{s}. Unfished recruitment, i.e., intersection of unfished replacement line and average stock recruit function,
+\item{\code{t_R0_s}}{Vector by \code{s}. Unfished recruitment, i.e., intersection of unfished replacement line and stock recruit function,
 is represented as: \code{R0_s <- exp(t_R0_s) * MSAdata@Dmodel@scale_s}. By default, \code{t_R0_s = 3}}
-\item{\code{t_h_s}}{Vector by \code{s}. Steepness of the stock-recruit function. Logit space for Beverton-Holt and log space for Ricker functions.
+\item{\code{t_h_s}}{Vector by \code{s}. Steepness of the stock-recruit function. Logit space for Beverton-Holt (\code{h = 0.8 * plogis(t_h_s) + 0.2}) and log space for Ricker function (\code{h = exp(t_h_s) + 0.2}).
 Default steepness value of 0.8}
 \item{\code{mat_ps}}{Matrix \verb{[2, s]}. Maturity parameters (can be estimated or specified in data object). Logistic functional form. The
 parameter in the first row is the age of 50 percent maturity in logit space: \code{a50_s <- plogis(mat_ps[1, ] * na)}.
@@ -108,8 +108,8 @@ F_{y,m,f,r} = \begin{cases}
 \end{cases}
 }
 }
-\item{\code{sel_pf}}{Matrix \verb{[3, f]}. Fishery selectivity parameters in logit or log space. See equations \code{\link[=conv_selpar]{conv_selpar()}}, where \code{sel_pf} is the \code{x} matrix.}
-\item{\code{sel_pi}}{Matrix \verb{[3, i]}. Index selectivity parameters in logit or log space. See equations \code{\link[=conv_selpar]{conv_selpar()}}, where \code{sel_pi} is the \code{x} matrix.}
+\item{\code{sel_pf}}{Matrix \verb{[3, f]}. Fishery selectivity parameters in logit or log space. See equations in \code{\link[=conv_selpar]{conv_selpar()}}, where \code{sel_pf} is the \code{x} matrix.}
+\item{\code{sel_pi}}{Matrix \verb{[3, i]}. Index selectivity parameters in logit or log space. See equations in \code{\link[=conv_selpar]{conv_selpar()}}, where \code{sel_pi} is the \code{x} matrix.}
 \item{\code{mov_x_marrs}}{Array \verb{[m, a, r, r, s]}. Base movement matrix. Set to -1000 to effectively exclude movements from region pairs.
 See equations in \code{\link[=conv_mov]{conv_mov()}}}
 \item{\code{mov_g_ymars}}{Array \verb{[y, m, a, r, s]}. Attractivity term in gravity model for movement. If \code{x} and \code{v} are zero,
@@ -119,8 +119,8 @@ this matrix specifies the distribution of total stock abundance into the various
 Only used when \code{est_mov = "dist_random"}. Default SD of 0.1.}
 \item{\code{t_corg_ps}}{Array \verb{[sum(1:(nr - 1)), s]}. Lower triangle of the correlation matrix for \code{mov_g_ymars}, to be obtained with the
 Cholesky factorization. Only used when \code{est_mov = dist_random}. Default values of zero.}
-\item{\code{log_initF_mfr}}{Array \verb{[m, f, r]}. Initial F corresponding to the equilibrium catch.}
-\item{\code{log_initrdev_as}}{Array \verb{[na - 1, s]}. Recruitment deviations for the initial abundance-at-age vector.}
+\item{\code{log_initF_mfr}}{Array \verb{[m, f, r]}. Initial F corresponding to the equilibrium catch. Default is \code{log(0.1)} for seasons, fleets, and regions where \code{Dfishery@Cinit_mfr > 1e-8}, otherwise, not estimated (Finit = 0).}
+\item{\code{log_initrdev_as}}{Array \verb{[na - 1, s]}. Recruitment deviations for the initial abundance-at-age vector. Default is zero.}
 }
 }
 
