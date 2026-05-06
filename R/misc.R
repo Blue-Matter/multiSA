@@ -311,7 +311,14 @@ sdreport_int <- function(object, select = c("all", "fixed", "random", "report"),
 #' @export
 get_MSAdata <- function(MSAassess) {
   func <- attr(MSAassess@obj$env$data, "func")
-  MSAdata <- get("MSAdata", envir = environment(func), inherits = FALSE)
+  version <- strsplit(attr(MSAassess, "version"), "multiSA ")[[1]][2]
+
+  if (version >= "0.2.0") {
+    d <- "x"
+  } else {
+    d <- "MSAdata"
+  }
+  MSAdata <- get(d, envir = environment(func), inherits = FALSE)
   return(MSAdata)
 }
 
