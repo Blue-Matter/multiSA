@@ -261,6 +261,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
 #'
 #' @inheritParams calc_phi_project
 #' @inheritParams calc_population
+#' @param C_mfr Equilibrium catch. Matrix `[m, f, r]`
 #' @param F_mfr Equilibrium fishing mortality (per season). Matrix `[m, f, r]`
 #' @param sel_mafs Selectivity by season, age, fleet, stock. Array `[m, a, f, s]`
 #' @param fwt_mafs Fishery weight array by season, age, fleet, stock. Array `[m, a, r, r]`. Can be used
@@ -273,6 +274,8 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
 #' @export
 calc_init_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 1,
                                  initN_ars = array(1, c(na, nr, ns)),
+                                 condition = c("catch", "F"),
+                                 C_mfr = array(0, c(nm, nf, nr)),
                                  F_mfr = array(0, c(nm, nf, nr)),
                                  sel_mafs = array(1, c(nm, na, nf, ns)),
                                  fwt_mafs = array(1, c(nm, na, nf, ns)),
@@ -283,7 +286,11 @@ calc_init_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 
                                  m_spawn = 1, m_advanceage = 1,
                                  delta_s = rep(0, ns),
                                  natal_rs = matrix(1, nr, ns),
-                                 recdist_rs = matrix(1/nr, nr, ns)) {
+                                 recdist_rs = matrix(1/nr, nr, ns),
+                                 Fmax, nitF) {
+
+  condition <- match.arg(condition)
+
   delta_m <- 1/nm
 
   if (missing(mov_marrs)) {
@@ -301,6 +308,8 @@ calc_init_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 
   fec_yas <- array(fec_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
   sel_ymafs <- array(sel_mafs, c(nm, na, nf, ns, ny)) %>% aperm(c(5, 1:4))
   fwt_ymafs <- array(fwt_mafs, c(nm, na, nf, ns, ny)) %>% aperm(c(5, 1:4))
+
+  C_ymfr <- array(C_mfr, c(nm, nf, nr, ny)) %>% aperm(c(4, 1:3))
   F_ymfr <- array(F_mfr, c(nm, nf, nr, ny)) %>% aperm(c(4, 1:3))
 
   pop_phi <- calc_population(
@@ -311,8 +320,11 @@ calc_init_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 
     m_spawn, m_advanceage, delta_s, natal_rs, recdist_rs,
     fwt_ymafs = fwt_ymafs, q_fs,
     sel_ymafs = sel_ymafs,
-    condition = "F",
-    F_ymfr = F_ymfr
+    condition = condition,
+    F_ymfr = F_ymfr,
+    Cobs_ymfr = C_ymfr,
+    Fmax = Fmax,
+    nitF = nitF
   )
   return(pop_phi)
 }

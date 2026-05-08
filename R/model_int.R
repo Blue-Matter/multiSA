@@ -109,9 +109,9 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
   }
 
   if (inherits(Cobs, "advector")) {
-    Cobs_loop <- CondExpLt(Cobs, 1e-8, 1e-9, Cobs)
+    Cobs_loop <- CondExpLe(Cobs, 1e-8, 1e-8, Cobs)
   } else {
-    Cobs_loop <- ifelse(Cobs < 1e-8, 1e-9, Cobs)
+    Cobs_loop <- ifelse(Cobs <= 1e-8, 1e-8, Cobs)
   }
   F_init <- Cobs_loop/(Cobs_loop + VB_fr)
 
@@ -139,7 +139,7 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
       x_loop_i <- CondExpGt(x_loop[[i]], ln_Fmax, ln_Fmax, x_loop[[i]])
       F_loop <- exp(x_loop_i)
       if (i == nitF + 1) { # Last iteration used to calculate corresponding f and g with F and penalty
-        F_loop <- CondExpLt(Cobs, 1e-8, 0, F_loop)
+        F_loop <- CondExpLe(Cobs, 1e-8, 0, F_loop)
         penalty <- penalty + sum(posfun(Fmax, F_loop))
       }
     } else {

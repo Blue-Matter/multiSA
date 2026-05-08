@@ -168,7 +168,7 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
           })
         })
       })
-      p$log_Fdev_ymfr[Dfishery@Cobs_ymfr < 1e-8] <- -1000
+      p$log_Fdev_ymfr[Dfishery@Cobs_ymfr <= 1e-8] <- -1000
     } else {
       p$log_Fdev_ymfr <- array(0, c(ny, nm, nf, nr))
     }
@@ -274,8 +274,14 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
 
   # Initial conditions ----
   if (is.null(p$log_initF_mfr)) {
-    p$log_initF_mfr <- ifelse(Dfishery@Cinit_mfr < 1e-8, -1000, log(0.1))
+    if (any(Dfishery@Cinit_mfr > 1e-8)) {
+      if ((nm == 1 && nr == 1) || Dmodel@condition == "F") {
+        p$log_initF_mfr <- ifelse(Dfishery@Cinit_mfr <= 1e-8, -1000, log(0.1))
+      }
+    }
   }
+  if (is.null(p$log_initF_mfr)) p$log_initF_mfr <- array(-1000, c(nm, nf, nr))
+
   if (is.null(p$log_initrdev_as)) {
     p$log_initrdev_as <- matrix(0, na-1, ns)
   }
@@ -580,9 +586,9 @@ make_map <- function(p, MSAdata, map = list(),
   }
 
   if (is.null(map$log_Fdev_ymfr)) {
-    if (Dmodel@condition == "F" && any(Dfishery@Cobs_ymfr < 1e-8)) {
+    if (Dmodel@condition == "F" && any(Dfishery@Cobs_ymfr <= 1e-8)) {
       map$log_Fdev_ymfr <- local({
-        m <- ifelse(Dfishery@Cobs_ymfr < 1e-8, NA, TRUE)
+        m <- ifelse(Dfishery@Cobs_ymfr <= 1e-8, NA, TRUE)
         m[!is.na(m)] <- 1:sum(m, na.rm = TRUE)
         factor(m)
       })
@@ -750,13 +756,23 @@ make_map <- function(p, MSAdata, map = list(),
   }
 
   # Initial conditions ----
-  if (is.null(map$log_initF_mfr) && any(Dfishery@Cinit_mfr < 1e-8)) {
-    map$log_initF_mfr <- local({
-      m <- ifelse(Dfishery@Cinit_mfr < 1e-8, NA, TRUE)
-      m[!is.na(m)] <- 1:sum(m, na.rm = TRUE)
-      factor(m)
-    })
+  if (is.null(map$log_initF_mfr)) {
+
+    if (any(Dfishery@Cinit_mfr <= 1e-8)) {
+      map$log_initF_mfr <- local({
+        m <- ifelse(Dfishery@Cinit_mfr <= 1e-8, NA, TRUE)
+        m[!is.na(m)] <- 1:sum(m, na.rm = TRUE)
+        factor(m)
+      })
+    }
+    if (any(Dfishery@Cinit_mfr > 1e-8)) {
+      simple_model <- nm == 1 && nr == 1
+      if (!simple_model && Dmodel@condition == "catch") {
+        map$log_initF_mfr <- factor(array(NA, c(nm, nf, nr)))
+      }
+    }
   }
+
   if (!silent && (is.null(map$log_initF_mfr) || any(!is.na(map$log_initF_mfr)))) {
     message_info("Initial equilibrium F will be estimated")
   }

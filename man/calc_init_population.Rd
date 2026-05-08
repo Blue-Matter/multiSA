@@ -12,6 +12,8 @@ calc_init_population(
   nr = 4,
   ns = 1,
   initN_ars = array(1, c(na, nr, ns)),
+  condition = c("catch", "F"),
+  C_mfr = array(0, c(nm, nf, nr)),
   F_mfr = array(0, c(nm, nf, nr)),
   sel_mafs = array(1, c(nm, na, nf, ns)),
   fwt_mafs = array(1, c(nm, na, nf, ns)),
@@ -27,7 +29,9 @@ calc_init_population(
   m_advanceage = 1,
   delta_s = rep(0, ns),
   natal_rs = matrix(1, nr, ns),
-  recdist_rs = matrix(1/nr, nr, ns)
+  recdist_rs = matrix(1/nr, nr, ns),
+  Fmax,
+  nitF
 )
 }
 \arguments{
@@ -44,6 +48,10 @@ calc_init_population(
 \item{ns}{Integer, number of stocks}
 
 \item{initN_ars}{Abundance in the first year, first season. Array \verb{[a, r, s]}}
+
+\item{condition}{Whether the fishing mortality is conditioned on the catch or specified F argument.}
+
+\item{C_mfr}{Equilibrium catch. Matrix \verb{[m, f, r]}}
 
 \item{F_mfr}{Equilibrium fishing mortality (per season). Matrix \verb{[m, f, r]}}
 
@@ -78,6 +86,10 @@ calculate yield per recruit.}
 time of spawning. See example in \linkS4class{Dstock}.}
 
 \item{recdist_rs}{Matrix \verb{[r, s]}. The fraction of the incoming recruitment of stock \code{s} that settles in region \code{r}.}
+
+\item{Fmax}{Numeric, the maximum Findex value}
+
+\item{nitF}{Integer, number of iterations for the Newton-Raphson routine}
 }
 \value{
 A named list returned by \code{\link[=calc_population]{calc_population()}}.
