@@ -636,16 +636,17 @@ plot_seli <- function(fit, i = 1, figure = TRUE) {
           name = iname
         )
       }
+
+      if (figure) {
+        color <- make_color(nrow(x), "fleet")
+
+        matplot(age, t(x), xlab = "Age", ylab = paste(iname, "selectivity"),
+                type = "o", col = color, pch = 16,
+                ylim = c(0, 1), lty = 1, zero_line = TRUE)
+        if (nrow(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
+      }
     }
 
-    if (figure) {
-      color <- make_color(nrow(x), "fleet")
-
-      matplot(age, t(x), xlab = "Age", ylab = paste(iname, "selectivity"),
-              type = "o", col = color, pch = 16,
-              ylim = c(0, 1), lty = 1, zero_line = TRUE)
-      if (nrow(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
-    }
   }
   invisible(output)
 }
