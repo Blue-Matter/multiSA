@@ -137,7 +137,7 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
     if (any(!Dstock@presence_rs)) {
       for(s in 1:ns) {
         presence_r <- Dstock@presence_rs[, s]
-        if (any(!presence_r)) p$mov_x_marrs[, , presence_r, presence_r, s] <- -1000
+        if (any(!presence_r)) p$mov_x_marrs[, , , !presence_r, s] <- -1000 # No fish go here
       }
     }
   }
@@ -363,7 +363,7 @@ make_map <- function(p, MSAdata, map = list(),
     } else {
       message_info("Starting steepness = ", paste(h_s, collapse = ", "))
       if (any(is.na(map$t_h_s))) {
-        message_info("Fixed for stock ", paste(which(is.na(map$t_h_s)), collapse = ", "))
+        message_info("Steepness fixed for stock: ", paste(which(is.na(map$t_h_s)), collapse = ", "))
       }
     }
   }
@@ -399,7 +399,7 @@ make_map <- function(p, MSAdata, map = list(),
       if (!length(Dstock@M_yas)) stop("Natural mortality is not estimated. Need M values in the data slot 'M_yas'.")
     }
   } else if (!silent && any(!is.na(map$log_M_s))) {
-    message_info("Estimating natural mortality for stock ", paste(which(!is.na(map$log_M_s)), collapse = ", "))
+    message_info("Estimating natural mortality for stock: ", paste(which(!is.na(map$log_M_s)), collapse = ", "))
   }
 
   if (!silent) {
@@ -408,7 +408,7 @@ make_map <- function(p, MSAdata, map = list(),
     } else if (all(is.na(map$log_rdev_ys))) {
       message_info("No recruitment deviates are estimated")
     } else {
-      message_info("Estimating recruitment deviates for")
+      message_info("Estimating recruitment deviates for:")
       sapply(1:ns, function(s) {
         map_s <- matrix(map$log_rdev_ys, ny, ns)[, s]
         message_info("Stock ", s, ": ", sum(!is.na(map_s)), " out of ", ny, " years")
@@ -425,6 +425,9 @@ make_map <- function(p, MSAdata, map = list(),
     }
   } else if (!silent && any(!is.na(map$log_sdr_s))) {
     message_info("Estimating sigma_R (SD of recruitment deviates) for stock ", paste(which(!is.na(map$log_sdr_s)), collapse = ", "))
+  }
+  if (!silent) {
+    message_info("sigma_R = ", paste(round(exp(p$log_sdr_s), 4), collapse = ", "))
   }
 
   if (nr == 1 || est_mov == "none") {
@@ -652,10 +655,14 @@ make_map <- function(p, MSAdata, map = list(),
         } else {
           fname <- ""
         }
+
+        message_info("Fleet ", bb, fname, ":")
+        message_info("  ", Dfishery@sel_f[bb], "")
         if (nage || nlen) {
-          message_info("Fleet ", bb, fname, ": ", Dfishery@sel_f[bb], ", ", age, " and ", len)
+          message_info("  ", age)
+          message_info("  ", len)
         } else {
-          message_info("Fleet ", bb, fname, ": ", Dfishery@sel_f[bb], ", no composition data")
+          message_info("  No composition data")
         }
       } else {
         fleet <- lapply(1:nf, function(ff) {
@@ -675,11 +682,11 @@ make_map <- function(p, MSAdata, map = list(),
 
       if (grepl("logistic", Dfishery@sel_f[bb])) {
         sel5 <- -sqrt(-2 * log(0.05)) * fsel_start[2, bb] + fsel_start[1, bb]
-        message_info("   Selectivity start values: full sel = ", round(fsel_start[1, bb], 2),
+        message_info("  Selectivity start values: full sel = ", round(fsel_start[1, bb], 2),
                      ", ascending limb SD = ", round(fsel_start[2, bb], 2), " (5% sel = ", round(sel5, 2), ")")
       } else if (grepl("dome", Dfishery@sel_f[bb])) {
         sel5 <- -sqrt(-2 * log(0.05)) * fsel_start[2, bb] + fsel_start[1, bb]
-        message_info("   Selectivity start values: full sel = ", round(fsel_start[1, bb], 2),
+        message_info("  Selectivity start values: full sel = ", round(fsel_start[1, bb], 2),
                      ", ascending limb SD = ", round(fsel_start[2, bb], 2), " (5% sel = ", round(sel5, 2), ")",
                      ", descending limb SD = ", round(fsel_start[3, bb], 2))
       }
@@ -731,15 +738,17 @@ make_map <- function(p, MSAdata, map = list(),
       }
       if (Dmodel@ns > 1) {
         s <- which(apply(Dsurvey@samp_irs[i, , , drop = FALSE], 3, sum) > 0)
-        stext <- paste("; stock", paste(s, collapse = ", "))
+        stext <- paste("; surveys stock", paste(s, collapse = ", "))
       } else {
         stext <- character(0)
       }
 
+      message_info("Index ", i, iname, ":")
+
       if (!is.na(as.integer(sel_i))) {
-        message_info("Index ", i, iname, ": fleet ", sel_i, rtext, stext)
+        message_info("  Mirrors fleet ", sel_i, rtext, stext)
       } else {
-        message_info("Index ", i, iname, ": ", sel_i, rtext, stext)
+        message_info("  ", sel_i, rtext, stext)
       }
 
       if (grepl("logistic", sel_i)) {
@@ -752,6 +761,7 @@ make_map <- function(p, MSAdata, map = list(),
                      ", ascending limb SD = ", round(isel_start[2, i], 2),  " (5% sel = ", round(sel5, 2), ")",
                      ", descending limb SD = ", round(isel_start[3, i], 2))
       }
+      message_info("\n")
     }
   }
 
