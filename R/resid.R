@@ -233,14 +233,17 @@ setMethod("residuals", signature(object = "MSAassess"),
 
 # Vectors
 resid_comp <- function(obs, pred, like, ...) {
+  like <- match.arg(like, choices = eval(formals(like_comp)$type))
 
   dots <- list(...)
 
   obs_prob <- obs/sum(obs, na.rm = TRUE)
   pred_prob <- pred/sum(pred, na.rm = TRUE)
 
+  num <- denom <- rep(NA, length(obs))
+
   # Observed minus predicted
-  num <- switch(
+  num[] <- switch(
     like,
     "multinomial" = dots$N * (obs_prob - pred_prob),
     "dirmult1" = dots$N * (obs_prob - pred_prob),
@@ -249,13 +252,22 @@ resid_comp <- function(obs, pred, like, ...) {
     NA
   )
 
+  if (like == "logitnormal") {
+    i_fit <- obs > 0
+    i_ref <- rep(FALSE, length(obs))
+    i_ref[which(i_fit)[1]] <- TRUE
+    num[] <- log(pobs/pobs[i_ref]) - log(ppred/ppred[i_ref])
+  }
+
   # Variance
-  denom <- switch(
+  # Multinomial variance of obs is Np(1-p), variance of pred is p(1-p)/N
+  denom[] <- switch(
     like,
-    "multinomial" = dots$N * pred_prob * (1 - pred_prob),
+    "multinomial" = pred_prob * (1 - pred_prob)/dots$N,
     "dirmult1" = dots$N * pred_prob * (1 - pred_prob) * dots$N * (1 + dots$theta) / (1 + dots$theta * dots$N),
     "dirmult2" = dots$N * pred_prob * (1 - pred_prob) * (dots$N + dots$theta) / (1 + dots$theta),
     "lognormal" = dots$stdev * dots$stdev,
+    "logitnormal" = dots$stdev * dots$stdev,
     NA
   )
 

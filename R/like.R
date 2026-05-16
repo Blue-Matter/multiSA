@@ -15,7 +15,7 @@
 #' @details
 #' Observed and predicted vectors are internally converted to proportions.
 #'
-#' For `type = "lognormal"`, zero observations are removed from the likelihood calculation.
+#' For `type = "lognormal"` or `"logitnormal"`, zero observations are removed from the likelihood calculation.
 #' @references
 #' Thorson et al. 2017. Model-based estimates of effective sample size in stock assessment models using the
 #' Dirichlet-multinomial distribution. Fish. Res. 192:84-93. \doi{10.1016/j.fishres.2016.06.005}
@@ -30,7 +30,7 @@
 #' like_comp(obs, pred, N = 10, type = "dirmult1", theta = 20)
 #' @importFrom stats rmultinom rnorm
 #' @export
-like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2", "lognormal"),
+like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2", "lognormal", "logitnormal"),
                       N = sum(obs), theta, stdev) {
 
   stopifnot(length(obs) == length(pred))
@@ -75,7 +75,7 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
       }
     } else {
       pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
-      v <- ddirmult_(obs, size = N, alpha = alpha, log = TRUE)
+      v <- RTMBdist::ddirmult(obs, size = N, alpha = alpha, log = TRUE)
     }
 
   } else if (type == "lognormal") {
@@ -88,7 +88,7 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
     if (inherits(obs, "simref")) {
       v <- 0
       if (sum(pred)) {
-        obs[] <- exp(stats::rnorm(length(pred), log(pred/sum(pred)), stdev))
+        obs[] <- exp(stats::rnorm(length(pred), log(ppred), stdev))
       } else {
         obs[] <- NA
       }
@@ -98,19 +98,41 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
       v <- dnorm(log(resid[obs > 0]), 0, stdev[obs > 0], log = TRUE) %>% sum()
     }
 
+  } else if (type == "logitnormal") {
+
+    pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
+    ppred <- pred/sum(pred)
+    stopifnot(length(stdev) == 1 || length(stdev) == length(obs))
+    if (length(stdev) == 1) stdev <- rep(stdev, pobs)
+
+    i_fit <- obs > 0
+    i_ref <- rep(FALSE, length(obs))
+    i_ref[which(i_fit)[1]] <- TRUE
+
+    if (inherits(obs, "simref")) {
+      v <- 0
+      if (sum(pred)) {
+        xpred <- log(ppred[!i_ref]/ppred[i_ref])
+        xsamp <- stats::rnorm(length(xpred), xpred, stdev[!i_ref])
+        y <- exp(xsamp)/(1 + exp(xsamp))
+
+        obs[!i_ref] <- y
+        obs[i_ref] <- 1 - sum(y)
+      } else {
+        obs[] <- NA
+      }
+    } else {
+      pobs <- obs/sum(obs)
+
+      xobs <- log(pobs[i_fit & !i_ref]/pobs[i_ref])
+      xpred <- log(ppred[i_fit & !i_ref]/ppred[i_ref])
+
+      v <- dnorm(xobs, xpred, stdev[i_fit & !i_ref], log = TRUE) %>% sum()
+    }
+
   }
 
   return(v)
-}
-
-ddirmult_ <- function(x, size, alpha, log = FALSE) {
-  x <- size * x/sum(x)
-  val <- lgamma(sum(alpha)) + lgamma(sum(x) + 1) - lgamma(sum(alpha) + sum(x))
-  val2 <- lgamma(x + alpha) - lgamma(alpha) - lgamma(x + 1)
-
-  log_res <- val + sum(val2)
-
-  if (log) log_res else exp(log_res)
 }
 
 #' Likelihood for CKMR

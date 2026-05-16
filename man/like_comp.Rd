@@ -7,7 +7,7 @@
 like_comp(
   obs,
   pred,
-  type = c("multinomial", "dirmult1", "dirmult2", "lognormal"),
+  type = c("multinomial", "dirmult1", "dirmult2", "lognormal", "logitnormal"),
   N = sum(obs),
   theta,
   stdev
@@ -36,7 +36,7 @@ with various statistical distributions supported.
 \details{
 Observed and predicted vectors are internally converted to proportions.
 
-For \code{type = "lognormal"}, zero observations are removed from the likelihood calculation.
+For \code{type = "lognormal"} or \code{"logitnormal"}, zero observations are removed from the likelihood calculation.
 }
 \examples{
 M <- 0.1
