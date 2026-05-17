@@ -256,7 +256,7 @@ resid_comp <- function(obs, pred, like, ...) {
     i_fit <- obs > 0
     i_ref <- rep(FALSE, length(obs))
     i_ref[which(i_fit)[1]] <- TRUE
-    num[] <- log(pobs/pobs[i_ref]) - log(ppred/ppred[i_ref])
+    num[] <- log(obs_prob/obs_prob[i_ref]) - log(pred_prob/pred_prob[i_ref])
   }
 
   # Variance
