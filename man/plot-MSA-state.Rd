@@ -45,7 +45,7 @@ plot_SRR(fit, s = 1, phi = TRUE)
 
 plot_Rdev(fit, s = 1, log = TRUE, figure = TRUE)
 
-plot_Fstock(fit, s, by = c("annual", "season"))
+plot_Fstock(fit, s, by = c("annual", "season"), figure = TRUE)
 
 plot_self(fit, f = 1, type = c("length", "age"), figure = TRUE)
 

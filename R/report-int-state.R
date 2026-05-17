@@ -387,60 +387,49 @@ plot_Rdev <- function(fit, s = 1, log = TRUE, figure = TRUE) {
 #' - `plot_Fstock` plots apical instantaneous fishing mortality (per year or per season) by stock
 #'
 #' @export
-plot_Fstock <- function(fit, s, by = c("annual", "season")) {
+plot_Fstock <- function(fit, s, by = c("annual", "season"), figure = TRUE) {
   by <- match.arg(by)
 
   dat <- get_MSAdata(fit)
   year <- dat@Dlabel@year
   nm <- dat@Dmodel@nm
 
-  unit <- ifelse(by == "annual", "year", "season")
+  unit <- ifelse(by == "annual" || nm == 1, "year", "season")
 
-  if (by == "annual") {
+  if (missing(s)) s <- seq(1, dat@Dmodel@ns)
+
+  if (by == "annual" || nm == 1) {
     var <- "F_yas"
-    if (missing(s)) {
-      x <- fit@report[[var]]
-    } else {
-      x <- fit@report[[var]][, , s, drop = FALSE]
-    }
-    x <- apply(x, c(1, 3), max)
+    x <- fit@report[[var]][, , s, drop = FALSE] %>%
+      apply(c(1, 3), max) %>%
+      structure(dimnames = list(year = year, stock = dat@Dlabel@stock[s]))
 
-  } else if (by == "season" && nm > 1) {
-    if (missing(s)) {
-      F_ymas <- sapply2(1:dat@Dmodel@ns, function(s) {
-        sapply2(1:dat@Dmodel@na, function(a) {
-          sapply(1:nm, function(m) {
-            sapply(1:dat@Dmodel@ny, function(y) {
-              N <- sum(fit@report$N_ymars[y, m, a, , s])
-              CN <- sum(fit@report$CN_ymafrs[y, m, a, , , s])
-              calc_summary_F(M = fit@report$M_yas[y, a, s]/nm, N = N, CN = CN, Fmax = 100)
-            })
+  } else {
+
+    F_ymas <- sapply2(s, function(ss) {
+      sapply2(1:dat@Dmodel@na, function(a) {
+        sapply(1:nm, function(m) {
+          sapply(1:dat@Dmodel@ny, function(y) {
+            N <- sum(fit@report$N_ymars[y, m, a, , ss])
+            CN <- sum(fit@report$CN_ymafrs[y, m, a, , , ss])
+            calc_summary_F(M = fit@report$M_yas[y, a, ss]/nm, N = N, CN = CN, Fmax = 100)
           })
         })
       })
-    } else {
-      F_ymas <- sapply2(1, function(...) {
-        sapply2(1:dat@Dmodel@na, function(a) {
-          sapply(1:nm, function(m) {
-            sapply(1:dat@Dmodel@ny, function(y) {
-              N <- sum(fit@report$N_ymars[y, m, a, , s])
-              CN <- sum(fit@report$CN_ymafrs[y, m, a, , , s])
-              calc_summary_F(M = fit@report$M_yas[y, a, s]/nm, N = N, CN = CN, Fmax = 100)
-            })
-          })
-        })
-      })
-    }
-    x <- apply(F_ymas, c(1, 2, 4), max) %>%
-      collapse_yearseason()
+    })
 
     year <- make_yearseason(year, nm)
+
+    x <- apply(F_ymas, c(1, 2, 4), max) %>%
+      collapse_yearseason() %>%
+      structure(dimnames = list(year = year, stock = dat@Dlabel@stock[s]))
+
   }
 
-  if (exists("x", inherits = FALSE)) {
+  if (figure) {
     x[is.infinite(x)] <- NA
 
-    if (missing(s)) {
+    if (length(s) > 1) {
       name <- dat@Dlabel@stock
       ylab <- paste0("Apical fishing mortality (per ", unit, ")")
     } else {
@@ -456,7 +445,7 @@ plot_Fstock <- function(fit, s, by = c("annual", "season")) {
 
   }
 
-  invisible()
+  invisible(reshape2::melt(x, value.name = "F"))
 }
 
 
