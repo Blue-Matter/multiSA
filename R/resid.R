@@ -245,18 +245,20 @@ resid_comp <- function(obs, pred, like, ...) {
   # Observed minus predicted
   num[] <- switch(
     like,
-    "multinomial" = dots$N * (obs_prob - pred_prob),
-    "dirmult1" = dots$N * (obs_prob - pred_prob),
-    "dirmult2" = dots$N * (obs_prob - pred_prob),
+    "multinomial" = obs_prob - pred_prob,
+    "dirmult1" = obs_prob - pred_prob,
+    "dirmult2" = obs_prob - pred_prob,
     "lognormal" = ifelse(obs > 0, log(obs_prob/pred_prob), NA),
     NA
   )
 
   if (like == "logitnormal") {
     i_fit <- obs > 0
-    i_ref <- rep(FALSE, length(obs))
-    i_ref[which(i_fit)[1]] <- TRUE
-    num[] <- log(obs_prob/obs_prob[i_ref]) - log(pred_prob/pred_prob[i_ref])
+    if (any(i_fit)) {
+      i_ref <- rep(FALSE, length(obs))
+      i_ref[which(i_fit)[1]] <- TRUE
+      num[] <- log(obs_prob/obs_prob[i_ref]) - log(pred_prob/pred_prob[i_ref])
+    }
   }
 
   # Variance
