@@ -891,7 +891,8 @@ plot_mov <- function(fit, s = 1, y, a, palette = "Peach", figure = TRUE) {
       yaxs = "i", xaxs = "i",
       yaxl = tick_fn, xaxl = tick_fn,
       yaxb = 1:nr, xaxb = c(1:nr, nr + 1.5),
-      type = "rect", palette = palette
+      type = "rect", palette = palette,
+      main = if (dat@Dmodel@ns > 1) dat@Dlabel@stock[s] else NULL
     )
     do.call(tinyplot, tinyplot_args)
 
@@ -900,16 +901,7 @@ plot_mov <- function(fit, s = 1, y, a, palette = "Peach", figure = TRUE) {
       type = type_text(labels = df$label, adj = 0.5),
       add = TRUE
     )
-
-    #for(m in 1:nm) {
-    #  .plot_mov(m = mov[m, , ], p = dist_eq[m, ], rname = rname, xlab = "", ylab = "", palette = palette)
-    #  if (nm > 1) title(mname[m], font.main = 1)
-    #}
-    #par(mfrow = c(1, 1))
-    #mtext("Destination", side = 1, line = 3.5)
-    #mtext("Origin", side = 2, line = 3)
   }
-
 
   invisible(output)
 }
