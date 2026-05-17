@@ -75,7 +75,7 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
       }
     } else {
       pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
-      v <- RTMBdist::ddirmult(obs, size = N, alpha = alpha, log = TRUE)
+      v <- ddirmult_(obs, size = N, alpha = alpha, log = TRUE)
     }
 
   } else if (type == "lognormal") {
@@ -162,4 +162,15 @@ like_CKMR <- function(n, m, p, type = c("binomial", "poisson")) {
     v <- dpois(m, n * p, log = TRUE)
   }
   return(v)
+}
+
+ddirmult_ <- function(x, size, alpha, log = FALSE) {
+  x <- size * x/sum(x)
+  alpha0 <- sum(alpha)
+  val <- lgamma(alpha0) + lgamma(size + 1) - lgamma(alpha0 + size)
+  val2 <- lgamma(x + alpha) - lgamma(alpha) - lgamma(x + 1)
+
+  log_res <- val + sum(val2)
+
+  if (log) log_res else exp(log_res)
 }
