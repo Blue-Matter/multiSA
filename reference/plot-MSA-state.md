@@ -6,21 +6,38 @@ series, etc.)
 ## Usage
 
 ``` r
-plot_S(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE)
+plot_S(
+  fit,
+  by = c("stock", "region"),
+  r,
+  s,
+  prop = FALSE,
+  facet_free = FALSE,
+  figure = TRUE,
+  ylab
+)
 
-plot_B(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_free = FALSE)
+plot_B(
+  fit,
+  by = c("stock", "region"),
+  r,
+  s,
+  prop = FALSE,
+  facet_free = FALSE,
+  figure = TRUE
+)
 
-plot_R(fit, s)
+plot_R(fit, s, figure = TRUE)
 
 plot_SRR(fit, s = 1, phi = TRUE)
 
-plot_Rdev(fit, s = 1, log = TRUE)
+plot_Rdev(fit, s = 1, log = TRUE, figure = TRUE)
 
-plot_Fstock(fit, s, by = c("annual", "season"))
+plot_Fstock(fit, s, by = c("annual", "season"), figure = TRUE)
 
-plot_self(fit, f = 1, type = c("length", "age"))
+plot_self(fit, f = 1, type = c("length", "age"), figure = TRUE)
 
-plot_seli(fit, i = 1)
+plot_seli(fit, i = 1, figure = TRUE)
 
 plot_selstock(
   fit,
@@ -36,9 +53,9 @@ plot_V(fit, f = 1, by = c("stock", "region"), prop = FALSE, facet_free = FALSE)
 
 plot_Ffleet(fit, f = 1)
 
-plot_mov(fit, s = 1, y, a, palette = "Peach")
+plot_mov(fit, s = 1, y, a, palette = "Peach", figure = TRUE)
 
-plot_recdist(fit, palette = "Peach")
+plot_recdist(fit, palette = "Peach", figure = TRUE)
 ```
 
 ## Arguments
@@ -70,6 +87,14 @@ plot_recdist(fit, palette = "Peach")
 
   Logical, whether to allow the y-axis limits to vary by panel in
   facetted plots
+
+- figure, :
+
+  Logical, whether to generate the plot
+
+- ylab:
+
+  Optional character string for custom y-axis label
 
 - phi:
 
@@ -128,7 +153,8 @@ plot_recdist(fit, palette = "Peach")
 
 ## Value
 
-Various base graphics plots
+Invisible data frame of state variables that were plotted in base
+graphics figures
 
 ## Details
 

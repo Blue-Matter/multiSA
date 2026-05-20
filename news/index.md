@@ -2,8 +2,14 @@
 
 ## multiSA 0.2.0
 
-- New selectivity options (constant over size and age range), mapping a
+- New selectivity options: constant over size and age range, mapping a
   subset of length or age from fleet to index
+- Add
+  [`calc_init_population()`](https://blue-matter.github.io/multiSA/reference/calc_init_population.md)
+  for spool-up in spatial or seasonal models
+- Report most state variables and fits to data invisibly in plotting
+  function
+- Add multivariate logitnormal likelihood to comp data
 
 ## multiSA 0.1.1
 

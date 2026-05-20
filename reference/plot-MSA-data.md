@@ -6,21 +6,28 @@ age composition, etc.)
 ## Usage
 
 ``` r
-plot_catch(fit, f = 1, by = c("region", "stock"), prop = FALSE, annual = FALSE)
+plot_catch(
+  fit,
+  f = 1,
+  by = c("region", "stock"),
+  prop = FALSE,
+  annual = FALSE,
+  figure = TRUE
+)
 
-plot_index(fit, i = 1, zoom = FALSE)
+plot_index(fit, i = 1, zoom = FALSE, figure = TRUE)
 
-plot_CAA(fit, f = 1, r = 1, do_mean = FALSE)
+plot_CAA(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE)
 
-plot_CAL(fit, f = 1, r = 1, do_mean = FALSE)
+plot_CAL(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE)
 
-plot_IAA(fit, i = 1, do_mean = FALSE)
+plot_IAA(fit, i = 1, do_mean = FALSE, figure = TRUE)
 
-plot_IAL(fit, i = 1, do_mean = FALSE)
+plot_IAL(fit, i = 1, do_mean = FALSE, figure = TRUE)
 
-plot_SC(fit, ff = 1, aa = 1, r = 1, prop = FALSE)
+plot_SC(fit, ff = 1, aa = 1, r = 1, prop = FALSE, figure = TRUE)
 
-plot_tagmov(fit, s = 1, yy = 1, aa = 1)
+plot_tagmov(fit, s = 1, yy = 1, aa = 1, figure = TRUE)
 ```
 
 ## Arguments
@@ -46,6 +53,10 @@ plot_tagmov(fit, s = 1, yy = 1, aa = 1)
 - annual:
 
   Logical, whether to plot annual values (summed over seasons)
+
+- figure:
+
+  Logical, whether to generate the plot
 
 - i:
 
@@ -85,7 +96,8 @@ plot_tagmov(fit, s = 1, yy = 1, aa = 1)
 
 ## Value
 
-Various base graphics plots
+Invisible data frame of observed and predicted values plotted in base
+graphics figures
 
 ## Details
 

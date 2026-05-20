@@ -9,7 +9,7 @@ stock composition, with various statistical distributions supported.
 like_comp(
   obs,
   pred,
-  type = c("multinomial", "dirmult1", "dirmult2", "lognormal"),
+  type = c("multinomial", "dirmult1", "dirmult2", "lognormal", "logitnormal"),
   N = sum(obs),
   theta,
   stdev
@@ -55,8 +55,8 @@ Numeric representing the log-likelihood.
 
 Observed and predicted vectors are internally converted to proportions.
 
-For `type = "lognormal"`, zero observations are removed from the
-likelihood calculation.
+For `type = "lognormal"` or `"logitnormal"`, zero observations are
+removed from the likelihood calculation.
 
 ## References
 
