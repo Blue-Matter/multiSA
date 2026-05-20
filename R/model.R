@@ -884,11 +884,9 @@ update_report <- function(r, MSAdata) {
     tagpred_ymarrs[] <- sapply2(1:nrow(Dtag@tag_aa), function(aa) {
       a1 <- which(Dtag@tag_aa[aa, ] > 0)[1]
       sapply2(1:nm, function(m) {
-        mprev <- ifelse(m == 1, nm, m - 1)
         sapply2(1:nrow(Dtag@tag_yy), function(yy) {
           y1 <- which(Dtag@tag_yy[yy, ] > 0)[1]
-          yprev <- ifelse(y1 == 1, 1, y1 - 1)
-          mov_ymarrs[yprev, mprev, a1, , , ] # rrsyma
+          mov_ymarrs[y1, m, a1, , , ] # rrsyma
         })
       })
     }) %>%
