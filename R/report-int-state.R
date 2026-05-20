@@ -244,18 +244,20 @@ plot_B <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_fre
     output <- structure(x, dimnames = list(year = year, region = rname, stock = sname))
   }
 
-  color <- make_color(ncol(x), type = by)
+  if (figure) {
+    color <- make_color(ncol(x), type = by)
 
-  if (prop) {
-    ylab <- "Biomass fraction"
-  } else {
-    ylab <- "Total biomass"
+    if (prop) {
+      ylab <- "Biomass fraction"
+    } else {
+      ylab <- "Total biomass"
+    }
+
+    barplot2(x, cols = color, leg.names = leg.name, facet.names = facet.name, xval = year, ylab = ylab, prop = prop,
+             facet.free = facet_free)
   }
 
-  barplot2(x, cols = color, leg.names = leg.name, facet.names = facet.name, xval = year, ylab = ylab, prop = prop,
-           facet.free = facet_free)
-
-  invisible(reshape2::melt(x, value.name = "B"))
+  invisible(reshape2::melt(output, value.name = "B"))
 }
 
 
