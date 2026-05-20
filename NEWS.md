@@ -6,6 +6,8 @@
 - Add `calc_init_population()` for spool-up in spatial or seasonal models
 - Report most state variables and fits to data invisibly in plotting function
 - Add multivariate logitnormal likelihood to comp data
+- Update residual calculation for composition data
+- Fix predictions of tag transitions. Model previously had a 1 season lag that was erroneous. 
 
 ## multiSA 0.1.1
 
