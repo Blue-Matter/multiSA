@@ -472,6 +472,14 @@ plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE, figure = TRUE) {
         region = dat@Dlabel@region[r]
       )
       output <- merge(N_df, merge(obs_df, pred_df))
+
+      if (length(dat@Dfishery@SCstdev_ymafrs)) {
+        se_df <- apply(dat@Dfishery@SCstdev_ymafrs[, , aa, ff, r, , drop = FALSE], c(1, 2, 6), identity) %>%
+          collapse_yearseason() %>%
+          structure(dimnames = list(year = year, stock = Dlabel@stock)) %>%
+          reshape2::melt(value.name = "se")
+        output <- merge(output, se_df)
+      }
     }
   }
 
