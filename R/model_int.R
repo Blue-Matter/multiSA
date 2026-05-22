@@ -148,16 +148,14 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
 
     F_frs[] <- sapply2(1:ns, function(s) q_fs[, s] * F_loop)
     F_afrs[] <- F_frs[frs_afrs] * sel[afs_afrs]
-    F_ars[] <- 0
-    for (f in 1:nf) F_ars[] <- F_ars[] + array(F_afrs[, f, , ], c(na, nr, ns))
+    F_ars[] <- apply(F_afrs, c(1, 3, 4), sum)
+
     Z_ars[] <- F_ars + delta * M[as_ars]
     gamma_ars[] <- 1 - exp(-Z_ars)
 
     CN_afrs[] <- F_afrs * gamma_ars[ars_afrs] * N[ars_afrs]/Z_ars[ars_afrs]
     CB_afrs[] <- CN_afrs * wt[afs_afrs]
-    for (f in 1:nf) {
-      for (r in 1:nr) CB_fr[f, r] <- sum(CB_afrs[, f, r, ])
-    }
+    CB_fr[] <- apply(CB_afrs, 2:3, sum)
 
     fn[[i]] <- CB_fr - Cobs
 
@@ -175,10 +173,7 @@ calc_F <- function(Cobs, N, sel, wt, M, q_fs, delta = 1,
     deriv3_afrs[] <- deriv2_afrs - gamma_ars[ars_afrs] * F_loop[fr_afrs] * deriv_Z_afrs
     deriv_afrs[] <- deriv3_afrs/Z_ars[ars_afrs]/Z_ars[ars_afrs]
 
-    gr[[i]] <- matrix(0, nf, nr)
-    for (f in 1:nf) {
-      for (r in 1:nr) gr[[i]][f, r] <- gr[[i]][f, r] + sum(constants_afrs[, f, r, ] * deriv_afrs[, f, r, ])
-    }
+    gr[[i]] <- apply(constants_afrs * deriv_afrs, 2:3, sum)
 
     if (i <= nitF) x_loop[[i+1]] <- x_loop[[i]] - fn[[i]]/gr[[i]]
   }
@@ -381,12 +376,16 @@ calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
   mov <- array(mov, c(na, nr, nr, ns))
 
   # Apply survival and advance age class ----
+  Nsurv_ars_temp <- N * surv
   if (advance_age) {
-    Nsurv_ars <- array(0, c(na, nr, ns))
-    Nsurv_ars[2:na, , ] <- N[2:na - 1, , ] * surv[2:na - 1, , ]
-    if (plusgroup) Nsurv_ars[na, , ] <- Nsurv_ars[na, , ] + N[na, , ] * surv[na, , ]
+    Nsurv_a_rs <- array(list(), na)
+    Nsurv_a_rs[[1]] <- matrix(0, nr, ns)
+    Nsurv_a_rs[seq(2, na)] <- lapply(seq(1, na - 1), function(a) matrix(Nsurv_ars_temp[a, , ], nr, ns))
+    if (plusgroup) Nsurv_a_rs[[na]] <- Nsurv_a_rs[[na]] + Nsurv_ars_temp[na, , ]
+
+    Nsurv_ars <- do.call(c, Nsurv_a_rs) %>% array(c(nr, ns, na)) %>% aperm(c(3, 1:2))
   } else {
-    Nsurv_ars <- N * surv
+    Nsurv_ars <- Nsurv_ars_temp
   }
 
   # Distribute stock ----
@@ -396,12 +395,7 @@ calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
     arfs_arrs <- ind_arrs[, c("a", "rf", "s")]
 
     Nnext_arrs <- array(Nsurv_ars[arfs_arrs] * mov, c(na, nr, nr, ns))
-    Nnext_ars[] <- 0
-    for (a in 1:na) {
-      for (s in 1:ns) {
-        for (r in 1:nr) Nnext_ars[a, r, s] <- Nnext_ars[a, r, s] + sum(Nnext_arrs[a, , r, s])
-      }
-    }
+    Nnext_ars[] <- apply(Nnext_arrs, c(1, 3, 4), sum)
   } else {
     Nnext_ars[] <- Nsurv_ars
   }
