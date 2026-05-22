@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 ## By fleet {.tabset}
 
 ```{r}
-summary(object, by = "fleet") %>% as.data.frame()
+summary(object, by = "fleet") |> as.data.frame()
 ```
 
 <!-- *ADD FLEET RMD* -->
@@ -36,7 +36,7 @@ summary(object, by = "fleet") %>% as.data.frame()
 ## By stock {.tabset}
 
 ```{r}
-summary(object, by = "stock") %>% as.data.frame()
+summary(object, by = "stock") |> as.data.frame()
 ```
 
 <!-- *ADD STOCK RMD* -->

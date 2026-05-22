@@ -21,7 +21,7 @@ make_tinyplot <- function(year, x, ylab, name, color, type = "o",
                           leg = if (ncol(x) > 1) substitute(legend(title = NULL)) else "none",
                           ylim = c(0, 1.1) * range(x, na.rm = TRUE)) {
 
-  df <- structure(x, dimnames = list(year = year, by = name)) %>%
+  df <- structure(x, dimnames = list(year = year, by = name)) |>
     reshape2::melt()
 
   tinyplot_args <- list(
@@ -63,7 +63,7 @@ barplot2 <- function(x, cols, leg.names, facet.names = NULL, xval, ylab = ifelse
       ylim <- c(0, 1.1) * range(rowSums(x))
     }
 
-    df <- structure(p, dimnames = list(by = leg.names, xval = xval)) %>%
+    df <- structure(p, dimnames = list(by = leg.names, xval = xval)) |>
       reshape2::melt()
 
   } else if (ndim == 3) {
@@ -76,7 +76,7 @@ barplot2 <- function(x, cols, leg.names, facet.names = NULL, xval, ylab = ifelse
       ylim <- c(0, 1.1) * range(apply(p, 1:2, sum))
     }
 
-    df <- structure(p, dimnames = list(by = leg.names, xval = xval, facet = facet.names)) %>%
+    df <- structure(p, dimnames = list(by = leg.names, xval = xval, facet = facet.names)) |>
       reshape2::melt()
 
   } else {
@@ -174,7 +174,7 @@ plot_S <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_fre
   if (by == "stock") {
     leg.name <- sname
     facet.name <- rname
-    x <- array(fit@report[[var]][, r, s, drop = FALSE], c(ny, length(rname), length(sname))) %>%
+    x <- array(fit@report[[var]][, r, s, drop = FALSE], c(ny, length(rname), length(sname))) |>
       aperm(c(1, 3, 2))
 
     output <- structure(x, dimnames = list(year = year, stock = sname, region = rname))
@@ -227,7 +227,7 @@ plot_B <- function(fit, by = c("stock", "region"), r, s, prop = FALSE, facet_fre
   if (by == "stock") {
     leg.name <- sname
     facet.name <- rname
-    x <- array(fit@report[[var]][, , r, s, drop = FALSE], c(ny, nm, length(rname), length(sname))) %>%
+    x <- array(fit@report[[var]][, , r, s, drop = FALSE], c(ny, nm, length(rname), length(sname))) |>
       aperm(c(1, 2, 4, 3)) # B_ymsr
   } else {
     leg.name <- rname
@@ -402,8 +402,8 @@ plot_Fstock <- function(fit, s, by = c("annual", "season"), figure = TRUE) {
 
   if (by == "annual" || nm == 1) {
     var <- "F_yas"
-    x <- fit@report[[var]][, , s, drop = FALSE] %>%
-      apply(c(1, 3), max) %>%
+    x <- fit@report[[var]][, , s, drop = FALSE] |>
+      apply(c(1, 3), max) |>
       structure(dimnames = list(year = year, stock = dat@Dlabel@stock[s]))
 
   } else {
@@ -422,8 +422,8 @@ plot_Fstock <- function(fit, s, by = c("annual", "season"), figure = TRUE) {
 
     year <- make_yearseason(year, nm)
 
-    x <- apply(F_ymas, c(1, 2, 4), max) %>%
-      collapse_yearseason() %>%
+    x <- apply(F_ymas, c(1, 2, 4), max) |>
+      collapse_yearseason() |>
       structure(dimnames = list(year = year, stock = dat@Dlabel@stock[s]))
 
   }
@@ -497,7 +497,7 @@ plot_self <- function(fit, f = 1, type = c("length", "age"), figure = TRUE) {
               ylim = c(0, 1), lty = 1, zero_line = TRUE)
       if (ncol(x) > 1) legend("topright", legend = name, col = color, lwd = 1, pch = 16)
     }
-    output <- structure(t(x), dimnames = list(year = name, length = lmid)) %>%
+    output <- structure(t(x), dimnames = list(year = name, length = lmid)) |>
       reshape2::melt(value.name = "sel")
     output$fleet <- fname
 
@@ -523,7 +523,7 @@ plot_self <- function(fit, f = 1, type = c("length", "age"), figure = TRUE) {
       })
       x <- x[ybreak, , drop = FALSE]
 
-      output <- structure(x, dimnames = list(year = name, age = age)) %>%
+      output <- structure(x, dimnames = list(year = name, age = age)) |>
         reshape2::melt(value.name = "sel")
       output$fleet <- fname
 
@@ -613,7 +613,7 @@ plot_seli <- function(fit, i = 1, figure = TRUE) {
         })
         x <- x[ybreak, , drop = FALSE]
 
-        output <- structure(x, dimnames = list(year = name, age = age)) %>%
+        output <- structure(x, dimnames = list(year = name, age = age)) |>
           reshape2::melt(value.name = "sel")
         output$name <- iname
 
@@ -666,8 +666,8 @@ plot_selstock <- function(fit, s = 1, by = c("annual", "season"), plot2d = c("co
   nm <- max(length(dat@Dlabel@season), 1)
 
   if (by == "annual") {
-    sel_ya <- fit@report$F_yas[, , s] %>%
-      apply(1, function(x) x/max(x)) %>%
+    sel_ya <- fit@report$F_yas[, , s] |>
+      apply(1, function(x) x/max(x)) |>
       t()
   } else if (by == "season" && nm > 1) {
 
@@ -681,8 +681,8 @@ plot_selstock <- function(fit, s = 1, by = c("annual", "season"), plot2d = c("co
         })
       })
     })
-    sel_ya <- collapse_yearseason(F_yma) %>%
-      apply(1, function(x) x/max(x)) %>%
+    sel_ya <- collapse_yearseason(F_yma) |>
+      apply(1, function(x) x/max(x)) |>
       t()
   }
 
@@ -756,7 +756,7 @@ plot_V <- function(fit, f = 1, by = c("stock", "region"), prop = FALSE, facet_fr
   if (by == "stock") {
     leg.name <- sname
     facet.name <- rname
-    x <- array(fit@report[[var]][, , f, , , drop = FALSE], c(ny, nm, length(rname), length(sname))) %>%
+    x <- array(fit@report[[var]][, , f, , , drop = FALSE], c(ny, nm, length(rname), length(sname))) |>
       aperm(c(1, 2, 4, 3)) # B_ymsr
   } else {
     leg.name <- rname
@@ -846,11 +846,11 @@ plot_mov <- function(fit, s = 1, y, a, palette = "Peach", figure = TRUE) {
 
   dist_eq <- calc_eqdist(mov, start = fit@report$recdist_rs[, s], m_start = dat@Dstock@m_spawn)
 
-  df_mov <- structure(mov, dimnames = list(Season = mname, Origin = 1:nr, Destination = 1:nr)) %>%
+  df_mov <- structure(mov, dimnames = list(Season = mname, Origin = 1:nr, Destination = 1:nr)) |>
     reshape2::melt(value.name = "proportion")
 
-  df_eq <- structure(dist_eq, dimnames = list(Season = mname, Origin = 1:nr)) %>%
-    reshape2::melt(value.name = "proportion") %>%
+  df_eq <- structure(dist_eq, dimnames = list(Season = mname, Origin = 1:nr)) |>
+    reshape2::melt(value.name = "proportion") |>
     cbind("Destination" = nr + 1.5)
 
   df <- rbind(df_mov, df_eq[, c("Season", "Origin", "Destination", "proportion")])
@@ -881,7 +881,7 @@ plot_mov <- function(fit, s = 1, y, a, palette = "Peach", figure = TRUE) {
     #  par(mfrow = c(2, ceiling(nm/2)))
     #}
 
-    df$label <- round(df$proportion, 2) %>% format()
+    df$label <- round(df$proportion, 2) |> format()
 
     tick_fn <- function(i) ifelse(i > nr, "Eq.", as.character(rname[i]))
     tinyplot_args <- list(
@@ -926,7 +926,7 @@ plot_recdist <- function(fit, palette = "Peach", figure = TRUE) {
 
     recdist <- fit@report$recdist_rs
 
-    output <- structure(recdist, dimnames = list(region = rname, stock = sname)) %>%
+    output <- structure(recdist, dimnames = list(region = rname, stock = sname)) |>
       reshape2::melt(value.name = "proportion")
 
     if (figure) {
@@ -949,7 +949,7 @@ plot_recdist <- function(fit, palette = "Peach", figure = TRUE) {
       #axis(1, at = 1:ns + 0.5, labels = as.character(sname), font = 2, cex.axis = 0.75)
       #axis(2, at = 1:nr + 0.5, labels = as.character(rname), font = 2, cex.axis = 0.75)
 
-      df <- structure(recdist, dimnames = list(r = 1:nr, s = 1:ns)) %>%
+      df <- structure(recdist, dimnames = list(r = 1:nr, s = 1:ns)) |>
         reshape2::melt()
       df$label <- round(df$value, 2)
 

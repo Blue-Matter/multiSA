@@ -53,7 +53,7 @@ setMethod("profile", signature(fitted = "MSAassess"),
               prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, c(out$p1[i], out$p2[i])))
             }
 
-            prof_df <- cbind(out, do.call(rbind, prof)) %>%
+            prof_df <- cbind(out, do.call(rbind, prof)) |>
               structure(class = c("MSAprof", "data.frame"))
 
             names(prof_df)[1] <- attr(prof_df, "p1") <- p1
@@ -155,7 +155,7 @@ get_likelihood_components <- function(fit) {
 
     nm_out <- c(nm_like, nm_pr, "penalty", "fn")
 
-    out <- lapply(nm_out, function(i) sum(fit@report[[i]])) %>%
+    out <- lapply(nm_out, function(i) sum(fit@report[[i]])) |>
       structure(names = nm_out)
   }
 

@@ -207,7 +207,7 @@ update_report <- function(r, MSAdata) {
   }
 
   if (any_CAL || (any_IAL && any(is_IALfsel_i))) {
-    LAKsel_ymalfs <- array(NA_real_, c(ny, nm, na, nl, ns, nf)) %>%
+    LAKsel_ymalfs <- array(NA_real_, c(ny, nm, na, nl, ns, nf)) |>
       aperm(c(1:4, 6, 5))
   }
 
@@ -219,7 +219,7 @@ update_report <- function(r, MSAdata) {
 
     if (any_IAL) {
       IN_ymlis <- array(NA_real_, c(ny, nm, nl, ni, ns))
-      LAKsel_ymalis <- array(NA_real_, c(ny, nm, na, nl, ns, ni)) %>%
+      LAKsel_ymalis <- array(NA_real_, c(ny, nm, na, nl, ns, ni)) |>
         aperm(c(1:4, 6, 5))
     }
   }
@@ -394,8 +394,8 @@ update_report <- function(r, MSAdata) {
 
   if (nm == 1 && nr == 1) {
     nyinit <- 1L
-    NPR0_mars <- sapply2(1:ns, function(s) calc_NPR(M_yas[Dmodel@y_phi, , s])) %>%
-      array(c(na, ns, nm, nr)) %>%
+    NPR0_mars <- sapply2(1:ns, function(s) calc_NPR(M_yas[Dmodel@y_phi, , s])) |>
+      array(c(na, ns, nm, nr)) |>
       aperm(c(3, 1, 4, 2))
     phi_s <- sapply(1:ns, function(s) {
       calc_phi_simple(M_yas[Dmodel@y_phi, , s], mat_a = mat_yas[Dmodel@y_phi, , s], fec_a = Dstock@fec_yas[Dmodel@y_phi, , s],
@@ -556,7 +556,7 @@ update_report <- function(r, MSAdata) {
   ind_ymars <- as.matrix(expand.grid(y = 1:ny, m = 1:nm, a = 1:na, r = 1:nr, s = 1:ns))
   ymas_ymars <- ind_ymars[, c("y", "m", "a", "s")]
 
-  B_ymrs[] <- array(N_ymars[ind_ymars] * Dstock@swt_ymas[ymas_ymars], c(ny, nm, na, nr, ns)) %>%
+  B_ymrs[] <- array(N_ymars[ind_ymars] * Dstock@swt_ymas[ymas_ymars], c(ny, nm, na, nr, ns)) |>
     apply(c(1, 2, 4, 5), sum)
 
   # Likelihoods ----
@@ -658,7 +658,7 @@ update_report <- function(r, MSAdata) {
 
   if (any_CAL) {
     CN_ymalfrs <- array(NA_real_, c(ny, nm, na, nl, nf, nr, ns))
-    ind_ymalfrs <- expand.grid(y = 1:ny, m = 1:nm, a = 1:na, l = 1:nl, f = 1:nf, r = 1:nr, s = 1:ns) %>%
+    ind_ymalfrs <- expand.grid(y = 1:ny, m = 1:nm, a = 1:na, l = 1:nl, f = 1:nf, r = 1:nr, s = 1:ns) |>
       as.matrix()
     ymafrs_ymalfrs <- ind_ymalfrs[, c("y", "m", "a", "f", "r", "s")]
     ymalfs_ymalfrs <- ind_ymalfrs[, c("y", "m", "a", "l", "f", "s")]
@@ -774,7 +774,7 @@ update_report <- function(r, MSAdata) {
     }
 
     IN_ymalis <- array(NA_real_, c(ny, nm, na, nl, ni, ns))
-    ind_ymalis <- expand.grid(y = 1:ny, m = 1:nm, a = 1:na, l = 1:nl, i = 1:ni, s = 1:ns) %>%
+    ind_ymalis <- expand.grid(y = 1:ny, m = 1:nm, a = 1:na, l = 1:nl, i = 1:ni, s = 1:ns) |>
       as.matrix()
     ymais_ymalis <- ind_ymalis[, c("y", "m", "a", "i", "s")]
     IN_ymalis[] <- IN_ymais[ymais_ymalis] * LAKsel_ymalis
@@ -809,7 +809,7 @@ update_report <- function(r, MSAdata) {
         avec <- Dfishery@SC_aa[aa, ]
         apply(CN_ymafrs[, , avec, fvec, , , drop = FALSE], c(1, 2, 5, 6), sum)
       })
-    }) %>%
+    }) |>
       aperm(c(1, 2, 5, 6, 3, 4))
 
     loglike_SC_ymafr <- array(0, dim(SC_ymafrs)[1:5])
@@ -889,7 +889,7 @@ update_report <- function(r, MSAdata) {
           mov_ymarrs[y1, m, a1, , , ] # rrsyma
         })
       })
-    }) %>%
+    }) |>
       aperm(c(4:6, 1:3))
 
     loglike_tag_mov_ymars <- sapply2(1:ns, function(s) { # Likelihood of where the fish are going

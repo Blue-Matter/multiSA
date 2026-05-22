@@ -1,6 +1,5 @@
 
 #' @import RTMB
-#' @importFrom dplyr %>%
 NULL
 
 #' @importFrom methods callNextMethod

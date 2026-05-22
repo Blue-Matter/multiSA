@@ -105,7 +105,7 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
   } else {
     dim_pbc <- dim(Dmodel@pbc_rdev_ys)
     if (any(dim_pbc != c(Dmodel@ny, Dmodel@ns))) {
-      stop("dim(", ch, "@pbc_rdev_ys) should be ", c(Dmodel@ny, Dmodel@ns) %>% paste(collapse = ", "))
+      stop("dim(", ch, "@pbc_rdev_ys) should be ", c(Dmodel@ny, Dmodel@ns) |> paste(collapse = ", "))
     }
   }
   if (!length(Dmodel@pbc_initrdev_as)) {
@@ -115,7 +115,7 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
   } else {
     dim_pbc <- dim(Dmodel@pbc_initrdev_as)
     if (any(dim_pbc != c(Dmodel@na-1, Dmodel@ns))) {
-      stop("dim(", ch, "@pbc_initrdev_as) should be ", c(Dmodel@na-1, Dmodel@ns) %>% paste(collapse = ", "))
+      stop("dim(", ch, "@pbc_initrdev_as) should be ", c(Dmodel@na-1, Dmodel@ns) |> paste(collapse = ", "))
     }
   }
 
@@ -150,43 +150,43 @@ check_Dstock <- function(Dstock, Dmodel, silent = FALSE) {
   if (nl > 0) {
     if (length(Dstock@LAK_ymals)) {
       dim_LAK <- dim(Dstock@LAK_ymals) == c(ny, nm, na, nl, ns)
-      if (!all(dim_LAK)) stop("dim(", ch, "@LAK_ymals) needs to be: ", c(ny, nm, na, nl, ns) %>% paste(collapse = ", "))
+      if (!all(dim_LAK)) stop("dim(", ch, "@LAK_ymals) needs to be: ", c(ny, nm, na, nl, ns) |> paste(collapse = ", "))
     } else {
 
       dim_len <- dim(Dstock@len_ymas) == c(ny, nm, na, ns)
-      if (!all(dim_len)) stop("dim(", ch, "@len_ymas) needs to be: ", c(ny, nm, na, ns) %>% paste(collapse = ", "))
+      if (!all(dim_len)) stop("dim(", ch, "@len_ymas) needs to be: ", c(ny, nm, na, ns) |> paste(collapse = ", "))
 
       dim_sdlen <- dim(Dstock@sdlen_ymas) == c(ny, nm, na, ns)
-      if (!all(dim_sdlen)) stop("dim(", ch, "@sdlen_ymas) needs to be: ", c(ny, nm, na, ns) %>% paste(collapse = ", "))
+      if (!all(dim_sdlen)) stop("dim(", ch, "@sdlen_ymas) needs to be: ", c(ny, nm, na, ns) |> paste(collapse = ", "))
 
       if (!silent) message("Calculating ", ch, "@LAK_ymals array")
       Dstock@LAK_ymals <- sapply2(1:ns, function(s) {
         sapply2(1:nm, function(m) {
           sapply2(1:ny, function(y) calc_LAK(Dstock@len_ymas[y, m, , s], Dstock@sdlen_ymas[y, m, , s], Dmodel@lbin))
         })
-      }) %>% aperm(c(3, 4, 1, 2, 5))
+      }) |> aperm(c(3, 4, 1, 2, 5))
     }
   }
 
   if (!length(Dstock@mat_yas)) {
     dim_mat <- dim(Dstock@mat_yas) == c(ny, na, ns)
-    if (!all(dim_mat)) stop("dim(", ch, "@mat_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
+    if (!all(dim_mat)) stop("dim(", ch, "@mat_yas) needs to be: ", c(ny, na, ns) |> paste(collapse = ", "))
   }
 
   dim_swt <- dim(Dstock@swt_ymas) == c(ny, nm, na, ns)
-  if (!all(dim_swt)) stop("dim(", ch, "@swt_ymas) needs to be: ", c(ny, nm, na, ns) %>% paste(collapse = ", "))
+  if (!all(dim_swt)) stop("dim(", ch, "@swt_ymas) needs to be: ", c(ny, nm, na, ns) |> paste(collapse = ", "))
 
   if (!length(Dstock@fec_yas)) {
     if (!silent) message("Setting fecundity to stock weight at age at season of spawning")
     Dstock@fec_yas <- array(Dstock@swt_ymas[, Dstock@m_spawn, , ], c(ny, na, ns))
   } else {
     dim_fec <- dim(Dstock@fec_yas) == c(ny, na, ns)
-    if (!all(dim_fec)) stop("dim(", ch, "@fec_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
+    if (!all(dim_fec)) stop("dim(", ch, "@fec_yas) needs to be: ", c(ny, na, ns) |> paste(collapse = ", "))
   }
 
   if (!length(Dstock@M_yas)) {
     dim_M <- dim(Dstock@M_yas) == c(ny, na, ns)
-    if (!all(dim_M)) stop("dim(", ch, "@M_yas) needs to be: ", c(ny, na, ns) %>% paste(collapse = ", "))
+    if (!all(dim_M)) stop("dim(", ch, "@M_yas) needs to be: ", c(ny, na, ns) |> paste(collapse = ", "))
   }
 
   if (length(Dstock@SRR_s) != ns) stop("SRR_s needs to be length ", ns)
@@ -198,12 +198,12 @@ check_Dstock <- function(Dstock, Dmodel, silent = FALSE) {
   if (!length(Dstock@presence_rs)) {
     Dstock@presence_rs <- matrix(TRUE, nr, ns)
   } else if (any(dim(Dstock@presence_rs) != c(nr, ns))) {
-    stop("dim(", ch, "@presence_rs) needs to be: ", c(nr, ns) %>% paste(collapse = ", "))
+    stop("dim(", ch, "@presence_rs) needs to be: ", c(nr, ns) |> paste(collapse = ", "))
   }
   if (!length(Dstock@natal_rs)) {
     Dstock@natal_rs <- matrix(1, nr, ns)
   } else if (any(dim(Dstock@natal_rs) != c(nr, ns))) {
-    stop("dim(", ch, "@natal_rs) needs to be: ", c(nr, ns) %>% paste(collapse = ", "))
+    stop("dim(", ch, "@natal_rs) needs to be: ", c(nr, ns) |> paste(collapse = ", "))
   }
 
   return(Dstock)
@@ -224,14 +224,14 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
   nf <- Dfishery@nf
 
   dim_Cobs <- dim(Dfishery@Cobs_ymfr) == c(ny, nm, nf, nr)
-  if (!all(dim_Cobs)) stop("dim(", ch, "@Cobs_ymfr) needs to be: ", c(ny, nm, nf, nr) %>% paste(collapse = ", "))
+  if (!all(dim_Cobs)) stop("dim(", ch, "@Cobs_ymfr) needs to be: ", c(ny, nm, nf, nr) |> paste(collapse = ", "))
 
   if (Dmodel@condition == "F") {
     if (!length(Dfishery@Csd_ymfr)) {
       Dfishery@Csd_ymfr <- array(0.01, c(ny, nm, nf, nr))
     } else {
       dim_Csd <- dim(Dfishery@Csd_ymfr) == c(ny, nm, nf, nr)
-      if (!all(dim_Csd)) stop("dim(", ch, "@Csd_ymfr) needs to be: ", c(ny, nm, nf, nr) %>% paste(collapse = ", "))
+      if (!all(dim_Csd)) stop("dim(", ch, "@Csd_ymfr) needs to be: ", c(ny, nm, nf, nr) |> paste(collapse = ", "))
     }
   }
 
@@ -242,7 +242,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     })
   } else {
     dim_fwt <- dim(Dfishery@fwt_ymafs) == c(ny, nm, na, nf, ns)
-    if (!all(dim_fwt)) stop("dim(", ch, "@fwt_ymafs) needs to be: ", c(ny, nm, na, nf, ns) %>% paste(collapse = ", "))
+    if (!all(dim_fwt)) stop("dim(", ch, "@fwt_ymafs) needs to be: ", c(ny, nm, na, nf, ns) |> paste(collapse = ", "))
   }
 
   if (length(Dfishery@CAAobs_ymafr) || length(Dfishery@CALobs_ymlfr)) {
@@ -256,7 +256,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
 
   if (length(Dfishery@CAAobs_ymafr)) {
     dim_CAA <- dim(Dfishery@CAAobs_ymafr) == c(ny, nm, na, nf, nr)
-    if (!all(dim_CAA)) stop("dim(", ch, "@CAAobs_ymafr) needs to be: ", c(ny, nm, na, nf, nr) %>% paste(collapse = ", "))
+    if (!all(dim_CAA)) stop("dim(", ch, "@CAAobs_ymafr) needs to be: ", c(ny, nm, na, nf, nr) |> paste(collapse = ", "))
 
     if (!length(Dfishery@CAAN_ymfr)) {
       if (Dfishery@fcomp_like %in% c("multinomial", "ddirmult1", "ddirmult2") && !silent) {
@@ -265,7 +265,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
       Dfishery@CAAN_ymfr <- apply(Dfishery@CAAobs_ymafr, c(1, 2, 4, 5), sum)
     } else {
       dim_CAAN <- dim(Dfishery@CAAN_ymfr) == c(ny, nm, nf, nr)
-      if (!all(dim_CAAN)) stop("dim(", ch, "@CAAN_ymfr) needs to be: ", c(ny, nm, nf, nr) %>% paste(collapse = ", "))
+      if (!all(dim_CAAN)) stop("dim(", ch, "@CAAN_ymfr) needs to be: ", c(ny, nm, nf, nr) |> paste(collapse = ", "))
     }
 
     if (!length(Dfishery@CAAtheta_f)) {
@@ -282,7 +282,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     if (!nl) stop("Fishery length composition detected but no length bins found in Dmodel@nl")
 
     dim_CAL <- dim(Dfishery@CALobs_ymlfr) == c(ny, nm, nl, nf, nr)
-    if (!all(dim_CAL)) stop("dim(", ch, "@CALobs_ymlfr) needs to be: ", c(ny, nm, nl, nf, nr) %>% paste(collapse = ", "))
+    if (!all(dim_CAL)) stop("dim(", ch, "@CALobs_ymlfr) needs to be: ", c(ny, nm, nl, nf, nr) |> paste(collapse = ", "))
 
     if (!length(Dfishery@CALN_ymfr)) {
       if (Dfishery@fcomp_like %in% c("multinomial", "ddirmult1", "ddirmult2") && !silent) {
@@ -291,7 +291,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
       Dfishery@CALN_ymfr <- apply(Dfishery@CALobs_ymlfr, c(1, 2, 4, 5), sum)
     } else {
       dim_CALN <- dim(Dfishery@CALN_ymfr) == c(ny, nm, nf, nr)
-      if (!all(dim_CALN)) stop("dim(", ch, "@CALN_ymfr) needs to be: ", c(ny, nm, nf, nr) %>% paste(collapse = ", "))
+      if (!all(dim_CALN)) stop("dim(", ch, "@CALN_ymfr) needs to be: ", c(ny, nm, nf, nr) |> paste(collapse = ", "))
     }
 
     if (!length(Dfishery@CALtheta_f)) {
@@ -308,7 +308,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     Dfishery@sel_block_yf <- matrix(1:nf, ny, nf, byrow = TRUE)
   } else {
     dim_sb <- dim(Dfishery@sel_block_yf) == c(ny, nf)
-    if (!all(dim_sb)) stop("dim(", ch, "@sel_block_yf) needs to be: ", c(ny, nf) %>% paste(collapse = ", "))
+    if (!all(dim_sb)) stop("dim(", ch, "@sel_block_yf) needs to be: ", c(ny, nf) |> paste(collapse = ", "))
   }
   nb <- max(Dfishery@sel_block_yf)
   if (length(Dfishery@sel_f) != nb) stop("Vector sel_f should be length ", nf)
@@ -317,7 +317,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     Dfishery@Cinit_mfr <- array(0, c(nm, nf, nr))
   } else {
     dim_Cinit <- dim(Dfishery@Cinit_mfr) == c(nm, nf, nr)
-    if (!all(dim_Cinit)) stop("dim(", ch, "@Cinit_mfr) needs to be: ", c(nm, nf, nr) %>% paste(collapse = ", "))
+    if (!all(dim_Cinit)) stop("dim(", ch, "@Cinit_mfr) needs to be: ", c(nm, nf, nr) |> paste(collapse = ", "))
   }
 
   if (length(Dfishery@SC_ymafrs)) {
@@ -325,19 +325,19 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     if (length(dim_SC) != 6) stop(ch, "@SC_ymafrs should be a six dimensional array")
 
     if (any(dim_SC[c(1, 2, 5, 6)] != c(ny, nm, nr, ns))) {
-      stop("dim(", ch, "@SC_ymafrs) should be ", c(ny, nm, dim_SC[3:4], nr, ns) %>% paste(collapse = ", "))
+      stop("dim(", ch, "@SC_ymafrs) should be ", c(ny, nm, dim_SC[3:4], nr, ns) |> paste(collapse = ", "))
     }
 
     if (dim_SC[3] == na) {
       if (!length(Dfishery@SC_aa)) Dfishery@SC_aa <- diag(1, na)
     } else if (any(dim(Dfishery@SC_aa) != c(dim_SC[3], na))) {
-      stop("dim(Dfishery@SC_aa) should be: ", c(Dfishery@dim_SC[3], na) %>% paste(collapse = ", "))
+      stop("dim(Dfishery@SC_aa) should be: ", c(Dfishery@dim_SC[3], na) |> paste(collapse = ", "))
     }
 
     if (dim_SC[4] == nf) {
       if (!length(Dfishery@SC_ff)) Dfishery@SC_ff <- diag(1, nf)
     } else if (any(dim(Dfishery@SC_ff) != c(dim_SC[4], nf))) {
-      stop("dim(", ch, "@SC_ff) should be: ", c(dim_SC[4], nf) %>% paste(collapse = ", "))
+      stop("dim(", ch, "@SC_ff) should be: ", c(dim_SC[4], nf) |> paste(collapse = ", "))
     }
 
     if (!length(Dfishery@SC_like)) {
@@ -354,7 +354,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
       Dfishery@SCN_ymafr <- apply(Dfishery@SC_ymafrs, 1:5, sum)
     } else {
       dim_SCN <- dim(Dfishery@SCN_ymafr) == c(ny, nm, dim_SC[3], dim_SC[4], nr)
-      if (!all(dim_SCN)) stop("dim(", ch, "@SCN_ymafr) needs to be: ", c(ny, nm, dim_SC[3], dim_SC[4], nr) %>% paste(collapse = ", "))
+      if (!all(dim_SCN)) stop("dim(", ch, "@SCN_ymafr) needs to be: ", c(ny, nm, dim_SC[3], dim_SC[4], nr) |> paste(collapse = ", "))
     }
 
     if (!length(Dfishery@SCtheta_f)) {
@@ -372,7 +372,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     } else if (length(Dfishery@SCstdev_ymafrs) == 1) {
       Dfishery@SCstdev_ymafrs <- array(Dfishery@SCstdev_ymafrs, c(ny, nm, dim_SC[3], dim_SC[4], nr, ns))
     } else if (any(dim(Dfishery@SCstdev_ymafrs) != c(ny, nm, dim_SC[3], dim_SC[4], nr, ns))) {
-      stop("dim(", ch, "@SCstdev_ymafrs) needs to be: ", c(ny, nm, dim_SC[3], dim_SC[4], nr, ns) %>% paste(collapse = ", "))
+      stop("dim(", ch, "@SCstdev_ymafrs) needs to be: ", c(ny, nm, dim_SC[3], dim_SC[4], nr, ns) |> paste(collapse = ", "))
     }
   }
   return(Dfishery)
@@ -401,7 +401,7 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
 
   if (ni > 0) {
     dim_Iobs <- dim(Dsurvey@Iobs_ymi) == c(ny, nm, ni)
-    if (!all(dim_Iobs)) stop("dim(", ch, "@Iobs_ymi) needs to be: ", c(ny, nm, ni) %>% paste(collapse = ", "))
+    if (!all(dim_Iobs)) stop("dim(", ch, "@Iobs_ymi) needs to be: ", c(ny, nm, ni) |> paste(collapse = ", "))
 
     if (!length(Dsurvey@unit_i)) {
       if (!silent) message("Setting unit_i to biomass for all indices")
@@ -419,7 +419,7 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
 
     if (length(Dsurvey@IAAobs_ymai)) {
       dim_IAA <- dim(Dsurvey@IAAobs_ymai) == c(ny, nm, na, ni)
-      if (!all(dim_IAA)) stop("dim(IAAobs_ymai) needs to be: ", c(ny, nm, na, ni) %>% paste(collapse = ", "))
+      if (!all(dim_IAA)) stop("dim(IAAobs_ymai) needs to be: ", c(ny, nm, na, ni) |> paste(collapse = ", "))
 
       if (!length(Dsurvey@IAAN_ymi)) {
         if (Dsurvey@icomp_like %in% c("multinomial", "ddirmult1", "ddirmult2") && !silent) {
@@ -428,7 +428,7 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
         Dsurvey@IAAN_ymi <- apply(Dsurvey@IAAobs_ymai, c(1, 2, 4), sum)
       } else {
         dim_IAAN <- dim(Dsurvey@IAAN_ymi) == c(ny, nm, ni)
-        if (!all(dim_IAAN)) stop("dim(", ch, "@IAAN_ymi) needs to be: ", c(ny, nm, ni) %>% paste(collapse = ", "))
+        if (!all(dim_IAAN)) stop("dim(", ch, "@IAAN_ymi) needs to be: ", c(ny, nm, ni) |> paste(collapse = ", "))
       }
 
       if (!length(Dsurvey@IAAtheta_i)) {
@@ -445,7 +445,7 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
       if (!nl) stop("Index length composition detected but no length bins found in Dmodel@nl")
 
       dim_IAL <- dim(Dsurvey@IALobs_ymli) == c(ny, nm, nl, ni)
-      if (!all(dim_IAL)) stop("dim(", ch, "@IALobs_ymli) needs to be: ", c(ny, nm, nl, ni) %>% paste(collapse = ", "))
+      if (!all(dim_IAL)) stop("dim(", ch, "@IALobs_ymli) needs to be: ", c(ny, nm, nl, ni) |> paste(collapse = ", "))
 
       if (!length(Dsurvey@IALN_ymi)) {
         if (Dsurvey@icomp_like %in% c("multinomial", "ddirmult1", "ddirmult2") && !silent) {
@@ -454,7 +454,7 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
         Dsurvey@IALN_ymi <- apply(Dsurvey@IALobs_ymli, c(1, 2, 4), sum)
       } else {
         dim_IALN <- dim(Dsurvey@IALN_ymi) == c(ny, nm, ni)
-        if (!all(dim_IALN)) stop("dim(", ch, "@IALN_ymi) needs to be: ", c(ny, nm, ni) %>% paste(collapse = ", "))
+        if (!all(dim_IALN)) stop("dim(", ch, "@IALN_ymi) needs to be: ", c(ny, nm, ni) |> paste(collapse = ", "))
       }
 
       if (!length(Dsurvey@IALtheta_i)) {
@@ -474,7 +474,7 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
       Dsurvey@samp_irs <- array(1, c(ni, nr, ns))
     } else {
       dim_samp <- dim(Dsurvey@samp_irs) == c(ni, nr, ns)
-      if (!all(dim_samp)) stop("dim(", ch, "@samp_irs) needs to be: ", c(ni, nr, ns) %>% paste(collapse = ", "))
+      if (!all(dim_samp)) stop("dim(", ch, "@samp_irs) needs to be: ", c(ni, nr, ns) |> paste(collapse = ", "))
     }
 
     if (length(Dsurvey@sel_i) == 1) {
@@ -585,19 +585,19 @@ check_Dtag <- function(Dtag, Dmodel, silent = FALSE) {
     if (length(dim_tag1) != 6) stop("tag_ymarrs should be a six dimensional array")
 
     if (any(dim_tag1[c(2, 4, 5, 6)] != c(nm, nr, nr, ns))) {
-      stop("dim(", ch, "@tag_ymarrs) should be ", c(dim_tag1[1], nm, dim_tag1[2], nr, nr, ns) %>% paste(collapse = ", "))
+      stop("dim(", ch, "@tag_ymarrs) should be ", c(dim_tag1[1], nm, dim_tag1[2], nr, nr, ns) |> paste(collapse = ", "))
     }
 
     if (dim_tag1[1] == ny) {
       if (!length(Dtag@tag_yy)) Dtag@tag_yy <- diag(1, ny)
     } else if (any(dim(Dtag@tag_yy) != c(dim_tag1[1], ny))) {
-      stop("dim(", ch, "@tag_yy) should be: ", c(dim_tag1[1], ny) %>% paste(collapse = ", "))
+      stop("dim(", ch, "@tag_yy) should be: ", c(dim_tag1[1], ny) |> paste(collapse = ", "))
     }
 
     if (dim_tag1[3] == na) {
       if (!length(Dtag@tag_aa)) Dtag@tag_aa <- diag(1, na)
     } else if (any(dim(Dtag@tag_aa) != c(dim_tag1[3], na))) {
-      stop("dim(", ch, "@tag_aa) should be: ", c(dim_tag1[3], na) %>% paste(collapse = ", "))
+      stop("dim(", ch, "@tag_aa) should be: ", c(dim_tag1[3], na) |> paste(collapse = ", "))
     }
 
     if (!length(Dtag@tagN_ymars)) {
@@ -607,7 +607,7 @@ check_Dtag <- function(Dtag, Dmodel, silent = FALSE) {
       Dtag@tagN_ymars <- apply(Dtag@tag_ymarrs, c(1:4, 6), sum)
     } else {
       dim_tagN <- dim(Dtag@tagN_ymars) == c(dim_tag1[1], nm, dim_tag1[3], nr, ns)
-      if (!all(dim_tagN)) stop("dim(", ch, "@tagN_ymars) needs to be: ", c(dim_tag1[1], nm, dim_tag1[3], nr, ns) %>% paste(collapse = ", "))
+      if (!all(dim_tagN)) stop("dim(", ch, "@tagN_ymars) needs to be: ", c(dim_tag1[1], nm, dim_tag1[3], nr, ns) |> paste(collapse = ", "))
     }
 
   }
@@ -618,13 +618,13 @@ check_Dtag <- function(Dtag, Dmodel, silent = FALSE) {
     if (length(dim_tag2) != 5) stop("tag_ymars should be a five dimensional array")
 
     if (any(dim_tag2[c(1, 2, 4, 5)] != c(ny, nm, nr, ns))) {
-      stop("dim(tag_ymars) should be ", c(ny, nm, dim_tag2[3], nr, ns) %>% paste(collapse = ", "))
+      stop("dim(tag_ymars) should be ", c(ny, nm, dim_tag2[3], nr, ns) |> paste(collapse = ", "))
     }
 
     if (dim_tag2[3] == na) {
       if (!length(Dtag@tag_aa)) Dtag@tag_aa <- diag(1, na)
     } else if (any(dim(Dtag@tag_aa) != c(dim_tag2[3], na))) {
-      stop("dim(tag_aa) should be: ", c(dim_tag2[3], na) %>% paste(collapse = ", "))
+      stop("dim(tag_aa) should be: ", c(dim_tag2[3], na) |> paste(collapse = ", "))
     }
 
     if (!length(Dtag@tagN_ymas)) {
@@ -634,7 +634,7 @@ check_Dtag <- function(Dtag, Dmodel, silent = FALSE) {
       Dtag@tagN_ymas <- apply(Dtag@tag_ymars, c(1:3, 5), sum)
     } else {
       dim_tagN <- dim(Dtag@tagN_ymas) == c(dim_tag2[1], nm, dim_tag2[3], ns)
-      if (!all(dim_tagN)) stop("dim(tagN_ymas) needs to be: ", c(dim_tag2[1], nm, dim_tag2[3], ns) %>% paste(collapse = ", "))
+      if (!all(dim_tagN)) stop("dim(tagN_ymas) needs to be: ", c(dim_tag2[1], nm, dim_tag2[3], ns) |> paste(collapse = ", "))
     }
 
   }

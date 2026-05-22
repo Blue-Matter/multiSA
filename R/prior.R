@@ -50,8 +50,8 @@ prior_h <- function(MSAdata, s = 1, m, stdev) {
     m_beta <- 1.25 * m - 0.25
     stdev_beta <- 1.25 * stdev
 
-    a <- alphaconv(m_beta, stdev_beta) %>% round(3)
-    b <- betaconv(1.25 * m - 0.25, 1.25 * stdev) %>% round(3)
+    a <- alphaconv(m_beta, stdev_beta) |> round(3)
+    b <- betaconv(1.25 * m - 0.25, 1.25 * stdev) |> round(3)
 
     if (a <= 0) stop("Beta distribution alpha parameter < 0. Try reducing the prior SD.", call. = FALSE)
     if (b <= 0) stop("Beta distribution beta parameter < 0. Try reducing the prior SD.", call. = FALSE)

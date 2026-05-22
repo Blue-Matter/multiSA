@@ -480,9 +480,9 @@ plot_resid_tagmov <- function(fit, yy = 1, aa = 1, s = 1, ...) {
   }
 
   #zmax <- min(zmax, max(abs(z), na.rm = TRUE))
-  zz <- pmin(z, zmax) %>% pmax(-zmax) %>% round(2)
-  #zlegend <- seq(-zmax, zmax, 0.01) %>% round(2)
-  #cols <- hcl.colors(length(zlegend), palette = "Blue-Red 2", alpha = 1) %>%
+  zz <- pmin(z, zmax) |> pmax(-zmax) |> round(2)
+  #zlegend <- seq(-zmax, zmax, 0.01) |> round(2)
+  #cols <- hcl.colors(length(zlegend), palette = "Blue-Red 2", alpha = 1) |>
   #  structure(names = zlegend)
 
   if (missing(ydiff)) {

@@ -132,7 +132,7 @@ plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
   output <- NULL
 
   if (sum(dat@Dfishery@CAAN_ymfr, na.rm = TRUE)) {
-    N <- apply(dat@Dfishery@CAAN_ymfr[, , f, r, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
+    N <- apply(dat@Dfishery@CAAN_ymfr[, , f, r, drop = FALSE], 1:2, identity) |> t() |> as.numeric()
     N[is.na(N)] <- 0
 
     if (any(N > 0)) {
@@ -143,11 +143,11 @@ plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
       year <- make_yearseason(year, nm)
 
       pred <- apply(fit@report$CN_ymafrs[, , , f, r, , drop = FALSE], 1:3, sum)
-      pred <- collapse_yearseason(pred) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      pred <- collapse_yearseason(pred) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
       pred[is.na(pred)] <- 0
 
       obs <- apply(dat@Dfishery@CAAobs_ymafr[, , , f, r, drop = FALSE], 1:3, identity)
-      obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      obs <- collapse_yearseason(obs) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
 
       include <- rowSums(obs, na.rm = TRUE) > 0
       if (do_mean) {
@@ -175,9 +175,9 @@ plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
                            zval = year[include], N = N[include])
         }
 
-        obs_df <- structure(obs, dimnames = list(year = year, age = Dlabel@age)) %>%
+        obs_df <- structure(obs, dimnames = list(year = year, age = Dlabel@age)) |>
           reshape2::melt(value.name = "obs")
-        pred_df <- structure(pred, dimnames = list(year = year, age = Dlabel@age)) %>%
+        pred_df <- structure(pred, dimnames = list(year = year, age = Dlabel@age)) |>
           reshape2::melt(value.name = "pred")
         N_df <- data.frame(
           year = year,
@@ -203,7 +203,7 @@ plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
   output <- NULL
 
   if (sum(dat@Dfishery@CALN_ymfr, na.rm = TRUE)) {
-    N <- apply(dat@Dfishery@CALN_ymfr[, , f, r, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
+    N <- apply(dat@Dfishery@CALN_ymfr[, , f, r, drop = FALSE], 1:2, identity) |> t() |> as.numeric()
     N[is.na(N)] <- 0
 
     if (any(N > 0)) {
@@ -214,11 +214,11 @@ plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
       year <- make_yearseason(year, nm)
 
       pred <- apply(fit@report$CN_ymlfrs[, , , f, r, , drop = FALSE], 1:3, sum)
-      pred <- collapse_yearseason(pred) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      pred <- collapse_yearseason(pred) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
       pred[is.na(pred)] <- 0
 
       obs <- apply(dat@Dfishery@CALobs_ymlfr[, , , f, r, drop = FALSE], 1:3, identity)
-      obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      obs <- collapse_yearseason(obs) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
 
       include <- rowSums(obs, na.rm = TRUE) > 0
       if (do_mean) {
@@ -247,9 +247,9 @@ plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
                            zval = year[include], N = N[include])
         }
 
-        obs_df <- structure(obs, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) %>%
+        obs_df <- structure(obs, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) |>
           reshape2::melt(value.name = "obs")
-        pred_df <- structure(pred, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) %>%
+        pred_df <- structure(pred, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) |>
           reshape2::melt(value.name = "pred")
         N_df <- data.frame(
           year = year,
@@ -275,7 +275,7 @@ plot_IAA <- function(fit, i = 1, do_mean = FALSE, figure = TRUE) {
   output <- NULL
 
   if (sum(dat@Dsurvey@IAAN_ymi, na.rm = TRUE)) {
-    N <- apply(dat@Dsurvey@IAAN_ymi[, , i, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
+    N <- apply(dat@Dsurvey@IAAN_ymi[, , i, drop = FALSE], 1:2, identity) |> t() |> as.numeric()
     N[is.na(N)] <- 0
 
     if (any(N > 0)) {
@@ -286,11 +286,11 @@ plot_IAA <- function(fit, i = 1, do_mean = FALSE, figure = TRUE) {
       year <- make_yearseason(year, nm)
 
       pred <- apply(fit@report$IN_ymais[, , , i, , drop = FALSE], 1:3, sum)
-      pred <- collapse_yearseason(pred) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      pred <- collapse_yearseason(pred) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
       pred[is.na(pred)] <- 0
 
       obs <- apply(dat@Dsurvey@IAAobs_ymai[, , , i, drop = FALSE], 1:3, identity)
-      obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      obs <- collapse_yearseason(obs) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
 
       include <- rowSums(obs, na.rm = TRUE) > 0
       if (do_mean) {
@@ -318,9 +318,9 @@ plot_IAA <- function(fit, i = 1, do_mean = FALSE, figure = TRUE) {
                            zval = year[include], N = N[include])
         }
 
-        obs_df <- structure(obs, dimnames = list(year = year, age = Dlabel@age)) %>%
+        obs_df <- structure(obs, dimnames = list(year = year, age = Dlabel@age)) |>
           reshape2::melt(value.name = "obs")
-        pred_df <- structure(pred, dimnames = list(year = year, age = Dlabel@age)) %>%
+        pred_df <- structure(pred, dimnames = list(year = year, age = Dlabel@age)) |>
           reshape2::melt(value.name = "pred")
         N_df <- data.frame(
           year = year,
@@ -346,7 +346,7 @@ plot_IAL <- function(fit, i = 1, do_mean = FALSE, figure = TRUE) {
   output <- NULL
 
   if (sum(dat@Dsurvey@IALN_ymi, na.rm = TRUE)) {
-    N <- apply(dat@Dsurvey@IALN_ymi[, , i, drop = FALSE], 1:2, identity) %>% t() %>% as.numeric()
+    N <- apply(dat@Dsurvey@IALN_ymi[, , i, drop = FALSE], 1:2, identity) |> t() |> as.numeric()
     N[is.na(N)] <- 0
 
     if (any(N > 0)) {
@@ -357,11 +357,11 @@ plot_IAL <- function(fit, i = 1, do_mean = FALSE, figure = TRUE) {
       year <- make_yearseason(year, nm)
 
       pred <- apply(fit@report$IN_ymlis[, , , i, , drop = FALSE], 1:3, sum)
-      pred <- collapse_yearseason(pred) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      pred <- collapse_yearseason(pred) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
       pred[is.na(pred)] <- 0
 
       obs <- apply(dat@Dsurvey@IALobs_ymli[, , , i, drop = FALSE], 1:3, identity)
-      obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      obs <- collapse_yearseason(obs) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
 
       include <- rowSums(obs, na.rm = TRUE) > 0
       if (do_mean) {
@@ -389,9 +389,9 @@ plot_IAL <- function(fit, i = 1, do_mean = FALSE, figure = TRUE) {
                            zval = year[include > 0], N = N[include])
         }
 
-        obs_df <- structure(obs, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) %>%
+        obs_df <- structure(obs, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) |>
           reshape2::melt(value.name = "obs")
-        pred_df <- structure(pred, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) %>%
+        pred_df <- structure(pred, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) |>
           reshape2::melt(value.name = "pred")
         N_df <- data.frame(
           year = year,
@@ -433,13 +433,13 @@ plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE, figure = TRUE) {
       year <- make_yearseason(year, nm)
 
       pred <- apply(fit@report$SCpred_ymafrs[, , aa, ff, r, , drop = FALSE], c(1, 2, 6), identity)
-      pred <- collapse_yearseason(pred) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      pred <- collapse_yearseason(pred) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
       pred[is.na(pred)] <- 0
 
       N <- collapse_yearseason(N)
 
       obs <- apply(dat@Dfishery@SC_ymafrs[, , aa, ff, r, , drop = FALSE], c(1, 2, 6), identity)
-      obs <- collapse_yearseason(obs) %>% apply(1, function(x) x/sum(x, na.rm = TRUE)) %>% t()
+      obs <- collapse_yearseason(obs) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
 
       if (figure) {
         if (prop) {
@@ -447,7 +447,7 @@ plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE, figure = TRUE) {
           barplot2(pred, cols = color, leg.names = Dlabel@stock, xval = year)
 
           if (dat@Dmodel@ns == 2) {
-            obs_cumsum <- apply(obs, 1, cumsum) %>% t()
+            obs_cumsum <- apply(obs, 1, cumsum) |> t()
             matlines(obs_cumsum[, -dat@Dmodel@ns, drop = FALSE], type = "o", col = 2, pch = 16, ylim = c(0, 1))
           }
         } else {
@@ -460,9 +460,9 @@ plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE, figure = TRUE) {
         }
       }
 
-      obs_df <- structure(obs, dimnames = list(year = year, stock = Dlabel@stock)) %>%
+      obs_df <- structure(obs, dimnames = list(year = year, stock = Dlabel@stock)) |>
         reshape2::melt(value.name = "obs")
-      pred_df <- structure(pred, dimnames = list(year = year, stock = Dlabel@stock)) %>%
+      pred_df <- structure(pred, dimnames = list(year = year, stock = Dlabel@stock)) |>
         reshape2::melt(value.name = "pred")
 
       N_df <- data.frame(
@@ -474,9 +474,9 @@ plot_SC <- function(fit, ff = 1, aa = 1, r = 1, prop = FALSE, figure = TRUE) {
       output <- merge(N_df, merge(obs_df, pred_df))
 
       if (length(dat@Dfishery@SCstdev_ymafrs)) {
-        se_df <- apply(dat@Dfishery@SCstdev_ymafrs[, , aa, ff, r, , drop = FALSE], c(1, 2, 6), identity) %>%
-          collapse_yearseason() %>%
-          structure(dimnames = list(year = year, stock = Dlabel@stock)) %>%
+        se_df <- apply(dat@Dfishery@SCstdev_ymafrs[, , aa, ff, r, , drop = FALSE], c(1, 2, 6), identity) |>
+          collapse_yearseason() |>
+          structure(dimnames = list(year = year, stock = Dlabel@stock)) |>
           reshape2::melt(value.name = "se")
         output <- merge(output, se_df)
       }
@@ -547,7 +547,7 @@ plot_tagmov <- function(fit, s = 1, yy = 1, aa = 1, figure = TRUE) {
       pred2 <- collapse_yearseason(pred)
 
       obs <- apply(dat@Dtag@tag_ymarrs[yy, , aa, , , s, drop = FALSE], c(2, 4, 5), identity)
-      obs2 <- apply(obs, c(1, 2), function(x) x/sum(x, na.rm = TRUE)) %>% aperm(c(2, 3, 1)) %>%
+      obs2 <- apply(obs, c(1, 2), function(x) x/sum(x, na.rm = TRUE)) |> aperm(c(2, 3, 1)) |>
         collapse_yearseason() # Season + region of origin
       obs2[is.na(obs2)] <- 0
 
@@ -571,12 +571,12 @@ plot_tagmov <- function(fit, s = 1, yy = 1, aa = 1, figure = TRUE) {
       obs_df <- structure(
         obs,
         dimnames = list(season = Dlabel@season, from = Dlabel@region, to = Dlabel@region)
-      ) %>%
+      ) |>
         reshape2::melt(value.name = "obs")
       pred_df <- structure(
         pred,
         dimnames = list(season = Dlabel@season, from = Dlabel@region, to = Dlabel@region)
-      ) %>%
+      ) |>
         reshape2::melt(value.name = "pred")
 
       N_df <- data.frame(

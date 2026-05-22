@@ -95,7 +95,7 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
     } else {
       pobs <- obs/sum(obs)
       resid <- pobs/ppred
-      v <- dnorm(log(resid[obs > 0]), 0, stdev[obs > 0], log = TRUE) %>% sum()
+      v <- dnorm(log(resid[obs > 0]), 0, stdev[obs > 0], log = TRUE) |> sum()
     }
 
   } else if (type == "logitnormal") {
@@ -127,7 +127,7 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
       xobs <- log(pobs[i_fit & !i_ref]/pobs[i_ref])
       xpred <- log(ppred[i_fit & !i_ref]/ppred[i_ref])
 
-      v <- dnorm(xobs, xpred, stdev[i_fit & !i_ref], log = TRUE) %>% sum()
+      v <- dnorm(xobs, xpred, stdev[i_fit & !i_ref], log = TRUE) |> sum()
     }
 
   }

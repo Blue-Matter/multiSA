@@ -1,4 +1,7 @@
 
+## multiSA 0.2.1
+
+- Use the potentially faster default pipe `|>` instead of magittr's pipe `%>%`
 
 ## multiSA 0.2.0
 

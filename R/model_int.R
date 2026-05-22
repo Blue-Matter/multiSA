@@ -383,7 +383,7 @@ calc_nextN <- function(N, surv, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3],
     Nsurv_a_rs[seq(2, na)] <- lapply(seq(1, na - 1), function(a) matrix(Nsurv_ars_temp[a, , ], nr, ns))
     if (plusgroup) Nsurv_a_rs[[na]] <- Nsurv_a_rs[[na]] + Nsurv_ars_temp[na, , ]
 
-    Nsurv_ars <- do.call(c, Nsurv_a_rs) %>% array(c(nr, ns, na)) %>% aperm(c(3, 1:2))
+    Nsurv_ars <- do.call(c, Nsurv_a_rs) |> array(c(nr, ns, na)) |> aperm(c(3, 1:2))
   } else {
     Nsurv_ars <- Nsurv_ars_temp
   }
@@ -467,7 +467,7 @@ calc_index <- function(N, Z, sel, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3]
   IN_airs <- array(
     N[ars_arsi] * samp[irs_arsi] * sel[ais_arsi] * duration_arsi,
     c(na, nr, ns, ni)
-  ) %>%
+  ) |>
     aperm(c(1, 4, 2, 3))
   IN_ais <- array(0, c(na, ni, ns))
   for (r in 1:nr) IN_ais[] <- IN_ais[] + array(IN_airs[, , r, ], c(na, ni, ns))
@@ -503,7 +503,7 @@ calc_index <- function(N, Z, sel, na = dim(N)[1], nr = dim(N)[2], ns = dim(N)[3]
 calc_q <- function(Iobs, B) {
   i <- !is.na(Iobs) & Iobs > 0
   n <- sum(i)
-  num <- log(Iobs[i]/B[i]) %>% sum()
+  num <- log(Iobs[i]/B[i]) |> sum()
   q <- exp(num/n)
   return(q)
 }
@@ -562,9 +562,9 @@ conv_mov <- function(x, g, v, na = dim(x)[1], nr = dim(x)[2], aref = ceiling(0.5
   mov_rra <- sapply2(1:na, function(a) {
     gg <- g[a, ] + (a != aref) * g[aref, ]
     ln_mov <- x[a, , ] + v[a] * diag(nr) + matrix(gg, nr, nr, byrow = TRUE)
-    matrix(ln_mov, nr, nr) %>%
+    matrix(ln_mov, nr, nr) |>
       apply(1, softmax) # This operation flips matrix orientation. FROM = col, TO = row
-  }) %>%
+  }) |>
     array(c(nr, nr, na))
 
   return(aperm(mov_rra, 3:1))

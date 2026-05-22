@@ -35,14 +35,14 @@ as.data.frame(Summary)
 ### Parameter estimates 
 
 ```{r sdreport}
-if (length(x@SD) > 1) summary(x, select = c("fixed", "random")) %>% round(4) %>% as.data.frame()
+if (length(x@SD) > 1) summary(x, select = c("fixed", "random")) |> round(4) |> as.data.frame()
 ```
 
 
 ### Derived quantities
 
 ```{r sdreport-derived}
-if (length(x@SD) > 1) summary(x, select = "report") %>% round(4) %>% as.data.frame()
+if (length(x@SD) > 1) summary(x, select = "report") |> round(4) |> as.data.frame()
 ```
 
 ### Correlation

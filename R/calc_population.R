@@ -85,7 +85,7 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
   R_ys <- array(NA_real_, c(ny, ns))
 
   if (missing(mov_ymarrs)) {
-    mov_ymarrs <- diag(nr) %>% array(c(nr, nr, ny, nm, na, ns)) %>% aperm(c(3:5, 1:2, 6))
+    mov_ymarrs <- diag(nr) |> array(c(nr, nr, ny, nm, na, ns)) |> aperm(c(3:5, 1:2, 6))
   }
 
   # Fishery arrays ----
@@ -219,18 +219,18 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
   CB_ymfrs <-
     VB_ymfrs <- array(NA_real_, c(ny, nm, nf, nr, ns))
 
-  N_ymars[] <- do.call(c, N_ym_ars) %>% array(c(na, nr, ns, ny+1, nm)) %>% aperm(c(4:5, 1:3))
-  F_ymars[] <- do.call(c, F_ym_ars) %>% array(c(na, nr, ns, ny, nm)) %>% aperm(c(4:5, 1:3))
-  Z_ymars[] <- do.call(c, Z_ym_ars) %>% array(c(na, nr, ns, ny, nm)) %>% aperm(c(4:5, 1:3))
-  F_ymafrs[] <- do.call(c, F_ym_afrs) %>% array(c(na, nf, nr, ns, ny, nm)) %>% aperm(c(5:6, 1:4))
-  CN_ymafrs[] <- do.call(c, CN_ym_afrs) %>% array(c(na, nf, nr, ns, ny, nm)) %>% aperm(c(5:6, 1:4))
-  CB_ymfrs[] <- do.call(c, CB_ym_frs) %>% array(c(nf, nr, ns, ny, nm)) %>% aperm(c(4:5, 1:3))
-  VB_ymfrs[] <- do.call(c, VB_ym_frs) %>% array(c(nf, nr, ns, ny, nm)) %>% aperm(c(4:5, 1:3))
-  Nsp_yars[] <- do.call(c, Nsp_y_ars) %>% array(c(na, nr, ns, ny)) %>% aperm(c(4, 1:3))
-  Npsp_yars[] <- do.call(c, Npsp_y_ars) %>% array(c(na, nr, ns, ny)) %>% aperm(c(4, 1:3))
+  N_ymars[] <- do.call(c, N_ym_ars) |> array(c(na, nr, ns, ny+1, nm)) |> aperm(c(4:5, 1:3))
+  F_ymars[] <- do.call(c, F_ym_ars) |> array(c(na, nr, ns, ny, nm)) |> aperm(c(4:5, 1:3))
+  Z_ymars[] <- do.call(c, Z_ym_ars) |> array(c(na, nr, ns, ny, nm)) |> aperm(c(4:5, 1:3))
+  F_ymafrs[] <- do.call(c, F_ym_afrs) |> array(c(na, nf, nr, ns, ny, nm)) |> aperm(c(5:6, 1:4))
+  CN_ymafrs[] <- do.call(c, CN_ym_afrs) |> array(c(na, nf, nr, ns, ny, nm)) |> aperm(c(5:6, 1:4))
+  CB_ymfrs[] <- do.call(c, CB_ym_frs) |> array(c(nf, nr, ns, ny, nm)) |> aperm(c(4:5, 1:3))
+  VB_ymfrs[] <- do.call(c, VB_ym_frs) |> array(c(nf, nr, ns, ny, nm)) |> aperm(c(4:5, 1:3))
+  Nsp_yars[] <- do.call(c, Nsp_y_ars) |> array(c(na, nr, ns, ny)) |> aperm(c(4, 1:3))
+  Npsp_yars[] <- do.call(c, Npsp_y_ars) |> array(c(na, nr, ns, ny)) |> aperm(c(4, 1:3))
 
   if (condition == "catch") {
-    F_ymfr <- do.call(c, F_ym_fr) %>% array(c(nf, nr, ny, nm)) %>% aperm(c(3:4, 1:2))
+    F_ymfr <- do.call(c, F_ym_fr) |> array(c(nf, nr, ny, nm)) |> aperm(c(3:4, 1:2))
   } else {
     penalty <- penalty + sum(posfun(Fmax, F_ymfr))
   }
@@ -294,23 +294,23 @@ calc_init_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 
   delta_m <- 1/nm
 
   if (missing(mov_marrs)) {
-    mov_ymarrs <- diag(nr) %>% array(c(nr, nr, ny, nm, na, ns)) %>% aperm(c(3:5, 1:2, 6))
+    mov_ymarrs <- diag(nr) |> array(c(nr, nr, ny, nm, na, ns)) |> aperm(c(3:5, 1:2, 6))
   } else {
     mov_marrs <- array(mov_marrs, c(nm, na, nr, nr, ns))
-    mov_ymarrs <- array(mov_marrs, c(nm, na, nr, nr, ns, ny)) %>% aperm(c(6, 1:5))
+    mov_ymarrs <- array(mov_marrs, c(nm, na, nr, nr, ns, ny)) |> aperm(c(6, 1:5))
   }
-  M_yas <- array(M_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
+  M_yas <- array(M_as, c(na, ns, ny)) |> aperm(c(3, 1, 2))
 
   #SRR <- rep("BH", ns)
   #sralpha <- srbeta <- rep(1e16, ns)
 
-  mat_yas <- array(mat_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
-  fec_yas <- array(fec_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
-  sel_ymafs <- array(sel_mafs, c(nm, na, nf, ns, ny)) %>% aperm(c(5, 1:4))
-  fwt_ymafs <- array(fwt_mafs, c(nm, na, nf, ns, ny)) %>% aperm(c(5, 1:4))
+  mat_yas <- array(mat_as, c(na, ns, ny)) |> aperm(c(3, 1, 2))
+  fec_yas <- array(fec_as, c(na, ns, ny)) |> aperm(c(3, 1, 2))
+  sel_ymafs <- array(sel_mafs, c(nm, na, nf, ns, ny)) |> aperm(c(5, 1:4))
+  fwt_ymafs <- array(fwt_mafs, c(nm, na, nf, ns, ny)) |> aperm(c(5, 1:4))
 
-  C_ymfr <- array(C_mfr, c(nm, nf, nr, ny)) %>% aperm(c(4, 1:3))
-  F_ymfr <- array(F_mfr, c(nm, nf, nr, ny)) %>% aperm(c(4, 1:3))
+  C_ymfr <- array(C_mfr, c(nm, nf, nr, ny)) |> aperm(c(4, 1:3))
+  F_ymfr <- array(F_mfr, c(nm, nf, nr, ny)) |> aperm(c(4, 1:3))
 
   pop_phi <- calc_population(
     ny, nm, na, nf, nr, ns, initN_ars = initN_ars,
@@ -364,21 +364,21 @@ calc_phi_project <- function(ny, nm, na, nf = 1, nr, ns = 1,
   delta_m <- 1/nm
 
   if (missing(mov_marrs)) {
-    mov_ymarrs <- diag(nr) %>% array(c(nr, nr, ny, nm, na, ns)) %>% aperm(c(3:5, 1:2, 6))
+    mov_ymarrs <- diag(nr) |> array(c(nr, nr, ny, nm, na, ns)) |> aperm(c(3:5, 1:2, 6))
   } else {
     mov_marrs <- array(mov_marrs, c(nm, na, nr, nr, ns))
-    mov_ymarrs <- array(mov_marrs, c(nm, na, nr, nr, ns, ny)) %>% aperm(c(6, 1:5))
+    mov_ymarrs <- array(mov_marrs, c(nm, na, nr, nr, ns, ny)) |> aperm(c(6, 1:5))
   }
-  M_yas <- array(M_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
+  M_yas <- array(M_as, c(na, ns, ny)) |> aperm(c(3, 1, 2))
 
   SRR <- rep("BH", ns)
   sralpha <- srbeta <- rep(1e16, ns)
 
-  mat_yas <- array(mat_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
-  fec_yas <- array(fec_as, c(na, ns, ny)) %>% aperm(c(3, 1, 2))
-  sel_ymafs <- array(sel_mafs, c(nm, na, nf, ns, ny)) %>% aperm(c(5, 1:4))
-  fwt_ymafs <- array(fwt_mafs, c(nm, na, nf, ns, ny)) %>% aperm(c(5, 1:4))
-  F_ymfr <- array(F_mfr, c(nm, nf, nr, ny)) %>% aperm(c(4, 1:3))
+  mat_yas <- array(mat_as, c(na, ns, ny)) |> aperm(c(3, 1, 2))
+  fec_yas <- array(fec_as, c(na, ns, ny)) |> aperm(c(3, 1, 2))
+  sel_ymafs <- array(sel_mafs, c(nm, na, nf, ns, ny)) |> aperm(c(5, 1:4))
+  fwt_ymafs <- array(fwt_mafs, c(nm, na, nf, ns, ny)) |> aperm(c(5, 1:4))
+  F_ymfr <- array(F_mfr, c(nm, nf, nr, ny)) |> aperm(c(4, 1:3))
 
   initNPR_ars <- sapply2(1:ns, function(s) {
     NPR_ar <- sapply(1:nr, function(r) {

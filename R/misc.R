@@ -187,7 +187,7 @@ optimize_RTMB <- function(obj, hessian = FALSE, restart = 0, do_sd = TRUE,
 
 check_det <- function(h, abs_val = 0.1, is_null = TRUE) {
   if (is.null(h)) return(is_null)
-  det_h <- det(h) %>% abs()
+  det_h <- det(h) |> abs()
   !is.na(det_h) && det_h < abs_val
 }
 
@@ -254,10 +254,10 @@ get_sdreport <- function(obj, getReportCovariance = FALSE, silent = FALSE, ...) 
 
   fixed.names <- make_unique_names(res, select = "fixed")
 
-  res$env$corr.fixed <- cov2cor(res$cov.fixed) %>% round(3) %>%
+  res$env$corr.fixed <- cov2cor(res$cov.fixed) |> round(3) |>
     structure(dimnames = list(fixed.names, fixed.names))
 
-  res$env$hessian <- round(h, 3) %>%
+  res$env$hessian <- round(h, 3) |>
     structure(dimnames = list(fixed.names, fixed.names))
 
   if (!res$pdHess) {
@@ -278,17 +278,17 @@ sdreport_int <- function(object, select = c("all", "fixed", "random", "report"),
   select <- match.arg(select, several.ok = TRUE)
   if ("all" %in% select) select <- c("fixed", "random", "report")
   if ("report" %in% select) {
-    AD <- TMB::summary.sdreport(object, "report", p.value = p.value) %>% cbind("Gradient" = NA_real_)
+    AD <- TMB::summary.sdreport(object, "report", p.value = p.value) |> cbind("Gradient" = NA_real_)
     ADnames <- make_unique_names(object, select = "report")
   } else AD <- ADnames <- NULL
 
   if ("fixed" %in% select) {
-    fix <- TMB::summary.sdreport(object, "fixed", p.value = p.value) %>% cbind("Gradient" = as.vector(object$gradient.fixed))
+    fix <- TMB::summary.sdreport(object, "fixed", p.value = p.value) |> cbind("Gradient" = as.vector(object$gradient.fixed))
     fixnames <- make_unique_names(object, select = "fixed")
   } else fix <- fixnames <- NULL
 
   if (!is.null(object$par.random) && "random" %in% select) {
-    random <- TMB::summary.sdreport(object, "random", p.value = p.value) %>% cbind("Gradient" = rep(NA_real_, length(object$par.random)))
+    random <- TMB::summary.sdreport(object, "random", p.value = p.value) |> cbind("Gradient" = rep(NA_real_, length(object$par.random)))
     randomnames <- make_unique_names(object, select = "random")
   } else {
     random <- randomnames <- NULL
@@ -383,7 +383,7 @@ collapse_yearseason <- function(x) {
     x_df <- reshape2::melt(x)
     x_df$Y <- as.numeric(x_df$Var1) + (as.numeric(x_df$Var2) - 1)/dim_x[2]
 
-    dims <- c("Y", paste0("Var", 3:length(dim_x))) %>% as.list()
+    dims <- c("Y", paste0("Var", 3:length(dim_x))) |> as.list()
     xout <- reshape2::acast(x_df, dims, value.var = "value")
     dimnames(xout) <- NULL
 
@@ -397,7 +397,7 @@ collapse_yearseason <- function(x) {
 message <- function(...) {
   if (requireNamespace("usethis", quietly = TRUE)) {
     dots <- list(...)
-    do.call(c, dots) %>% paste0(collapse = "") %>% usethis::ui_done()
+    do.call(c, dots) |> paste0(collapse = "") |> usethis::ui_done()
   } else {
     base::message(...)
   }
@@ -407,7 +407,7 @@ message <- function(...) {
 message_info <- function(...) {
   if (requireNamespace("usethis", quietly = TRUE)) {
     dots <- list(...)
-    do.call(c, dots) %>% paste0(collapse = "") %>% usethis::ui_info()
+    do.call(c, dots) |> paste0(collapse = "") |> usethis::ui_info()
   } else {
     base::message(...)
   }
@@ -416,7 +416,7 @@ message_info <- function(...) {
 message_oops <- function(...) {
   if (requireNamespace("usethis", quietly = TRUE)) {
     dots <- list(...)
-    do.call(c, dots) %>% paste0(collapse = "") %>% usethis::ui_oops()
+    do.call(c, dots) |> paste0(collapse = "") |> usethis::ui_oops()
   } else {
     base::message(...)
   }
@@ -425,7 +425,7 @@ message_oops <- function(...) {
 warning <- function(...) {
   if (requireNamespace("usethis", quietly = TRUE)) {
     dots <- list(...)
-    do.call(c, dots) %>% paste0(collapse = "") %>% usethis::ui_warn()
+    do.call(c, dots) |> paste0(collapse = "") |> usethis::ui_warn()
   } else {
     base::warning(...)
   }
@@ -435,7 +435,7 @@ warning <- function(...) {
 stop <- function(..., call. = TRUE, domain = NULL) {
   if (requireNamespace("usethis", quietly = TRUE)) {
     dots <- list(...)
-    do.call(c, dots) %>% paste0(collapse = "") %>% usethis::ui_stop()
+    do.call(c, dots) |> paste0(collapse = "") |> usethis::ui_stop()
   } else {
     base::stop(..., call. = call., domain = domain)
   }

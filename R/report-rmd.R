@@ -64,11 +64,11 @@ make_rmd_fishery <- function(f, fname, nm = 1, rname, nr = length(rname)) {
 
   rmd_CAA <- sapply(1:nr, function(i) {
     make_rmd_CAA(f = f, r = i, fname = fname, rname = rname[i])
-  }) %>% as.character()
+  }) |> as.character()
 
   rmd_CAL <- sapply(1:nr, function(i) {
     make_rmd_CAL(f = f, r = i, fname = fname, rname = rname[i])
-  }) %>% as.character()
+  }) |> as.character()
 
   rmd <- c(
     paste("###", fname, "{.tabset}"),
