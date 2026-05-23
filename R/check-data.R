@@ -9,7 +9,7 @@
 #' @seealso [MSAdata-class]
 #' @export
 check_data <- function(MSAdata, silent = FALSE) {
-  MSAdata@Dmodel <- check_Dmodel(MSAdata@Dmodel, MSAdata@Dfishery@nf, silent)
+  MSAdata@Dmodel <- check_Dmodel(MSAdata@Dmodel, MSAdata@Dstock, MSAdata@Dfishery@nf, silent)
   MSAdata@Dstock <- check_Dstock(MSAdata@Dstock, MSAdata@Dmodel, silent)
   MSAdata@Dfishery <- check_Dfishery(MSAdata@Dfishery, MSAdata@Dstock, MSAdata@Dmodel, silent)
   MSAdata@Dsurvey <- check_Dsurvey(MSAdata@Dsurvey, MSAdata@Dmodel, silent)
@@ -21,7 +21,7 @@ check_data <- function(MSAdata, silent = FALSE) {
 }
 
 
-check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
+check_Dmodel <- function(Dmodel, Dstock, nf, silent = FALSE) {
   ch <- as.character(substitute(Dmodel))
   if (length(ch) > 1) ch <- "Dmodel"
 
@@ -109,13 +109,14 @@ check_Dmodel <- function(Dmodel, nf, silent = FALSE) {
     }
   }
   if (!length(Dmodel@pbc_initrdev_as)) {
-    Dmodel@pbc_initrdev_as <- matrix(1, Dmodel@na-1, Dmodel@ns)
+    na_init <- ifelse(Dstock@m_advanceage > 1, Dmodel@na, Dmodel@na-1)
+    Dmodel@pbc_initrdev_as <- matrix(1, na_init, Dmodel@ns)
   } else if (length(Dmodel@pbc_initrdev_as) == 1) {
-    Dmodel@pbc_initrdev_as <- matrix(Dmodel@pbc_initrdev_as, Dmodel@na-1, Dmodel@ns)
+    Dmodel@pbc_initrdev_as <- matrix(Dmodel@pbc_initrdev_as, na_init, Dmodel@ns)
   } else {
     dim_pbc <- dim(Dmodel@pbc_initrdev_as)
-    if (any(dim_pbc != c(Dmodel@na-1, Dmodel@ns))) {
-      stop("dim(", ch, "@pbc_initrdev_as) should be ", c(Dmodel@na-1, Dmodel@ns) |> paste(collapse = ", "))
+    if (any(dim_pbc != c(na_init, Dmodel@ns))) {
+      stop("dim(", ch, "@pbc_initrdev_as) should be ", c(na_init, Dmodel@ns) |> paste(collapse = ", "))
     }
   }
 

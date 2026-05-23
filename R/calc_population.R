@@ -122,10 +122,8 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         ## This season's fishery catch, vulnerable biomass, and total biomass ----
         CN_ym_afrs[[y, m]] <- Fsearch[["CN_afrs"]]
         CB_ym_frs[[y, m]] <- Fsearch[["CB_frs"]]
-        VB_ym_frs[[y, m]] <- array(0, c(nf, nr, ns))
-        for (a in 1:na) {
-          VB_ym_frs[[y, m]] <- VB_ym_frs[[y, m]] + array(Fsearch[["VB_afrs"]][a, , , ], c(nf, nr, ns))
-        }
+        VB_ym_frs[[y, m]] <- apply(Fsearch[["VB_afrs"]], 2:4, sum)
+
       } else {
 
         ind_afrs <- as.matrix(expand.grid(y = y, m = m, a = 1:na, f = 1:nf, r = 1:nr, s = 1:ns))
@@ -150,15 +148,13 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
         )
 
         CB_afrs <- array(CN_ym_afrs[[y, m]] * fwt_ymafs[ymafs_afrs], c(na, nf, nr, ns))
-        CB_ym_frs[[y, m]] <- array(0, c(nf, nr, ns))
-        for (a in 1:na) CB_ym_frs[[y, m]] <- CB_ym_frs[[y, m]] + array(CB_afrs[a, , , ], c(nf, nr, ns))
+        CB_ym_frs[[y, m]] <- apply(CB_afrs, 2:4, sum)
 
         VB_afrs <- array(
           sel_ymafs[ymafs_afrs] * fwt_ymafs[ymafs_afrs] * N_ym_ars[[y, m]][ars_afrs],
           c(na, nf, nr, ns)
         )
-        VB_ym_frs[[y, m]] <- array(0, c(nf, nr, ns))
-        for (a in 1:na) VB_ym_frs[[y, m]] <- VB_ym_frs[[y, m]] + array(VB_afrs[a, , , ], c(nf, nr, ns))
+        VB_ym_frs[[y, m]] <- apply(VB_afrs, 2:4, sum)
       }
 
       ## This year's spawning and recruitment ----
@@ -175,29 +171,23 @@ calc_population <- function(ny = 10, nm = 4, na = 20, nf = 1, nr = 4, ns = 2,
           sapply(1:nr, function(r) sum(Nsp_y_ars[[y]][, r, s] * fec_yas[y, , s]))
         })
 
-        if (y > 1) {
-          R_ys[y, ] <- Rdev_ys[y, ] * sapply(1:ns, function(s) {
-            calc_recruitment(sum(S_yrs[y, , s]), SRR = SRR_s[s], a = sralpha_s[s], b = srbeta_s[s])
-          })
+        R_ys[y, ] <- Rdev_ys[y, ] * sapply(1:ns, function(s) {
+          calc_recruitment(sum(S_yrs[y, , s]), SRR = SRR_s[s], a = sralpha_s[s], b = srbeta_s[s])
+        })
 
-          ## Enter recruitment into age structure ----
-          N_ym_ars[[y, m]][1, , ] <- sapply(1:ns, function(s) recdist_rs[, s] * R_ys[y, s])
-        } else {
-          R_ys[y, ] <- 0
-          for (s in 1:ns) R_ys[y, s] <- sum(initN_ars[1, , s])
-        }
+        # Enter recruitment into age structure (age classes have already advanced) ----
+        N_ym_ars[[y, m]][1, , ] <- sapply(1:ns, function(s) recdist_rs[, s] * R_ys[y, s])
       }
 
       ## Next season's abundance and total biomass ----
       ynext <- ifelse(m == nm, y+1, y)
       mnext <- ifelse(m == nm, 1, m+1)
-      ylast <- min(ynext, ny)
 
       N_ym_ars[[ynext, mnext]] <- calc_nextN(
         N = N_ym_ars[[y, m]], surv = exp(-Z_ym_ars[[y, m]]),
         na = na, nr = nr, ns = ns,
         advance_age = mnext == m_advanceage,
-        mov = mov_ymarrs[min(ynext, ny), mnext, , , , ]
+        mov = mov_ymarrs[y, m, , , , ]
       )
     }
   }

@@ -428,25 +428,25 @@ update_report <- function(r, MSAdata) {
     bcr_ys[is.na(map$log_rdev_ys)] <- 0
   }
 
-  par_initrdev_as <- matrix(TRUE, na-1, ns)
+  na_init <- ifelse(Dstock@m_advanceage > 1, na, na-1)
+  par_initrdev_as <- matrix(TRUE, na_init, ns)
   bcrinit_as <- sapply(1:ns, function(s) bcr_s[s] * Dmodel@pbc_initrdev_as[, s])
   if (!is.null(map$log_initrdev_as)) {
-    par_initrdev_as[] <- matrix(!is.na(map$log_initrdev_as) & !duplicated(map$log_initrdev_as, MARGIN = 0), na-1, ns)
+    par_initrdev_as[] <- matrix(!is.na(map$log_initrdev_as) & !duplicated(map$log_initrdev_as, MARGIN = 0), na_init, ns)
     bcrinit_as[is.na(map$log_initrdev_as)] <- 0
   }
+
   Rdev_ys[] <- exp(p$log_rdev_ys + bcr_ys)
 
   ## Miscellaneous penalty term, e.g., F > Fmax
   penalty <- 0
 
   # First year, first season initialization ----
-  initRdev_as <- matrix(NA_real_, na, ns)
-  initRdev_as[-1, ] <- exp(p$log_initrdev_as + bcrinit_as)
-  initRdev_as[1, ] <- Rdev_ys[1, ]
+  initRdev_as <- exp(p$log_initrdev_as + bcrinit_as)
   initF_mfr <- array(NA_real_, c(nm, nf, nr))
 
   initNPR_mars <- array(NA_real_, c(nm, na, nr, ns))
-  initNeq_mars <- initN_mars <- array(NA_real_, c(nm, na, nr, ns))
+  initNeq_mars <- array(NA_real_, c(nm, na, nr, ns))
   initN_ars <- array(NA_real_, c(na, nr, ns))
 
   initZ_mars <- array(NA_real_, c(nm, na, nr, ns))
@@ -457,7 +457,6 @@ update_report <- function(r, MSAdata) {
   if (all(Dfishery@Cinit_mfr <= 1e-8)) {
     initF_mfr[] <- 0
     initNPR_mars[] <- NPR0_mars
-    initN_mars[] <- initN_mars
     initphi_s <- phi_s
     initReq_s <- R0_s
     initNeq_mars[] <- N0_mars
@@ -481,7 +480,7 @@ update_report <- function(r, MSAdata) {
     ind <- as.matrix(expand.grid(m = 1:nm, a = 1:na, f = 1:nf, r = 1:nr, s = 1:ns))
     mfr_mafrs <- ind[, c("m", "f", "r")]
     mars_mafrs <- ind[, c("m", "a", "r", "s")]
-    initCN_mafrs[] <- initF_mfr[mfr_mafrs]/initZ_mars[mars_mafrs] * (1 - exp(-initZ_mars[mars_mafrs])) * initN_mars[mars_mafrs]
+    initCN_mafrs[] <- initF_mfr[mfr_mafrs]/initZ_mars[mars_mafrs] * (1 - exp(-initZ_mars[mars_mafrs])) * initNeq_mars[mars_mafrs]
 
     initCB_mfrs[] <- 0
     ind <- as.matrix(expand.grid(y = 1, m = 1:nm, a = 0, f = 1:nf, r = 1:nr, s = 1:ns))
@@ -524,10 +523,14 @@ update_report <- function(r, MSAdata) {
   }
 
   # Initial abundance ----
-  ind <- as.matrix(expand.grid(m = 1:nm, a = 1:na, r = 1:nr, s = 1:ns))
+  ind <- as.matrix(expand.grid(m = 1, a = 1:na, r = 1:nr, s = 1:ns))
   as_ind <- ind[, c("a", "s")]
-  initN_mars[] <- initRdev_as[as_ind] * initNeq_mars[ind]
-  initN_ars[] <- initN_mars[1, , , ]
+  if (Dstock@m_advanceage > 1) {
+    initN_ars[] <- initRdev_as[as_ind] * initNeq_mars[ind]
+  } else {
+    initN_ars[-1, , ] <- sapply2(1:ns, function(s) array(initRdev_as[, s] * initNeq_mars[1, -1, , s], c(na-1, nr)))
+    initN_ars[1, , ] <- 0
+  }
 
   # Run population model ----
   pop <- calc_population(

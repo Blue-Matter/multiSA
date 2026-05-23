@@ -283,7 +283,8 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
   if (is.null(p$log_initF_mfr)) p$log_initF_mfr <- array(-1000, c(nm, nf, nr))
 
   if (is.null(p$log_initrdev_as)) {
-    p$log_initrdev_as <- matrix(0, na-1, ns)
+    na_init <- ifelse(Dstock@m_advanceage > 1, Dmodel@na, Dmodel@na-1)
+    p$log_initrdev_as <- matrix(0, na_init, ns)
   }
 
   do_map <- make_map(p, MSAdata, map = map, est_mov = est_mov, silent = silent, ...)
@@ -787,7 +788,10 @@ make_map <- function(p, MSAdata, map = list(),
     message_info("Initial equilibrium F will be estimated")
   }
 
-  if (is.null(map$log_initrdev_as)) map$log_initrdev_as <- factor(matrix(NA, na-1, ns))
+  if (is.null(map$log_initrdev_as)) {
+    na_init <- ifelse(Dstock@m_advanceage > 1, na, na-1)
+    map$log_initrdev_as <- factor(matrix(NA, na_init, ns))
+  }
   if (!silent && (is.null(map$log_initrdev_as) || any(!is.na(map$log_initrdev_as)))) {
     message_info("Year 1 recruitment deviations will be estimated")
   }
