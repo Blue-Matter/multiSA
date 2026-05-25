@@ -85,7 +85,7 @@ fit_MSA <- function(x, parameters, map = list(), random = NULL,
 
   if (report) {
     if (!silent) message("Generating report list..")
-    M@report <- update_report(obj$report(obj$env$last.par.best), MSAdata = x)
+    M@report <- update_report(obj$report(obj$env$last.par.best), MSAdata = get_MSAdata(M))
   }
   if (!silent) message("Complete.")
   return(M)
@@ -280,32 +280,20 @@ update_report <- function(r, MSAdata) {
   }
 
   ## Fishery and index selectivity ----
-  # Check for length-based selectivity (through time blocks)
-  tv_flensel <- any(
-    sapply(1:nf, function(f) {
-      bb <- Dfishery@sel_block_yf[, f]
-      lensel <- any(grepl("length", Dfishery@sel_f[bb]))
-      change_sel <- length(unique(bb)) > 1
-      change_sel || lensel
-    })
-  )
 
   for (s in 1:ns) {
     # Fishery selectivity
 
-    # Check for time-varying growth only if there are length-based sel functions
-    if (tv_flensel) {
-      tv_growth <- any(sapply(2:ny, function(y) max(Dstock@LAK_ymals[y, , , , s] - Dstock@LAK_ymals[1, , , , s])) > 0)
-      tv_fagesel_growth <- tv_growth
-    } else {
-      tv_fagesel_growth <- FALSE
-    }
+    # Check for time-varying growth only if length-based sel
+    tv_growth <- any(sapply(2:ny, function(y) max(Dstock@LAK_ymals[y, , , , s] - Dstock@LAK_ymals[1, , , , s])) > 0)
+    tv_flensel_growth <- tv_growth && any(grepl("length", Dfishery@sel_f))
 
-    # Check for time-varying maturity
+    # Check for time-varying sel due to tv maturity
     tv_mat <- any(sapply(2:ny, function(y) max(mat_yas[y, , s] - mat_yas[1, , s])) > 0)
     tv_fsel_mat <- tv_mat && any(Dfishery@sel_f == "SB")
 
-    if (tv_fagesel_growth || tv_fsel_mat) { # Slow method by individual time step
+    # Slower method by individual time step for now if tv growth or maturity
+    if (tv_flensel_growth || tv_fsel_mat) {
       for (y in 1:ny) {
         for (m in 1:nm) {
           sel_ymafs[y, m, , , s] <- calc_fsel_age(
@@ -313,15 +301,26 @@ update_report <- function(r, MSAdata) {
           )
         }
       }
-    } else { # Fast way
-      for (m in 1:nm) {
-        sel_ymafs[1, m, , , s] <- calc_fsel_age(
-          sel_lf, Dstock@LAK_ymals[1, m, , , s], Dfishery@sel_f, selconv_pf, Dfishery@sel_block_yf[1, ], mat = mat_yas[1, , s], a = seq(1, na) - 1
-        )
+    } else { # Fill in sel array by unique rows of sel blocks
+
+      sel_block_y <- sapply(1:ny, function(y) Reduce("paste0", Dfishery@sel_block_yf[y, ]))
+      sel_block_unique <- unique(sel_block_y)
+
+      for (j in 1:length(sel_block_unique)) {
+        y_j <- which(sel_block_y == sel_block_unique[j])
+        for (m in 1:nm) {
+          sel_ymafs[y_j[1], m, , , s] <- calc_fsel_age(
+            sel_lf, Dstock@LAK_ymals[y_j[1], m, , , s], Dfishery@sel_f, selconv_pf, Dfishery@sel_block_yf[y_j[1], ],
+            mat = mat_yas[y_j[1], , s], a = seq(1, na) - 1
+          )
+        }
+        if (length(y_j) > 1) {
+          fsel_ind <- fsel1_ind <- as.matrix(expand.grid(y = y_j[-1], m = 1:m, a = 1:na, f = 1:nf, s = s))
+          fsel1_ind[, "y"] <- y_j[1]
+          sel_ymafs[fsel_ind] <- sel_ymafs[fsel1_ind]
+        }
       }
-      fsel_ind <- fsel1_ind <- as.matrix(expand.grid(y = 2:ny, m = 1:m, a = 1:na, f = 1:nf, s = s))
-      fsel1_ind[, "y"] <- 1
-      sel_ymafs[fsel_ind] <- sel_ymafs[fsel1_ind]
+
     }
 
     # Survey selectivity
