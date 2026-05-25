@@ -636,7 +636,8 @@ update_report <- function(r, MSAdata) {
                 for (m in 1:nm) {
                   LAKsel_ymalfs[y, m, , , f, ] <- sapply2(1:ns, function(s) {
                     LAK_la <- t(Dstock@LAK_ymals[y, m, , , s]) * sel_lf[, b]
-                    t(LAK_la)/colSums(LAK_la)
+                    denom <- CondExpGt(colSums(LAK_la), 0, colSums(LAK_la), 1e-8)
+                    t(LAK_la)/denom
                   })
                 }
               }
@@ -645,7 +646,8 @@ update_report <- function(r, MSAdata) {
             for (m in 1:nm) {
               LAKsel_ymalfs[y_b[1], m, , , f, ] <- sapply2(1:ns, function(s) {
                 LAK_la <- t(Dstock@LAK_ymals[y_b[1], m, , , s]) * sel_lf[, b]
-                t(LAK_la)/colSums(LAK_la)
+                denom <- CondExpGt(colSums(LAK_la), 0, colSums(LAK_la), 1e-8)
+                t(LAK_la)/denom
               })
             }
             fsel_ind <- fsel1_ind <- as.matrix(expand.grid(y = y_b[-1], m = 1:m, a = 1:na, 1:nl, f = f, s = 1:ns))
@@ -753,7 +755,8 @@ update_report <- function(r, MSAdata) {
               for (m in 1:nm) {
                 LAKsel_ymalis[y, m, , , i, ] <- sapply2(1:ns, function(s) {
                   LAK_la <- t(Dstock@LAK_ymals[y, m, , , s]) * sel_li[, i]
-                  t(LAK_la)/colSums(LAK_la)
+                  denom <- CondExpGt(colSums(LAK_la), 0, colSums(LAK_la), 1e-8)
+                  t(LAK_la)/denom
                 })
               }
             }
@@ -761,9 +764,11 @@ update_report <- function(r, MSAdata) {
             for (m in 1:nm) {
               LAKsel_ymalis[1, m, , , i, ] <- sapply2(1:ns, function(s) {
                 LAK_la <- t(Dstock@LAK_ymals[1, m, , , s]) * sel_li[, i]
-                t(LAK_la)/colSums(LAK_la)
+                denom <- CondExpGt(colSums(LAK_la), 0, colSums(LAK_la), 1e-8)
+                t(LAK_la)/denom
               })
             }
+
             isel_ind <- isel1_ind <- as.matrix(expand.grid(y = 2:ny, m = 1:m, a = 1:na, 1:nl, i = i, s = 1:ns))
             isel1_ind[, "y"] <- 1
             LAKsel_ymalis[isel_ind] <- LAKsel_ymalis[isel1_ind]
