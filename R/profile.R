@@ -14,7 +14,7 @@
 #' @param v1 Vector of values corresponding to `p1`
 #' @param p2 Character string that represents the optional second parameter to be profiled
 #' @param v2 Vector of values corresponding to `p2`
-#' @param cores Integer for the number of cores to use for parallel processing (snowfall package)
+#' @param cores Integer for the number of cores to use for parallel processing
 #' @param ... Not used
 #' @return
 #' The profile generic returns a data frame of the likelihood values that correspond to
@@ -26,31 +26,39 @@
 #' - `fn` is the objective function returned by RTMB (lower values are better)
 #' - `objective` is the objective function returned by the optimizer (lower values are better)
 #' @importFrom stats profile
-#' @importFrom pbapply pblapply
+#' @importFrom pbapply pblapply pboptions
 #' @export
 setMethod("profile", signature(fitted = "MSAassess"),
           function(fitted, p1, v1, p2, v2, cores = 1, ...) {
 
-            if (cores > 1 && !snowfall::sfIsRunning()) {
-              snowfall::sfInit(parallel = TRUE, cpus = cores)
-              on.exit(snowfall::sfStop())
+            if (cores > 1) {
+              cl <- parallel::makeCluster(cores)
+              on.exit(parallel::stopCluster(cl), add = TRUE)
+            } else {
+              cl <- NULL
             }
 
-            .lapply <- pbapply::pblapply
-            if (snowfall::sfIsRunning()) {
-              formals(.lapply)$cl <- substitute(snowfall::sfGetCluster())
-            }
+            old_opts <- pbapply::pboptions()
+            on.exit(pbapply::pboptions(old_opts), add = TRUE)
+
+            pbapply::pboptions(use_lb = TRUE)
 
             if (missing(p2)) {
               pars <- p1
               out <- expand.grid(p1 = v1)
-              if (snowfall::sfIsRunning()) sfExport(list = c("fitted", "pars", "out"))
-              prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, out$p1[i]))
+
+              prof <- pbapply::pblapply(1:nrow(out), function(i, fitted, pars, out) {
+                .prof(fitted, pars, out$p1[i])
+              }, fitted, pars, out, cl = cl)
+
             } else {
               pars <- c(p1, p2)
               out <- expand.grid(p1 = v1, p2 = v2)
-              if (snowfall::sfIsRunning()) sfExport(list = c("fitted", "pars", "out"))
-              prof <- .lapply(1:nrow(out), function(i) .prof(fitted, pars, c(out$p1[i], out$p2[i])))
+
+              prof <- pbapply::pblapply(1:nrow(out), function(i, fitted, pars, out) {
+                .prof(fitted, pars, c(out$p1[i], out$p2[i]))
+              }, fitted, pars, out, cl = cl)
+
             }
 
             prof_df <- cbind(out, do.call(rbind, prof)) |>

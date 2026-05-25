@@ -34,7 +34,7 @@ Additionally, this function allows users to specify \code{R0_s} and \code{h_s} (
 
 \item{v2}{Vector of values corresponding to \code{p2}}
 
-\item{cores}{Integer for the number of cores to use for parallel processing (snowfall package)}
+\item{cores}{Integer for the number of cores to use for parallel processing}
 
 \item{...}{Other argument to the base graphics function, i.e., either plot() or contour()}
 

@@ -13,20 +13,24 @@
 #' - `VB_ymft` Vulnerable biomass available to each fishery `[y, m, f, t]`
 #' @param MSAassess [MSAassess-class] object
 #' @param yret Vector specifying the years (positive integers and include zero) to remove for the retrospective analysis
-#' @param cores Integer for the number of cores to use for parallel processing (snowfall package)
+#' @param cores Integer for the number of cores to use for parallel processing
 #' @export
-#' @import snowfall
+#' @importFrom parallel makeCluster stopCluster
 retrospective <- function(MSAassess, yret = 0:5, cores = 1) {
 
-  if (cores > 1 && !snowfall::sfIsRunning()) {
-    snowfall::sfInit(parallel = TRUE, cpus = cores)
-    on.exit(snowfall::sfStop())
+  if (cores > 1) {
+    cl <- parallel::makeCluster(cores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+  } else {
+    cl <- NULL
   }
 
-  .lapply <- pbapply::pblapply
-  if (snowfall::sfIsRunning()) formals(.lapply)$cl <- substitute(snowfall::sfGetCluster())
+  old_opts <- pbapply::pboptions()
+  on.exit(pbapply::pboptions(old_opts), add = TRUE)
 
-  ret <- .lapply(yret, .ret, MSAassess)
+  pbapply::pboptions(use_lb = TRUE)
+
+  ret <- pbapply::pblapply(yret, .yret, MSAassess, cl = cl)
 
   MSAdata <- get_MSAdata(MSAassess)
   ny <- MSAdata@Dmodel@ny

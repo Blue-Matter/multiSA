@@ -33,7 +33,7 @@ retrospective(MSAassess, yret = 0:5, cores = 1)
 
 \item{yret}{Vector specifying the years (positive integers and include zero) to remove for the retrospective analysis}
 
-\item{cores}{Integer for the number of cores to use for parallel processing (snowfall package)}
+\item{cores}{Integer for the number of cores to use for parallel processing}
 
 \item{x, object}{Output of \code{retrospective} function}
 
