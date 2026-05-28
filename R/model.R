@@ -811,9 +811,9 @@ update_report <- function(r, MSAdata) {
   if (any_SC) {
     SC_ymafrs <- OBS(SC_ymafrs)
     SCpred_ymafrs <- sapply2(1:nrow(Dfishery@SC_ff), function(ff) {
-      fvec <- Dfishery@SC_ff[ff, ]
+      fvec <- as.logical(Dfishery@SC_ff[ff, ])
       sapply2(1:nrow(Dfishery@SC_aa), function(aa) {
-        avec <- Dfishery@SC_aa[aa, ]
+        avec <- as.logical(Dfishery@SC_aa[aa, ])
         apply(CN_ymafrs[, , avec, fvec, , , drop = FALSE], c(1, 2, 5, 6), sum)
       })
     }) |>

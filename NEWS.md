@@ -8,6 +8,7 @@
 - Length-age matrices, when modified by selectivity have a tiny number added to denominator to avoid division by zero
 - Update how selectivity arrays are filled in, fixes issue when time blocks are used
 - Use parallel package functions instead of snowfall for parallel computation with profiling and retrospectives
+- Fix indexing with predictions of stock composition by coercing a vector of 1's and 0's to boolean
 
 ## multiSA 0.2.0
 
