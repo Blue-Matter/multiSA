@@ -9,6 +9,18 @@
 #' @seealso [MSAdata-class]
 #' @export
 check_data <- function(MSAdata, silent = FALSE) {
+
+  # Check S4 objects
+  MSAdata@Dmodel <- update_S4(MSAdata@Dmodel)
+  MSAdata@Dstock <- update_S4(MSAdata@Dstock)
+  MSAdata@Dfishery <- update_S4(MSAdata@Dfishery)
+  MSAdata@Dsurvey <- update_S4(MSAdata@Dsurvey)
+
+  MSAdata@DCKMR <- update_S4(MSAdata@DCKMR)
+  MSAdata@Dtag <- update_S4(MSAdata@Dtag)
+  MSAdata@Dlabel <- update_S4(MSAdata@Dlabel)
+
+  # Check entries
   MSAdata@Dmodel <- check_Dmodel(MSAdata@Dmodel, MSAdata@Dstock, MSAdata@Dfishery@nf, silent)
   MSAdata@Dstock <- check_Dstock(MSAdata@Dstock, MSAdata@Dmodel, silent)
   MSAdata@Dfishery <- check_Dfishery(MSAdata@Dfishery, MSAdata@Dstock, MSAdata@Dmodel, silent)
@@ -17,7 +29,26 @@ check_data <- function(MSAdata, silent = FALSE) {
   MSAdata@DCKMR <- check_DCKMR(MSAdata@DCKMR, MSAdata@Dmodel, silent)
   MSAdata@Dtag <- check_Dtag(MSAdata@Dtag, MSAdata@Dmodel, silent)
   MSAdata@Dlabel <- check_Dlabel(MSAdata@Dlabel, MSAdata@Dmodel, MSAdata@Dfishery, MSAdata@Dsurvey, silent)
+
   return(MSAdata)
+}
+
+
+
+#' @importFrom methods .slotNames .hasSlot slot
+update_S4 <- function(x) {
+  snames <- .slotNames(class(x))
+  slot_check <- sapply(snames, function(i) .hasSlot(x, i))
+
+  if (any(!slot_check)) {
+    xnew <- new(class(x))
+    for (i in snames) {
+      if (slot_check[i]) slot(xnew, i) <- slot(x, i)
+    }
+    return(xnew)
+  } else {
+    return(x)
+  }
 }
 
 
