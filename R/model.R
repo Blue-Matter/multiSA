@@ -635,7 +635,7 @@ update_report <- function(r, MSAdata) {
                 for (m in 1:nm) {
                   LAKsel_ymalfs[y, m, , , f, ] <- sapply2(1:ns, function(s) {
                     LAK_la <- t(Dstock@LAK_ymals[y, m, , , s]) * sel_lf[, b]
-                    denom <- CondExpGt(colSums(LAK_la), 0, colSums(LAK_la), 1e-8)
+                    denom <- colSums(LAK_la) + 1e-8
                     t(LAK_la)/denom
                   })
                 }
@@ -645,7 +645,7 @@ update_report <- function(r, MSAdata) {
             for (m in 1:nm) {
               LAKsel_ymalfs[y_b[1], m, , , f, ] <- sapply2(1:ns, function(s) {
                 LAK_la <- t(Dstock@LAK_ymals[y_b[1], m, , , s]) * sel_lf[, b]
-                denom <- CondExpGt(colSums(LAK_la), 0, colSums(LAK_la), 1e-8)
+                denom <- colSums(LAK_la) + 1e-8
                 t(LAK_la)/denom
               })
             }
@@ -664,11 +664,26 @@ update_report <- function(r, MSAdata) {
     CN_ymalfrs <- array(NA_real_, c(ny, nm, na, nl, nf, nr, ns))
     ind_ymalfrs <- expand.grid(y = 1:ny, m = 1:nm, a = 1:na, l = 1:nl, f = 1:nf, r = 1:nr, s = 1:ns) |>
       as.matrix()
+
     ymafrs_ymalfrs <- ind_ymalfrs[, c("y", "m", "a", "f", "r", "s")]
     ymalfs_ymalfrs <- ind_ymalfrs[, c("y", "m", "a", "l", "f", "s")]
     CN_ymalfrs[ind_ymalfrs] <- CN_ymafrs[ymafrs_ymalfrs] * LAKsel_ymalfs[ymalfs_ymalfrs]
-    CN_ymlfrs[] <- apply(CN_ymalfrs, c(1, 2, 4:7), sum)
-    CN_ymlfr <- apply(CN_ymalfrs, c(1, 2, 4:6), sum)
+
+    CN_ymlfrs <- array(0, c(ny, nm, nl, nf, nr, ns))
+    for (a in 1:na) {
+      ind_ymalfrs2 <- expand.grid(y = 1:ny, m = 1:nm, a = a, l = 1:nl, f = 1:nf, r = 1:nr, s = 1:ns) |>
+        as.matrix()
+      ymlfrs_ymalfrs <- ind_ymalfrs2[, c("y", "m", "l", "f", "r", "s")]
+      CN_ymlfrs[ymlfrs_ymalfrs] <- CN_ymlfrs[ymlfrs_ymalfrs] + CN_ymalfrs[ind_ymalfrs2]
+    }
+
+    CN_ymlfr <- array(0, c(ny, nm, nl, nf, nr))
+    for (s in 1:ns) {
+      ind_ymlfrs <- expand.grid(y = 1:ny, m = 1:nm, l = 1:nl, f = 1:nf, r = 1:nr, s = s) |>
+        as.matrix()
+      ymlfr_ymlfrs <- ind_ymlfrs[, c("y", "m", "l", "f", "r")]
+      CN_ymlfr[ymlfr_ymlfrs] <- CN_ymlfr[ymlfr_ymlfrs] + CN_ymlfrs[ind_ymlfrs]
+    }
 
     CALobs_ymlfr <- OBS(CALobs_ymlfr)
 
@@ -754,7 +769,7 @@ update_report <- function(r, MSAdata) {
               for (m in 1:nm) {
                 LAKsel_ymalis[y, m, , , i, ] <- sapply2(1:ns, function(s) {
                   LAK_la <- t(Dstock@LAK_ymals[y, m, , , s]) * sel_li[, i]
-                  denom <- CondExpGt(colSums(LAK_la), 0, colSums(LAK_la), 1e-8)
+                  denom <- colSums(LAK_la) + 1e-8
                   t(LAK_la)/denom
                 })
               }
@@ -763,7 +778,7 @@ update_report <- function(r, MSAdata) {
             for (m in 1:nm) {
               LAKsel_ymalis[1, m, , , i, ] <- sapply2(1:ns, function(s) {
                 LAK_la <- t(Dstock@LAK_ymals[1, m, , , s]) * sel_li[, i]
-                denom <- CondExpGt(colSums(LAK_la), 0, colSums(LAK_la), 1e-8)
+                denom <- colSums(LAK_la) + 1e-8
                 t(LAK_la)/denom
               })
             }
