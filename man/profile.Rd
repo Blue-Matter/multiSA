@@ -4,13 +4,25 @@
 \alias{profile}
 \alias{profile,MSAassess-method}
 \alias{profile.MSAassess}
-\alias{plot,MSAassess-method}
+\alias{get_likelihood_components}
 \alias{plot.MSAprof}
 \title{Profile parameters of MSA model}
 \usage{
-\S4method{profile}{MSAassess}(fitted, p1, v1, p2, v2, cores = 1, ...)
+\S4method{profile}{MSAassess}(
+  fitted,
+  p1,
+  v1,
+  p2,
+  v2,
+  use_fitted = TRUE,
+  return_models = TRUE,
+  cores = 1,
+  ...
+)
 
-\S4method{plot}{MSAassess}(
+get_likelihood_components(fitted)
+
+\method{plot}{MSAprof}(
   x,
   component = "objective",
   rel = TRUE,
@@ -34,6 +46,10 @@ Additionally, this function allows users to specify \code{R0_s} and \code{h_s} (
 
 \item{v2}{Vector of values corresponding to \code{p2}}
 
+\item{use_fitted}{Logical, whether to use estimated parameters or the starting values in \code{fitted} to start the profile}
+
+\item{return_models}{Logical, whether to return fitted models in the profile}
+
 \item{cores}{Integer for the number of cores to use for parallel processing}
 
 \item{...}{Other argument to the base graphics function, i.e., either plot() or contour()}
@@ -53,8 +69,10 @@ Additionally, this function allows users to specify \code{R0_s} and \code{h_s} (
 \item{plot2d}{Character, plotting function for two-dimensional profiling (either a \code{\link[=contour]{contour()}} or \code{\link[=filled.contour]{filled.contour()}} plot)}
 }
 \value{
-The profile generic returns a data frame of the likelihood values that correspond to
-fixed values of \code{p1} and \code{p2}.
+Named list (length 2).
+
+First, \code{profile} contains a data frame of the likelihood values that correspond to
+fixed values of \code{p1} and \code{p2}. Other columns:
 \itemize{
 \item Likelihood \code{loglike} refers to maximizing the probability of the observed data (higher values for better fit)
 \item Prior \code{logprior} refers to maximizing the probability of a parameter to their prior distribution (higher values are closer to the prior mode)
@@ -63,10 +81,14 @@ fixed values of \code{p1} and \code{p2}.
 \item \code{objective} is the objective function returned by the optimizer (lower values are better)
 }
 
+Second, \code{fits} contains a list of the \code{MSAassess} objects if \code{return_models = TRUE}.
+
+\code{get_likelihood_components()} returns a data.frame of the components to the objective function (log-likelihoods, log-priors, etc.)
+
 The accompanying plot function returns a line plot for a 1-dimensional profile or a contour plot for a two
 dimensional profile. Will plot the negative log likelihood or negative log prior (better fit with lower values).
 
-Relative values are obtained by subtracting from the fitted value. See \code{attr(x, "fitted")}
+Relative values are obtained by subtracting from the fitted value. See \code{attr(x$profile, "fitted")}
 }
 \description{
 Evaluate change in objective function and likelihood components for up to 2 parameters.
