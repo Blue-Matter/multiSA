@@ -35,6 +35,7 @@ by region of stock distribution for \code{tag_ymars}. See \code{type} argument o
 \item{\code{tagN_ymas}}{Array. Sample size of the tag distribution vectors if using the multinomial or Dirichlet-multinomial likelihoods.}
 \item{\code{tagtheta_s}}{Array. Tag dispersion parameter (by stock) if using the Dirichlet-multinomial likelihoods. Default set to 1.}
 \item{\code{tagstdev_s}}{Array. Tag standard deviation (by stock) if using the lognormal likelihood. Default set to 0.1.}
+\item{\code{lambdaTag_s}}{Array. Likelihood weight for the tag data (by stock). Default is 1.}
 }
 }
 

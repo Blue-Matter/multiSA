@@ -51,7 +51,8 @@ setClass(
             fcomp_like = "character", CAAN_ymfr = "array", CALN_ymfr = "array", CAAtheta_f = "numeric", CALtheta_f = "numeric",
             sel_block_yf = "array", sel_f = "character", Cinit_mfr = "array",
             SC_ymafrs = "array", SC_aa = "matrix", SC_ff = "matrix",
-            SC_like = "character", SCN_ymafr = "array", SCtheta_f = "numeric", SCstdev_ymafrs = "array")
+            SC_like = "character", SCN_ymafr = "array", SCtheta_f = "numeric", SCstdev_ymafrs = "array",
+            lambdaCobs_f = "numeric", lambdaCAA_f = "numeric", lambdaCAL_f = "numeric", lambdaSC_f = "numeric")
 )
 
 #' Dsurvey S4 object
@@ -63,7 +64,8 @@ setClass(
   slots = c(ni = "numeric", Iobs_ymi = "array", Isd_ymi = "array", unit_i = "character",
             IAAobs_ymai = "array", IALobs_ymli = "array",
             icomp_like = "character", IAAN_ymi = "array", IALN_ymi = "array", IAAtheta_i = "numeric", IALtheta_i = "numeric",
-            samp_irs = "array", sel_i = "vector", delta_i = "numeric")
+            samp_irs = "array", sel_i = "vector", delta_i = "numeric",
+            lambdaI_i = "numeric", lambdaIAA_i = "numeric", lambdaIAL_i = "numeric")
 )
 
 #' DCKMR S4 object
@@ -83,7 +85,8 @@ setClass(
 setClass(
   "Dtag",
   slots = c(tag_ymarrs = "array", tag_ymars = "array", tag_yy = "matrix", tag_aa = "matrix", tag_like = "character",
-            tagN_ymars = "vector", tagN_ymas = "vector", tagtheta_s = "vector", tagstdev_s = "vector")
+            tagN_ymars = "array", tagN_ymas = "array", tagtheta_s = "numeric", tagstdev_s = "numeric",
+            lambdaTag_s = "numeric")
 )
 
 #' Dlabel S4 object

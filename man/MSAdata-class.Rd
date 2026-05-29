@@ -115,6 +115,10 @@ in the model. Default of zero.}
 \item{\code{SCN_ymafr}}{Sample size of the stock composition vector if using the multinomial or Dirichlet-multinomial likelihoods}
 \item{\code{SCtheta_f}}{Stock composition dispersion parameter if using the Dirichlet-multinomial likelihood. Default set to 1.}
 \item{\code{SCstdev_ymafrs}}{Stock composition standard deviation if using the lognormal likelihood. Default set to 0.1.}
+\item{\code{lambdaCobs_f}}{Likelihood weight (by fleet) for the catch. Default is 1.}
+\item{\code{lambdaCAA_f}}{Likelihood weight (by fleet) for the catch at age. Default is 1.}
+\item{\code{lambdaCAL_f}}{Likelihood weight (by fleet) for the catch at length. Default is 1.}
+\item{\code{lambdaSC_f}}{Likelihood weight (by fleet) for the stock composition. Default is 1.}
 }
 }
 
@@ -135,6 +139,9 @@ in the model. Default of zero.}
 \item{\code{samp_irs}}{Boolean array that specifies the regions and stocks sampled by the index. \code{samp[i, r, s]} indicates whether index \code{i} operates in region \code{r} and catches stock \code{s}.}
 \item{\code{sel_i}}{Character vector, functional forms for selectivity. See \code{"type"} argument in \code{\link[=conv_selpar]{conv_selpar()}} for options.}
 \item{\code{delta_i}}{Numeric vector, The elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., \code{(1 - exp(-Z))/Z}.}
+\item{\code{lambdaI_i}}{Likelihood weight (by survey) for the indices. Default is 1.}
+\item{\code{lambdaIAA_i}}{Likelihood weight (by fleet) for the index age composition. Default is 1.}
+\item{\code{lambdaIAL_i}}{Likelihood weight (by fleet) for the index length composition. Default is 1.}
 }
 }
 
@@ -175,6 +182,7 @@ by region of stock distribution for \code{tag_ymars}. See \code{type} argument o
 \item{\code{tagN_ymas}}{Array. Sample size of the tag distribution vectors if using the multinomial or Dirichlet-multinomial likelihoods.}
 \item{\code{tagtheta_s}}{Array. Tag dispersion parameter (by stock) if using the Dirichlet-multinomial likelihoods. Default set to 1.}
 \item{\code{tagstdev_s}}{Array. Tag standard deviation (by stock) if using the lognormal likelihood. Default set to 0.1.}
+\item{\code{lambdaTag_s}}{Array. Likelihood weight for the tag data (by stock). Default is 1.}
 }
 }
 

@@ -30,7 +30,7 @@ retrospective <- function(MSAassess, yret = 0:5, cores = 1) {
 
   pbapply::pboptions(use_lb = TRUE)
 
-  ret <- pbapply::pblapply(yret, .yret, MSAassess, cl = cl)
+  ret <- pbapply::pblapply(yret, .ret, MSAassess, cl = cl)
 
   MSAdata <- get_MSAdata(MSAassess)
   ny <- MSAdata@Dmodel@ny

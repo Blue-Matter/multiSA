@@ -277,6 +277,14 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     if (!all(dim_fwt)) stop("dim(", ch, "@fwt_ymafs) needs to be: ", c(ny, nm, na, nf, ns) |> paste(collapse = ", "))
   }
 
+  if (!length(Dfishery@lambdaCobs_f)) {
+    Dfishery@lambdaCobs_f <- rep(1, nf)
+  } else if (length(Dfishery@lambdaCobs_f) == 1) {
+    Dfishery@lambdaCobs_f <- rep(Dfishery@lambdaCobs_f, nf)
+  } else {
+    stop("Vector ", ch, "@lambdaCobs_f needs to be length ", nf)
+  }
+
   if (length(Dfishery@CAAobs_ymafr) || length(Dfishery@CALobs_ymlfr)) {
     if (length(Dfishery@fcomp_like)) {
       Dfishery@fcomp_like <- match.arg(Dfishery@fcomp_like, choices = eval(formals(like_comp)$type))
@@ -308,6 +316,14 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     } else if (length(Dfishery@CAAtheta_f) != nf) {
       stop("Vector ", ch, "@CAAtheta_f needs to be length ", nf)
     }
+
+    if (!length(Dfishery@lambdaCAA_f)) {
+      Dfishery@lambdaCAA_f <- rep(1, nf)
+    } else if (length(Dfishery@lambdaCAA_f) == 1) {
+      Dfishery@lambdaCAA_f <- rep(Dfishery@lambdaCAA_f, nf)
+    } else {
+      stop("Vector ", ch, "@lambdaCAA_f needs to be length ", nf)
+    }
   }
 
   if (length(Dfishery@CALobs_ymlfr)) {
@@ -333,6 +349,14 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
       Dfishery@CALtheta_f <- rep(Dfishery@CALtheta_f, nf)
     } else if (length(Dfishery@CALtheta_f) != nf) {
       stop("Vector ", ch, "@CALtheta_f needs to be length ", nf)
+    }
+
+    if (!length(Dfishery@lambdaCAL_f)) {
+      Dfishery@lambdaCAL_f <- rep(1, nf)
+    } else if (length(Dfishery@lambdaCAL_f) == 1) {
+      Dfishery@lambdaCAL_f <- rep(Dfishery@lambdaCAL_f, nf)
+    } else {
+      stop("Vector ", ch, "@lambdaCAL_f needs to be length ", nf)
     }
   }
 
@@ -406,6 +430,14 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
     } else if (any(dim(Dfishery@SCstdev_ymafrs) != c(ny, nm, dim_SC[3], dim_SC[4], nr, ns))) {
       stop("dim(", ch, "@SCstdev_ymafrs) needs to be: ", c(ny, nm, dim_SC[3], dim_SC[4], nr, ns) |> paste(collapse = ", "))
     }
+
+    if (!length(Dfishery@lambdaSC_f)) {
+      Dfishery@lambdaSC_f <- rep(1, dim_SC[4])
+    } else if (length(Dfishery@lambdaSC_f) == 1) {
+      Dfishery@lambdaSC_f <- rep(Dfishery@lambdaSC_f, dim_SC[4])
+    } else {
+      stop("Vector ", ch, "@lambdaSC_f needs to be length ", dim_SC[4])
+    }
   }
   return(Dfishery)
 }
@@ -440,6 +472,14 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
       Dsurvey@unit_i <- rep("B", ni)
     }
 
+    if (!length(Dsurvey@lambdaI_i)) {
+      Dsurvey@lambdaI_i <- rep(1, ni)
+    } else if (length(Dsurvey@lambdaI_i) == 1) {
+      Dsurvey@lambdaI_i <- rep(Dsurvey@lambdaI_i, ni)
+    } else {
+      stop("Vector ", ch, "@lambdaI_i needs to be length ", ni)
+    }
+
     if (length(Dsurvey@IAAobs_ymai) || length(Dsurvey@IALobs_ymli)) {
       if (length(Dsurvey@icomp_like)) {
         Dsurvey@icomp_like <- match.arg(Dsurvey@icomp_like, choices = eval(formals(like_comp)$type))
@@ -471,6 +511,14 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
       } else if (length(Dsurvey@IAAtheta_i) != ni) {
         stop("Vector ", ch, "@IAAtheta_i needs to be length ", ni)
       }
+
+      if (!length(Dsurvey@lambdaIAA_i)) {
+        Dsurvey@lambdaIAA_i <- rep(1, ni)
+      } else if (length(Dsurvey@lambdaIAA_i) == 1) {
+        Dsurvey@lambdaIAA_i <- rep(Dsurvey@lambdaIAA_i, ni)
+      } else {
+        stop("Vector ", ch, "@lambdaIAA_i needs to be length ", ni)
+      }
     }
 
     if (length(Dsurvey@IALobs_ymli)) {
@@ -496,6 +544,14 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
         Dsurvey@IALtheta_i <- rep(Dsurvey@IALtheta_i, ni)
       } else if (length(Dsurvey@IALtheta_i) != ni) {
         stop("Vector ", ch, "@IALtheta_i needs to be length ", ni)
+      }
+
+      if (!length(Dsurvey@lambdaIAL_i)) {
+        Dsurvey@lambdaIAL_i <- rep(1, ni)
+      } else if (length(Dsurvey@lambdaIAL_i) == 1) {
+        Dsurvey@lambdaIAL_i <- rep(Dsurvey@lambdaIAL_i, ni)
+      } else {
+        stop("Vector ", ch, "@lambdaIAL_i needs to be length ", ni)
       }
     }
 
@@ -606,6 +662,14 @@ check_Dtag <- function(Dtag, Dmodel, silent = FALSE) {
       Dtag@tagstdev_s <- rep(Dtag@tagstdev_s, ns)
     } else if (length(Dtag@tagstdev_s) != ns) {
       stop("Vector ", ch, "@tagstdev_s needs to be length ", ns)
+    }
+
+    if (!length(Dtag@lambdaTag_s)) {
+      Dtag@lambdaTag_s <- rep(1, ns)
+    } else if (length(Dtag@lambdaTag_s) == 1) {
+      Dtag@lambdaTag_s <- rep(Dtag@lambdaTag_s, ns)
+    } else {
+      stop("Vector ", ch, "@lambdaTag_s needs to be length ", ns)
     }
   } else { # Sets up movement estimation
     Dtag@tag_yy <- matrix(1:ny, 1, ny)

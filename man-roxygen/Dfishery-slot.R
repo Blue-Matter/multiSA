@@ -22,6 +22,10 @@
 #' \item{`SCN_ymafr`}{Sample size of the stock composition vector if using the multinomial or Dirichlet-multinomial likelihoods}
 #' \item{`SCtheta_f`}{Stock composition dispersion parameter if using the Dirichlet-multinomial likelihood. Default set to 1.}
 #' \item{`SCstdev_ymafrs`}{Stock composition standard deviation if using the lognormal likelihood. Default set to 0.1.}
+#' \item{`lambdaCobs_f`}{Likelihood weight (by fleet) for the catch. Default is 1.}
+#' \item{`lambdaCAA_f`}{Likelihood weight (by fleet) for the catch at age. Default is 1.}
+#' \item{`lambdaCAL_f`}{Likelihood weight (by fleet) for the catch at length. Default is 1.}
+#' \item{`lambdaSC_f`}{Likelihood weight (by fleet) for the stock composition. Default is 1.}
 #' }
 #' @examples
 #' # Aggregate stock composition for ages 1-4 and 5-10 across all fleets
