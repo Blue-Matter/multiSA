@@ -17,8 +17,10 @@
 #' @param control Passed to [stats::nlminb()]
 #' @param ... Other arguments to [RTMB::MakeADFun()].
 #' @returns A [MSAassess-class] object.
+#' @details
+#' When re-fitting a model, you may want to update the starting values through `x@obj$par`.
 #' @importFrom methods new
-#' @seealso [report()] [retrospective()]
+#' @seealso [report()] [retrospective()] [do_jitter()]
 #' @export
 fit_MSA <- function(x, parameters, map = list(), random = NULL,
                     run_model = TRUE, do_sd = TRUE, report = TRUE, silent = FALSE,
@@ -74,7 +76,7 @@ fit_MSA <- function(x, parameters, map = list(), random = NULL,
   M <- new("MSAassess", obj = obj)
 
   if (run_model) {
-    m <- optimize_RTMB(obj, do_sd = do_sd, control = control, silent = silent)
+    m <- optimize_RTMB(M@obj, do_sd = do_sd, control = control, silent = silent)
     if (is.character(m$opt)) {
       message_oops("Error message from optimization:\n", m$opt)
     } else {
@@ -970,10 +972,10 @@ update_report <- function(r, MSAdata) {
           sapply(1:nrow(Dtag@tag_yy), function(yy) {
             pred <- apply(N_ymars[yvec, m, avec, , s, drop = FALSE], 3, sum)
             if (any(c(1:ny)[as.logical(Dtag@tag_yy[yy, ])] %in% y_like)) {
-              like_comp(obs = tag_ymars[yy, m, aa, , s],
-                        pred = pred, type = Dtag@tag_like,
-                        N = Dtag@tagN_ymas[yy, m, aa, s], theta = Dtag@tagtheta_s[s],
-                        stdev = Dtag@tagstdev_s[s])
+              val <- like_comp(obs = tag_ymars[yy, m, aa, , s],
+                               pred = pred, type = Dtag@tag_like,
+                               N = Dtag@tagN_ymas[yy, m, aa, s], theta = Dtag@tagtheta_s[s],
+                               stdev = Dtag@tagstdev_s[s])
             } else if (inherits(pred, "advector")) {
               val <- advector(0)
             } else {

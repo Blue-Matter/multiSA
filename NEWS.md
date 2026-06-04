@@ -9,6 +9,7 @@
 - Update how selectivity arrays are filled in, fixes issue when time blocks are used
 - Use parallel package functions instead of snowfall for parallel computation with profiling and retrospectives
 - Fix indexing with predictions of stock composition by coercing a vector of 1's and 0's to boolean
+- Add `jitter()` function
 
 ## multiSA 0.2.0
 

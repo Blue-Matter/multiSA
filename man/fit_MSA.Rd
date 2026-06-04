@@ -46,6 +46,9 @@ A \linkS4class{MSAassess} object.
 \description{
 Wrapper function that calls RTMB to create the model and perform the numerical optimization
 }
+\details{
+When re-fitting a model, you may want to update the starting values through \code{x@obj$par}.
+}
 \seealso{
-\code{\link[=report]{report()}} \code{\link[=retrospective]{retrospective()}}
+\code{\link[=report]{report()}} \code{\link[=retrospective]{retrospective()}} \code{\link[=do_jitter]{do_jitter()}}
 }
