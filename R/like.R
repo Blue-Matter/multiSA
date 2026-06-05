@@ -33,86 +33,78 @@
 like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2", "lognormal", "logitnormal"),
                       N = sum(obs), theta, stdev) {
 
+  if (!inherits(obs, "simref") && (all(is.na(obs)) || !sum(obs))) { # estimation or report mode
+    v <- if (inherits(pred, "advector")) advector(0) else 0
+    return(v)
+  }
+
   stopifnot(length(obs) == length(pred))
   type <- match.arg(type)
 
-  if (!inherits(obs, "simref") && (all(is.na(obs)) || !sum(obs))) { # estimation or report mode
+  #p_pred <- (pred + 1e-8)/sum(pred + 1e-8) # This doesn't work
+  pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
+  p_pred <- pred/sum(pred)
+  p_obs <- obs/sum(obs)
 
-    v <- if (inherits(pred, "advector")) advector(0) else 0
-
-  } else if (type == "multinomial") {
-
+  if (type == "multinomial") {
     if (inherits(obs, "simref")) {
-      v <- 0
       if (sum(pred) && !is.na(N)) {
-        obs[] <- stats::rmultinom(1, size = N, prob = pred)
+        obs[] <- stats::rmultinom(1, size = N, prob = p_pred)
       } else {
         obs[] <- NA
       }
     } else {
-      pobs <- obs/sum(obs)
-      pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
-      v <- dmultinom(N * pobs, prob = pred, log = TRUE)
+      # Do not use stats::dmultinom which rounds observations to whole numbers!
+      v <- dmultinom_(N * p_obs, prob = p_pred, log = TRUE)
     }
 
   } else if (grepl("dirmult", type)) {
 
     if (type == "dirmult1") {
-      alpha <- theta * N * pred/sum(pred)
+      alpha <- theta * N * p_pred
     } else if (type == "dirmult2") {
-      alpha <- theta * pred/sum(pred)
+      alpha <- theta * p_pred
     }
 
     if (inherits(obs, "simref")) {
       if (!requireNamespace("RTMBdist", quietly = TRUE)) {
         stop("Need the RTMBdist package to simulate from the Dirichlet-multinomial distribution")
       }
-      v <- 0
       if (sum(pred) && !is.na(N)) {
         obs[] <- RTMBdist::rdirmult(1, size = N, alpha = alpha)
       } else {
         obs[] <- NA
       }
     } else {
-      pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
       v <- ddirmult_(obs, size = N, alpha = alpha, log = TRUE)
     }
 
   } else if (type == "lognormal") {
 
-    pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
-    ppred <- pred/sum(pred)
-    stopifnot(length(stdev) == 1 || length(stdev) == length(obs))
-    if (length(stdev) == 1) stdev <- rep(stdev, pobs)
+    if (missing(stdev)) stdev <- 1/sqrt(p_pred)
 
     if (inherits(obs, "simref")) {
-      v <- 0
       if (sum(pred)) {
-        obs[] <- exp(stats::rnorm(length(pred), log(ppred), stdev))
+        obs[] <- exp(stats::rnorm(length(pred), log(p_pred), stdev))
       } else {
         obs[] <- NA
       }
     } else {
-      pobs <- obs/sum(obs)
-      resid <- pobs/ppred
+      resid <- p_obs/p_pred
       v <- dnorm(log(resid[obs > 0]), 0, stdev[obs > 0], log = TRUE) |> sum()
     }
 
   } else if (type == "logitnormal") {
 
-    pred <- CondExpGt(pred, 1e-8, pred, 1e-8)
-    ppred <- pred/sum(pred)
-    stopifnot(length(stdev) == 1 || length(stdev) == length(obs))
-    if (length(stdev) == 1) stdev <- rep(stdev, pobs)
+    if (missing(stdev)) stdev <- 1/sqrt(p_pred)
 
     i_fit <- obs > 0
     i_ref <- rep(FALSE, length(obs))
     i_ref[which(i_fit)[1]] <- TRUE
 
     if (inherits(obs, "simref")) {
-      v <- 0
       if (sum(pred)) {
-        xpred <- log(ppred[!i_ref]/ppred[i_ref])
+        xpred <- log(p_pred[!i_ref]/p_pred[i_ref])
         xsamp <- stats::rnorm(length(xpred), xpred, stdev[!i_ref])
         y <- exp(xsamp)/(1 + exp(xsamp))
 
@@ -122,10 +114,8 @@ like_comp <- function(obs, pred, type = c("multinomial", "dirmult1", "dirmult2",
         obs[] <- NA
       }
     } else {
-      pobs <- obs/sum(obs)
-
-      xobs <- log(pobs[i_fit & !i_ref]/pobs[i_ref])
-      xpred <- log(ppred[i_fit & !i_ref]/ppred[i_ref])
+      xobs <- log(p_obs[i_fit & !i_ref]/p_obs[i_ref])
+      xpred <- log(p_pred[i_fit & !i_ref]/p_pred[i_ref])
 
       v <- dnorm(xobs, xpred, stdev[i_fit & !i_ref], log = TRUE) |> sum()
     }
@@ -173,4 +163,22 @@ ddirmult_ <- function(x, size, alpha, log = FALSE) {
   log_res <- val + sum(val2)
 
   if (log) log_res else exp(log_res)
+}
+
+dmultinom_ <- function(x, size = NULL, prob, log = FALSE) {
+  K <- length(prob)
+  if (length(x) != K)
+    stop("x[] and prob[] must be equal length vectors.")
+  if (any(x < 0))
+    stop("'x' must be non-negative")
+  N <- sum(x)
+  if (is.null(size))
+    size <- N
+  else if (size != N)
+    stop("size != sum(x), i.e. one is wrong")
+
+  r <- lgamma(size + 1) + sum(x * log(prob) - lgamma(x + 1))
+  if (log)
+    r
+  else exp(r)
 }

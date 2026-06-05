@@ -616,11 +616,9 @@ update_report <- function(r, MSAdata) {
       sapply2(1:nf, function(f) {
         sapply(1:nm, function(m) {
           sapply(y_like, function(y) {
-            pred <- CN_ymafr[y, m, , f, r]
             like_comp(obs = (Cobs_ymfr[y, m, f, r] > 1e-8) * CAAobs_ymafr[y, m, , f, r],
-                      pred = pred, type = Dfishery@fcomp_like,
-                      N = Dfishery@CAAN_ymfr[y, m, f, r], theta = Dfishery@CAAtheta_f[f],
-                      stdev = sqrt(sum(pred)/pred))
+                      pred = CN_ymafr[y, m, , f, r], type = Dfishery@fcomp_like,
+                      N = Dfishery@CAAN_ymfr[y, m, f, r], theta = Dfishery@CAAtheta_f[f])
           })
         })
       })
@@ -703,11 +701,9 @@ update_report <- function(r, MSAdata) {
       sapply2(1:nf, function(f) {
         sapply(1:nm, function(m) {
           sapply(y_like, function(y) {
-            pred <- CN_ymlfr[y, m, , f, r]
             like_comp(obs = (Cobs_ymfr[y, m, f, r] > 1e-8) * CALobs_ymlfr[y, m, , f, r],
-                      pred = pred, type = Dfishery@fcomp_like,
-                      N = Dfishery@CALN_ymfr[y, m, f, r], theta = Dfishery@CALtheta_f[f],
-                      stdev = sqrt(sum(pred)/pred))
+                      pred = CN_ymlfr[y, m, , f, r], type = Dfishery@fcomp_like,
+                      N = Dfishery@CALN_ymfr[y, m, f, r], theta = Dfishery@CALtheta_f[f])
           })
         })
       })
@@ -762,10 +758,8 @@ update_report <- function(r, MSAdata) {
     loglike_IAA_ymi[y_like, , ] <- lambda_IAA * sapply2(1:ni, function(i) {
       sapply(1:nm, function(m) {
         sapply(y_like, function(y) {
-          pred <- IN_ymai[y, m, , i]
-          like_comp(obs = IAAobs_ymai[y, m, , i], pred = pred, type = Dsurvey@icomp_like,
-                    N = Dsurvey@IAAN_ymi[y, m, i], theta = Dsurvey@IAAtheta_i[i],
-                    stdev = sqrt(sum(pred)/pred))
+          like_comp(obs = IAAobs_ymai[y, m, , i], pred = IN_ymai[y, m, , i], type = Dsurvey@icomp_like,
+                    N = Dsurvey@IAAN_ymi[y, m, i], theta = Dsurvey@IAAtheta_i[i])
         })
       })
     })
@@ -827,10 +821,8 @@ update_report <- function(r, MSAdata) {
     loglike_IAL_ymi[y_like, , ] <- lambda_IAL * sapply2(1:ni, function(i) {
       sapply(1:nm, function(m) {
         sapply(y_like, function(y) {
-          pred <- IN_ymli[y, m, , i]
-          like_comp(obs = IALobs_ymli[y, m, , i], pred = pred, type = Dsurvey@icomp_like,
-                    N = Dsurvey@IALN_ymi[y, m, i], theta = Dsurvey@IALtheta_i[i],
-                    stdev = sqrt(sum(pred)/pred))
+          like_comp(obs = IALobs_ymli[y, m, , i], pred = IN_ymli[y, m, , i], type = Dsurvey@icomp_like,
+                    N = Dsurvey@IALN_ymi[y, m, i], theta = Dsurvey@IALtheta_i[i])
         })
       })
     })
@@ -861,10 +853,9 @@ update_report <- function(r, MSAdata) {
         sapply2(1:nrow(Dfishery@SC_aa), function(aa) {
           sapply(1:nm, function(m) {
             sapply(y_like, function(y) {
-              pred <- SCpred_ymafrs[y, m, aa, ff, r, ]
               Cobs <- sum(Cobs_ymfr[y, m, ff, r])
               like_comp(obs = (Cobs > 1e-8) * SC_ymafrs[y, m, aa, ff, r, ],
-                        pred = pred, type = Dfishery@SC_like,
+                        pred = SCpred_ymafrs[y, m, aa, ff, r, ], type = Dfishery@SC_like,
                         N = Dfishery@SCN_ymafr[y, m, aa, ff, r], theta = Dfishery@SCtheta_f[ff],
                         stdev = Dfishery@SCstdev_ymafrs[y, m, aa, ff, r, ])
             })
@@ -940,10 +931,9 @@ update_report <- function(r, MSAdata) {
         sapply2(1:nrow(Dtag@tag_aa), function(aa) {
           sapply(1:nm, function(m) {
             sapply(1:nrow(Dtag@tag_yy), function(yy) {
-              pred <- tagpred_ymarrs[yy, m, aa, rf, , s]
               if (any(c(1:ny)[as.logical(Dtag@tag_yy[yy, ])] %in% y_like)) {
                 val <- like_comp(obs = tag_ymarrs[yy, m, aa, rf, , s],
-                                 pred = pred, type = Dtag@tag_like,
+                                 pred = tagpred_ymarrs[yy, m, aa, rf, , s], type = Dtag@tag_like,
                                  N = Dtag@tagN_ymars[yy, m, aa, rf, s], theta = Dtag@tagtheta_s[s],
                                  stdev = Dtag@tagstdev_s[s])
               } else if (inherits(pred, "advector")) {
