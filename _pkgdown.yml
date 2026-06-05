@@ -44,7 +44,7 @@ reference:
 - title: Model evaluation
   desc: Evaluate model fit and run diagnostics.
   contents:
-  - jitter
+  - do_jitter
   - profile
   - report
   - residuals

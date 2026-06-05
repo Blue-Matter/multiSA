@@ -4,10 +4,18 @@
 \alias{get_sdreport}
 \title{Calculate standard errors}
 \usage{
-get_sdreport(obj, getReportCovariance = FALSE, silent = FALSE, ...)
+get_sdreport(
+  obj,
+  par.fixed = obj$env$last.par.best,
+  getReportCovariance = FALSE,
+  silent = FALSE,
+  ...
+)
 }
 \arguments{
 \item{obj}{The list returned by \code{\link[RTMB:TMB-interface]{RTMB::MakeADFun()}}}
+
+\item{par.fixed}{Numeric vector of parameters from which to calculate covariance matrix}
 
 \item{getReportCovariance}{Logical, passed to \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}}
 
