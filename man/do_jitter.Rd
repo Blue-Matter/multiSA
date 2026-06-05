@@ -4,25 +4,28 @@
 \alias{do_jitter}
 \title{Jitter starting values from fitted model}
 \usage{
-do_jitter(x, use_fitted = TRUE, amount = NULL, seed, ...)
+do_jitter(x, n = 1, use_fitted = TRUE, amount = NULL, cores = 1, seed, ...)
 }
 \arguments{
 \item{x}{\linkS4class{MSAassess} object returned by \code{\link[=fit_MSA]{fit_MSA()}}}
 
+\item{n}{Integer, number of jittered model runs}
+
 \item{use_fitted}{Logical, whether to jitter from estimated parameters (\code{TRUE}) or original starting values (\code{FALSE})}
 
 \item{amount}{Numeric or NULL, passed to \code{\link[base:jitter]{base::jitter()}}}
+
+\item{cores}{Integer, number of CPUs for parallel processing}
 
 \item{seed}{Integer, for replicating the sampling function. Optional.}
 
 \item{...}{Other arguments to pass to \code{\link[=fit_MSA]{fit_MSA()}}}
 }
 \value{
-\linkS4class{MSAassess} object
+List (length \code{n}) containing \linkS4class{MSAassess} objects
 }
 \description{
-Run another model fit with jittered starting values. Do multiple jittered fits by calling \code{jitter()} multiple times, but vary either
-\code{amount} or \code{seed}.
+Run additional model fits with jittered starting values.
 }
 \details{
 The new starting parameters are: \code{pars + amount * runif(n, -1, 1)} where \code{pars} are either the fitted values or original starting
