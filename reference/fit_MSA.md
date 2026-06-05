@@ -90,7 +90,13 @@ A
 [MSAassess](https://blue-matter.github.io/multiSA/reference/MSAassess-class.md)
 object.
 
+## Details
+
+When re-fitting a model, you may want to update the starting values
+through `x@obj$par`.
+
 ## See also
 
 [`report()`](https://blue-matter.github.io/multiSA/reference/report.md)
 [`retrospective()`](https://blue-matter.github.io/multiSA/reference/retrospective.md)
+[`do_jitter()`](https://blue-matter.github.io/multiSA/reference/do_jitter.md)

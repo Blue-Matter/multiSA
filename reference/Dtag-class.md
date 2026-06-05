@@ -70,6 +70,10 @@ with the dimension following the underscore, following this template:
   Array. Tag standard deviation (by stock) if using the lognormal
   likelihood. Default set to 0.1.
 
+- `lambdaTag_s`:
+
+  Array. Likelihood weight for the tag data (by stock). Default is 1.
+
 ## See also
 
 [MSAdata-class](https://blue-matter.github.io/multiSA/reference/MSAdata-class.md)

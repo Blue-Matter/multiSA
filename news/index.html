@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,22 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.0" id="multisa-020">multiSA 0.2.0<a class="anchor" aria-label="anchor" href="#multisa-020"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.0" id="multisa-030">multiSA 0.3.0<a class="anchor" aria-label="anchor" href="#multisa-030"></a></h2>
+<ul><li>Use the potentially faster default pipe <code>|&gt;</code> instead of magittr’s pipe <code>%&gt;%</code>
+</li>
+<li>Fix movement indexing in <code><a href="../reference/calc_population.html">calc_population()</a></code> (model previously had a 1 season lag that was erroneous)</li>
+<li>Initial rec devs are length <code>na</code> if advance age after season 1 (obviously in seasonal models), otherwise remains length <code>na-1</code>
+</li>
+<li>Remove some loops with <code><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply()</a></code> to speed up <code><a href="../reference/calc_F.html">calc_F()</a></code>
+</li>
+<li>Length-age matrices, when modified by selectivity have a tiny number added to denominator to avoid division by zero</li>
+<li>Update how selectivity arrays are filled in, fixes issue when time blocks are used</li>
+<li>Use parallel package functions instead of snowfall for parallel computation with profiling and retrospectives</li>
+<li>Fix indexing with predictions of stock composition by coercing a vector of 1’s and 0’s to boolean</li>
+<li>Add <code><a href="../reference/do_jitter.html">do_jitter()</a></code> function</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="multisa-020">multiSA 0.2.0<a class="anchor" aria-label="anchor" href="#multisa-020"></a></h2><p class="text-muted">CRAN release: 2026-05-22</p>
 <ul><li>New selectivity options: constant over size and age range, mapping a subset of length or age from fleet to index</li>
 <li>Add <code><a href="../reference/calc_init_population.html">calc_init_population()</a></code> for spool-up in spatial or seasonal models</li>
 <li>Report most state variables and fits to data invisibly in plotting function</li>

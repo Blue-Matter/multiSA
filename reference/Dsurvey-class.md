@@ -94,6 +94,20 @@ with the dimension following the underscore, following this template:
   negative number (-1) to sample over the duration of the timestep,
   i.e., `(1 - exp(-Z))/Z`.
 
+- `lambdaI_i`:
+
+  Likelihood weight (by survey) for the indices. Default is 1.
+
+- `lambdaIAA_i`:
+
+  Likelihood weight (by fleet) for the index age composition. Default is
+  1.
+
+- `lambdaIAL_i`:
+
+  Likelihood weight (by fleet) for the index length composition. Default
+  is 1.
+
 ## See also
 
 [MSAdata-class](https://blue-matter.github.io/multiSA/reference/MSAdata-class.md)

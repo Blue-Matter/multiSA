@@ -6,7 +6,13 @@ techniques are employed to obtain a positive-definite covariance matrix.
 ## Usage
 
 ``` r
-get_sdreport(obj, getReportCovariance = FALSE, silent = FALSE, ...)
+get_sdreport(
+  obj,
+  par.fixed = obj$env$last.par.best,
+  getReportCovariance = FALSE,
+  silent = FALSE,
+  ...
+)
 ```
 
 ## Arguments
@@ -15,6 +21,10 @@ get_sdreport(obj, getReportCovariance = FALSE, silent = FALSE, ...)
 
   The list returned by
   [`RTMB::MakeADFun()`](https://rdrr.io/pkg/RTMB/man/TMB-interface.html)
+
+- par.fixed:
+
+  Numeric vector of parameters from which to calculate covariance matrix
 
 - getReportCovariance:
 

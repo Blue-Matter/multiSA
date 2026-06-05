@@ -9,7 +9,7 @@ a positive-definite covariance matrix."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,13 @@ a positive-definite covariance matrix.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_sdreport</span><span class="op">(</span><span class="va">obj</span>, getReportCovariance <span class="op">=</span> <span class="cn">FALSE</span>, silent <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_sdreport</span><span class="op">(</span></span>
+<span>  <span class="va">obj</span>,</span>
+<span>  par.fixed <span class="op">=</span> <span class="va">obj</span><span class="op">$</span><span class="va">env</span><span class="op">$</span><span class="va">last.par.best</span>,</span>
+<span>  getReportCovariance <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -56,6 +62,10 @@ a positive-definite covariance matrix.</p>
 
 <dl><dt id="arg-obj">obj<a class="anchor" aria-label="anchor" href="#arg-obj"></a></dt>
 <dd><p>The list returned by <code><a href="https://rdrr.io/pkg/RTMB/man/TMB-interface.html" class="external-link">RTMB::MakeADFun()</a></code></p></dd>
+
+
+<dt id="arg-par-fixed">par.fixed<a class="anchor" aria-label="anchor" href="#arg-par-fixed"></a></dt>
+<dd><p>Numeric vector of parameters from which to calculate covariance matrix</p></dd>
 
 
 <dt id="arg-getreportcovariance">getReportCovariance<a class="anchor" aria-label="anchor" href="#arg-getreportcovariance"></a></dt>

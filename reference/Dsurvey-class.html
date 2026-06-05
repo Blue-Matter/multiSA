@@ -9,7 +9,7 @@ Dmodel, Dstock, Dfishery, Dsurvey DCKMR, and Dtag, where the D- prefix denotes a
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,6 +96,15 @@ observed catch with the dimension following the underscore, following this templ
 
 <dt><code>delta_i</code></dt>
 <dd><p>Numeric vector, The elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., <code>(1 - exp(-Z))/Z</code>.</p></dd>
+
+<dt><code>lambdaI_i</code></dt>
+<dd><p>Likelihood weight (by survey) for the indices. Default is 1.</p></dd>
+
+<dt><code>lambdaIAA_i</code></dt>
+<dd><p>Likelihood weight (by fleet) for the index age composition. Default is 1.</p></dd>
+
+<dt><code>lambdaIAL_i</code></dt>
+<dd><p>Likelihood weight (by fleet) for the index length composition. Default is 1.</p></dd>
 
 
 </dl></div>

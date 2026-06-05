@@ -368,6 +368,22 @@ with the dimension following the underscore, following this template:
   Stock composition standard deviation if using the lognormal
   likelihood. Default set to 0.1.
 
+- `lambdaCobs_f`:
+
+  Likelihood weight (by fleet) for the catch. Default is 1.
+
+- `lambdaCAA_f`:
+
+  Likelihood weight (by fleet) for the catch at age. Default is 1.
+
+- `lambdaCAL_f`:
+
+  Likelihood weight (by fleet) for the catch at length. Default is 1.
+
+- `lambdaSC_f`:
+
+  Likelihood weight (by fleet) for the stock composition. Default is 1.
+
 ## Slots inherited from Dsurvey
 
 - `ni`:
@@ -440,6 +456,20 @@ with the dimension following the underscore, following this template:
   (between 0 - 1) when the index samples the population. Set to a
   negative number (-1) to sample over the duration of the timestep,
   i.e., `(1 - exp(-Z))/Z`.
+
+- `lambdaI_i`:
+
+  Likelihood weight (by survey) for the indices. Default is 1.
+
+- `lambdaIAA_i`:
+
+  Likelihood weight (by fleet) for the index age composition. Default is
+  1.
+
+- `lambdaIAL_i`:
+
+  Likelihood weight (by fleet) for the index length composition. Default
+  is 1.
 
 ## Slots inherited from DCKMR
 
@@ -524,6 +554,10 @@ with the dimension following the underscore, following this template:
 
   Array. Tag standard deviation (by stock) if using the lognormal
   likelihood. Default set to 0.1.
+
+- `lambdaTag_s`:
+
+  Array. Likelihood weight for the tag data (by stock). Default is 1.
 
 ## Slots inherited from Dlabel
 

@@ -50,7 +50,6 @@ report(
 - cores:
 
   Integer for the number of cores to use for parallel processing
-  (snowfall package)
 
 - x, object:
 

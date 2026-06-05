@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,9 +45,21 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for class 'MSAassess'</span></span>
-<span><span class="fu">profile</span><span class="op">(</span><span class="va">fitted</span>, <span class="va">p1</span>, <span class="va">v1</span>, <span class="va">p2</span>, <span class="va">v2</span>, cores <span class="op">=</span> <span class="fl">1</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">profile</span><span class="op">(</span></span>
+<span>  <span class="va">fitted</span>,</span>
+<span>  <span class="va">p1</span>,</span>
+<span>  <span class="va">v1</span>,</span>
+<span>  <span class="va">p2</span>,</span>
+<span>  <span class="va">v2</span>,</span>
+<span>  use_fitted <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  return_models <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cores <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># S4 method for class 'MSAassess'</span></span>
+<span><span class="fu">get_likelihood_components</span><span class="op">(</span><span class="va">fitted</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'MSAprof'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  component <span class="op">=</span> <span class="st">"objective"</span>,</span>
@@ -86,8 +98,16 @@ Additionally, this function allows users to specify <code>R0_s</code> and <code>
 <dd><p>Vector of values corresponding to <code>p2</code></p></dd>
 
 
+<dt id="arg-use-fitted">use_fitted<a class="anchor" aria-label="anchor" href="#arg-use-fitted"></a></dt>
+<dd><p>Logical, whether to use estimated parameters or the starting values in <code>fitted</code> to start the profile</p></dd>
+
+
+<dt id="arg-return-models">return_models<a class="anchor" aria-label="anchor" href="#arg-return-models"></a></dt>
+<dd><p>Logical, whether to return fitted models in the profile</p></dd>
+
+
 <dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
-<dd><p>Integer for the number of cores to use for parallel processing (snowfall package)</p></dd>
+<dd><p>Integer for the number of cores to use for parallel processing</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -124,15 +144,18 @@ Additionally, this function allows users to specify <code>R0_s</code> and <code>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The profile generic returns a data frame of the likelihood values that correspond to
-fixed values of <code>p1</code> and <code>p2</code>.</p><ul><li><p>Likelihood <code>loglike</code> refers to maximizing the probability of the observed data (higher values for better fit)</p></li>
+    <p>Named list (length 2).</p>
+<p>First, <code>profile</code> contains a data frame of the likelihood values that correspond to
+fixed values of <code>p1</code> and <code>p2</code>. Other columns:</p><ul><li><p>Likelihood <code>loglike</code> refers to maximizing the probability of the observed data (higher values for better fit)</p></li>
 <li><p>Prior <code>logprior</code> refers to maximizing the probability of a parameter to their prior distribution (higher values are closer to the prior mode)</p></li>
 <li><p>Penalty <code>penalty</code> are values added to the objective function when parameters exceed model bounds (lower values are better)</p></li>
 <li><p><code>fn</code> is the objective function returned by RTMB (lower values are better)</p></li>
 <li><p><code>objective</code> is the objective function returned by the optimizer (lower values are better)</p></li>
-</ul><p>The accompanying plot function returns a line plot for a 1-dimensional profile or a contour plot for a two
+</ul><p>Second, <code>fits</code> contains a list of the <code>MSAassess</code> objects if <code>return_models = TRUE</code>.</p>
+<p><code>get_likelihood_components()</code> returns a data.frame of the components to the objective function (log-likelihoods, log-priors, etc.)</p>
+<p>The accompanying plot function returns a line plot for a 1-dimensional profile or a contour plot for a two
 dimensional profile. Will plot the negative log likelihood or negative log prior (better fit with lower values).</p>
-<p>Relative values are obtained by subtracting from the fitted value. See <code>attr(x, "fitted")</code></p>
+<p>Relative values are obtained by subtracting from the fitted value. See <code>attr(x$profile, "fitted")</code></p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

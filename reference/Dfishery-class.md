@@ -129,6 +129,22 @@ with the dimension following the underscore, following this template:
   Stock composition standard deviation if using the lognormal
   likelihood. Default set to 0.1.
 
+- `lambdaCobs_f`:
+
+  Likelihood weight (by fleet) for the catch. Default is 1.
+
+- `lambdaCAA_f`:
+
+  Likelihood weight (by fleet) for the catch at age. Default is 1.
+
+- `lambdaCAL_f`:
+
+  Likelihood weight (by fleet) for the catch at length. Default is 1.
+
+- `lambdaSC_f`:
+
+  Likelihood weight (by fleet) for the stock composition. Default is 1.
+
 ## See also
 
 [MSAdata-class](https://blue-matter.github.io/multiSA/reference/MSAdata-class.md)

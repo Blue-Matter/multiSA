@@ -30,8 +30,11 @@ Prepare the data and parameters, then run the model.
 
 Evaluate model fit and run diagnostics.
 
+- [`do_jitter()`](https://blue-matter.github.io/multiSA/reference/do_jitter.md)
+  : Jitter starting values from fitted model
 - [`profile(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/profile.md)
-  [`plot(`*`<MSAassess>`*`)`](https://blue-matter.github.io/multiSA/reference/profile.md)
+  [`get_likelihood_components()`](https://blue-matter.github.io/multiSA/reference/profile.md)
+  [`plot(`*`<MSAprof>`*`)`](https://blue-matter.github.io/multiSA/reference/profile.md)
   : Profile parameters of MSA model
 - [`report()`](https://blue-matter.github.io/multiSA/reference/report.md)
   : Generate markdown reports

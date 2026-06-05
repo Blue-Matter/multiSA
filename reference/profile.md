@@ -7,9 +7,21 @@ to 2 parameters.
 
 ``` r
 # S4 method for class 'MSAassess'
-profile(fitted, p1, v1, p2, v2, cores = 1, ...)
+profile(
+  fitted,
+  p1,
+  v1,
+  p2,
+  v2,
+  use_fitted = TRUE,
+  return_models = TRUE,
+  cores = 1,
+  ...
+)
 
-# S4 method for class 'MSAassess'
+get_likelihood_components(fitted)
+
+# S3 method for class 'MSAprof'
 plot(
   x,
   component = "objective",
@@ -52,10 +64,18 @@ plot(
 
   Vector of values corresponding to `p2`
 
+- use_fitted:
+
+  Logical, whether to use estimated parameters or the starting values in
+  `fitted` to start the profile
+
+- return_models:
+
+  Logical, whether to return fitted models in the profile
+
 - cores:
 
   Integer for the number of cores to use for parallel processing
-  (snowfall package)
 
 - ...:
 
@@ -96,8 +116,10 @@ plot(
 
 ## Value
 
-The profile generic returns a data frame of the likelihood values that
-correspond to fixed values of `p1` and `p2`.
+Named list (length 2).
+
+First, `profile` contains a data frame of the likelihood values that
+correspond to fixed values of `p1` and `p2`. Other columns:
 
 - Likelihood `loglike` refers to maximizing the probability of the
   observed data (higher values for better fit)
@@ -115,10 +137,16 @@ correspond to fixed values of `p1` and `p2`.
 - `objective` is the objective function returned by the optimizer (lower
   values are better)
 
+Second, `fits` contains a list of the `MSAassess` objects if
+`return_models = TRUE`.
+
+`get_likelihood_components()` returns a data.frame of the components to
+the objective function (log-likelihoods, log-priors, etc.)
+
 The accompanying plot function returns a line plot for a 1-dimensional
 profile or a contour plot for a two dimensional profile. Will plot the
 negative log likelihood or negative log prior (better fit with lower
 values).
 
 Relative values are obtained by subtracting from the fitted value. See
-`attr(x, "fitted")`
+`attr(x$profile, "fitted")`

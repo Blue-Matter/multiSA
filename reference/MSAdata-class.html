@@ -9,7 +9,7 @@ Dmodel, Dstock, Dfishery, Dsurvey DCKMR, and Dtag, where the D- prefix denotes a
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -272,6 +272,18 @@ in the model. Default of zero.</p></dd>
 <dt><code>SCstdev_ymafrs</code></dt>
 <dd><p>Stock composition standard deviation if using the lognormal likelihood. Default set to 0.1.</p></dd>
 
+<dt><code>lambdaCobs_f</code></dt>
+<dd><p>Likelihood weight (by fleet) for the catch. Default is 1.</p></dd>
+
+<dt><code>lambdaCAA_f</code></dt>
+<dd><p>Likelihood weight (by fleet) for the catch at age. Default is 1.</p></dd>
+
+<dt><code>lambdaCAL_f</code></dt>
+<dd><p>Likelihood weight (by fleet) for the catch at length. Default is 1.</p></dd>
+
+<dt><code>lambdaSC_f</code></dt>
+<dd><p>Likelihood weight (by fleet) for the stock composition. Default is 1.</p></dd>
+
 
 </dl></div>
     <div class="section level2">
@@ -319,6 +331,15 @@ in the model. Default of zero.</p></dd>
 
 <dt><code>delta_i</code></dt>
 <dd><p>Numeric vector, The elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., <code>(1 - exp(-Z))/Z</code>.</p></dd>
+
+<dt><code>lambdaI_i</code></dt>
+<dd><p>Likelihood weight (by survey) for the indices. Default is 1.</p></dd>
+
+<dt><code>lambdaIAA_i</code></dt>
+<dd><p>Likelihood weight (by fleet) for the index age composition. Default is 1.</p></dd>
+
+<dt><code>lambdaIAL_i</code></dt>
+<dd><p>Likelihood weight (by fleet) for the index length composition. Default is 1.</p></dd>
 
 
 </dl></div>
@@ -368,6 +389,9 @@ by region of stock distribution for <code>tag_ymars</code>. See <code>type</code
 
 <dt><code>tagstdev_s</code></dt>
 <dd><p>Array. Tag standard deviation (by stock) if using the lognormal likelihood. Default set to 0.1.</p></dd>
+
+<dt><code>lambdaTag_s</code></dt>
+<dd><p>Array. Likelihood weight for the tag data (by stock). Default is 1.</p></dd>
 
 
 </dl></div>
