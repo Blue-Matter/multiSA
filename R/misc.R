@@ -162,7 +162,12 @@ optimize_RTMB <- function(obj, hessian = FALSE, restart = 0, do_sd = TRUE,
                           lower = -Inf, upper = Inf, silent = FALSE) {
   restart <- as.integer(restart)
 
-  if (is.null(obj$env$random) && hessian) h <- obj$he else h <- NULL
+  if (is.null(obj$env$random) && hessian) {
+    h <- obj$he
+    if (!silent) message("Using hessian in optimization (can be memory-intensive)")
+  } else {
+    h <- NULL
+  }
 
   if (!silent) message_info("Fitting model with stats::nlminb()..")
   opt <- tryCatch(
@@ -185,10 +190,14 @@ optimize_RTMB <- function(obj, hessian = FALSE, restart = 0, do_sd = TRUE,
   }
 }
 
-check_det <- function(h, abs_val = 0.1, is_null = TRUE) {
-  if (is.null(h)) return(is_null)
-  det_h <- det(h) |> abs()
-  !is.na(det_h) && det_h < abs_val
+check_h <- function(h) {
+  L <- try(chol(h), silent = TRUE)
+  !is.character(L)
+}
+
+marginal_h <- function(h, tol = 0.1) {
+  det_h <- determinant(h)
+  !is.na(det_h$modulus) && det_h$modulus < log(tol)
 }
 
 #' Calculate standard errors
@@ -196,6 +205,7 @@ check_det <- function(h, abs_val = 0.1, is_null = TRUE) {
 #' A wrapper function to return standard errors. Various numerical techniques are employed to obtain
 #' a positive-definite covariance matrix.
 #' @inheritParams optimize_RTMB
+#' @param par.fixed Numeric vector of parameters from which to calculate covariance matrix
 #' @param getReportCovariance Logical, passed to [RTMB::sdreport()]
 #' @param silent Logical, whether to report progress to console. See details.
 #' @param ... Other arguments to [RTMB::sdreport()] besides `par.fixed, hessian.fixed, getReportCovariance`
@@ -210,43 +220,45 @@ check_det <- function(h, abs_val = 0.1, is_null = TRUE) {
 #' Object returned by [RTMB::sdreport()]. A correlation matrix is generated and stored in: `get_sdreport(obj)$env$corr.fixed`
 #' @importFrom stats optimHess
 #' @export
-get_sdreport <- function(obj, getReportCovariance = FALSE, silent = FALSE, ...) {
+get_sdreport <- function(obj, par.fixed = obj$env$last.par.best, getReportCovariance = FALSE, silent = FALSE, ...) {
   #old_comparison <- TapeConfig()["comparison"]
   #on.exit(TapeConfig(comparison = old_comparison), add = TRUE)
   #TapeConfig(comparison = "tape")
 
-  par.fixed <- obj$env$last.par.best
 
   if (is.null(obj$env$random)) {
+    if (!silent) message_info("Calculating standard errors with hessian from obj$he()..")
     h <- obj$he(par.fixed)
-    if (any(is.na(h)) || any(is.infinite(h)) || check_det(h)) {
-      h <- NULL
-    } else {
-      if (!silent) message_info("Calculating standard errors with hessian from obj$he()..")
+    if (check_h(h) || !marginal_h(h)) { # If positive-definite, otherwise set h = NULL
       res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
                       getReportCovariance = getReportCovariance, ...)
+    } else {
+      h <- NULL
     }
+    if (!silent && !check_h(h)) message_oops("Hessian is not positive-definite.")
   } else {
     par.fixed <- par.fixed[-obj$env$random]
-    #par.fixed <- par.fixed[obj$env$lfixed()]
     h <- NULL
   }
 
-  if (is.null(h) || check_det(h)) {  # If hessian doesn't exist or marginal positive-definite cases, with -0.1 < det(h) <= 0
+  if (is.null(h)) {
     if (!silent) message_info("Calculating standard errors with hessian from stats::optimHess()..")
     h <- optimHess(par.fixed, obj$fn, obj$gr)
     res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
                     getReportCovariance = getReportCovariance, ...)
   }
 
-  if (check_det(h) && !res$pdHess && requireNamespace("numDeriv", quietly = TRUE)) {
-    if (!silent) message_info("Calculating standard errors with hessian from numDeriv::jacobian()..")
+  if ((!res$pdHess && marginal_h(h)) && requireNamespace("numDeriv", quietly = TRUE)) {
+    if (!silent) {
+      message_oops("Hessian is not positive-definite.")
+      message_info("Calculating standard errors with hessian from numDeriv::jacobian()..")
+    }
     h <- numDeriv::jacobian(obj$gr, par.fixed)
     res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
                     getReportCovariance = getReportCovariance, ...)
   }
 
-  if (all(is.na(res$cov.fixed)) && res$pdHess) {
+  if (any(is.na(res$cov.fixed)) && res$pdHess) {
     if (!silent) message_info("Calculating standard errors from chol2inv(chol(h))..")
     ch <- try(chol(h), silent = TRUE) # Not needed, this is the test for convergence in sdreport
     if (!is.character(ch)) res$cov.fixed <- chol2inv(ch)
@@ -259,15 +271,6 @@ get_sdreport <- function(obj, getReportCovariance = FALSE, silent = FALSE, ...) 
 
   res$env$hessian <- round(h, 3) |>
     structure(dimnames = list(fixed.names, fixed.names))
-
-  if (!res$pdHess) {
-    if (!silent) {
-      message_oops("Check convergence. Covariance matrix is not positive-definite.")
-      if (exists("h", inherits = FALSE) && !is.null(h)) {
-        message_info("Determinant of Hessian is ", signif(det(h), 5), ", should be > 0")
-      }
-    }
-  }
 
   return(res)
 }
