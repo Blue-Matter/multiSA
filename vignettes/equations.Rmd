@@ -13,7 +13,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-library(dplyr)
 ```
 
 
@@ -24,8 +23,8 @@ library(dplyr)
 The following letters are used for subscripts to identify the dimension and indexing for model variables.
 
 ```{r vars, echo = FALSE}
-vars <- read.csv("tables/subscript.csv") |>
-  mutate(Number = paste0("1.", 1:n()))
+vars <- read.csv("tables/subscript.csv")
+vars$Number <- paste0("1.", 1:nrow(vars))
 knitr::kable(vars)
 ```
 
@@ -34,8 +33,8 @@ knitr::kable(vars)
 The parameters here are set up as fixed inputs prior to fitting the model.
 
 ```{r dyn-input, echo = FALSE}
-dyn_input <- read.csv("tables/data_var.csv") |>
-  mutate(Number = paste0("2.", 1:n()))
+dyn_input <- read.csv("tables/data_var.csv")
+dyn_input$Number <- paste0("2.", 1:nrow(dyn_input))
 knitr::kable(dyn_input)
 ```
 
@@ -49,8 +48,8 @@ Such parameters are identified as $x$ which is estimated over all real numbers a
 - Fishing mortality is fixed to zero when the corresponding catch is less than $10^{-8}$.
 
 ```{r param, echo = FALSE}
-param <- read.csv("tables/param.csv") |>
-  mutate(Number = paste0("3.", 1:n()))
+param <- read.csv("tables/param.csv")
+param$Number <- paste0("3.", 1:nrow(param))
 knitr::kable(param)
 ```
 
@@ -63,8 +62,8 @@ This section defines additional variables derived from data or estimated paramet
 - Stock-recruit functions use the steepness parameterization, along with the unfished recruitment and the unfished spawning output per recruit ($\phi_0$). In seasonal and multi-region models, the population dynamics model is used to numerically obtain $\phi_0$ by setting $F_{y,m,f,r} = 0$, recruitment to 1, and all other parameters to constant seasonal values. $\phi_0$ is the equilibrium spawning output at the end of this numerical spool-up.
 
 ```{r param2, echo = FALSE}
-param2 <- read.csv("tables/param2.csv") |>
-  mutate(Number = paste0("4.", 1:n()))
+param2 <- read.csv("tables/param2.csv")
+param2$Number <- paste0("4.", 1:nrow(param2))
 knitr::kable(param2)
 ```
 
@@ -76,8 +75,8 @@ The following equations project the population forward in time.
 - It is possible that some proportion of the mature population do not contribute to the annual spawning based on the natal spawning parameter specifying the spatial spawning pattern. Thus, there is a distinction between potential spawners and realized spawners. The unfished replacement line of the stock-recruit relationship ($R_s = 1/\phi_0$) is based on the realized spawning in equilibrium.
 
 ```{r pop-dyn, echo = FALSE}
-pop_dyn <- read.csv("tables/pop_dyn.csv") |>
-  mutate(Number = paste0("5.", 1:n()))
+pop_dyn <- read.csv("tables/pop_dyn.csv")
+pop_dyn$Number <- paste0("5.", 1:nrow(pop_dyn))
 knitr::kable(pop_dyn)
 ```
 
@@ -92,8 +91,8 @@ Here, we calculate additional variables that are not needed for the population d
 The parental age is not observed, so we calculate the probability across all potential ages and follow each cohort from $i$ to $j$.
 
 ```{r report-var, echo = FALSE}
-report_var <- read.csv("tables/report_var.csv") |>
-  mutate(Number = paste0("6.", 1:n()))
+report_var <- read.csv("tables/report_var.csv")
+report_var$Number <- paste0("6.", 1:nrow(report_var))
 knitr::kable(report_var)
 ```
 
@@ -109,8 +108,8 @@ Composition data are presented as proportions $p$ and a separate table provides 
 The close-kin likelihood uses the ratio of matches (for either parent-offspring or sibling matches) and the number of pairwise comparisons ($N$).
 
 ```{r like, echo = FALSE}
-like <- read.csv("tables/likelihood.csv") |>
-  mutate(Number = paste0("7.", 1:n()))
+like <- read.csv("tables/likelihood.csv") 
+like$Number <- paste0("7.", 1:nrow(like))
 knitr::kable(like)
 ```
 
@@ -119,8 +118,8 @@ $N$ is the sample size for each composition vector and $\theta$ is a tuning para
 $N$ is unique to each vector observation, e.g., age composition by season, fleet, and region while $\theta$ is unique to fleet or survey.
 
 ```{r like-comp, echo = FALSE}
-like_comp <- read.csv("tables/like_comp.csv") |>
-  mutate(Number = paste0("8.", 1:n()))
+like_comp <- read.csv("tables/like_comp.csv")
+like_comp$Number <- paste0("8.", 1:nrow(like_comp))
 knitr::kable(like_comp)
 ```
 
@@ -129,8 +128,8 @@ knitr::kable(like_comp)
 Prior distributions for various parameters are described here.
 
 ```{r priors, echo = FALSE}
-pr <- read.csv("tables/prior.csv") |>
-  mutate(Number = paste0("9.", 1:n()))
+pr <- read.csv("tables/prior.csv")
+pr$Number <- paste0("9.", 1:nrow(pr))
 knitr::kable(pr)
 ```
 
