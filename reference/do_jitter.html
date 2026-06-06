@@ -44,7 +44,16 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">do_jitter</span><span class="op">(</span><span class="va">x</span>, n <span class="op">=</span> <span class="fl">1</span>, use_fitted <span class="op">=</span> <span class="cn">TRUE</span>, amount <span class="op">=</span> <span class="cn">NULL</span>, cores <span class="op">=</span> <span class="fl">1</span>, <span class="va">seed</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">do_jitter</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  n <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  use_fitted <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  return_models <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  amount <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cores <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  <span class="va">seed</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -61,6 +70,10 @@
 
 <dt id="arg-use-fitted">use_fitted<a class="anchor" aria-label="anchor" href="#arg-use-fitted"></a></dt>
 <dd><p>Logical, whether to jitter from estimated parameters (<code>TRUE</code>) or original starting values (<code>FALSE</code>)</p></dd>
+
+
+<dt id="arg-return-models">return_models<a class="anchor" aria-label="anchor" href="#arg-return-models"></a></dt>
+<dd><p>Logical, whether to return fitted models of the jitter runs</p></dd>
 
 
 <dt id="arg-amount">amount<a class="anchor" aria-label="anchor" href="#arg-amount"></a></dt>
@@ -81,7 +94,8 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>List (length <code>n</code>) containing <a href="MSAassess-class.html">MSAassess</a> objects</p>
+    <p>If <code>return_models = TRUE</code>, a list (length <code>n</code>) containing <a href="MSAassess-class.html">MSAassess</a> objects.
+Otherwise, a data frame of likelihood components made by <code><a href="profile.html">get_likelihood_components()</a></code></p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

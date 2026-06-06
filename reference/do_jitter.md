@@ -5,7 +5,16 @@ Run additional model fits with jittered starting values.
 ## Usage
 
 ``` r
-do_jitter(x, n = 1, use_fitted = TRUE, amount = NULL, cores = 1, seed, ...)
+do_jitter(
+  x,
+  n = 1,
+  use_fitted = TRUE,
+  return_models = TRUE,
+  amount = NULL,
+  cores = 1,
+  seed,
+  ...
+)
 ```
 
 ## Arguments
@@ -24,6 +33,10 @@ do_jitter(x, n = 1, use_fitted = TRUE, amount = NULL, cores = 1, seed, ...)
 
   Logical, whether to jitter from estimated parameters (`TRUE`) or
   original starting values (`FALSE`)
+
+- return_models:
+
+  Logical, whether to return fitted models of the jitter runs
 
 - amount:
 
@@ -45,9 +58,10 @@ do_jitter(x, n = 1, use_fitted = TRUE, amount = NULL, cores = 1, seed, ...)
 
 ## Value
 
-List (length `n`) containing
+If `return_models = TRUE`, a list (length `n`) containing
 [MSAassess](https://blue-matter.github.io/multiSA/reference/MSAassess-class.md)
-objects
+objects. Otherwise, a data frame of likelihood components made by
+[`get_likelihood_components()`](https://blue-matter.github.io/multiSA/reference/profile.md)
 
 ## Details
 
