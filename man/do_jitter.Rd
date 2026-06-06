@@ -4,7 +4,16 @@
 \alias{do_jitter}
 \title{Jitter starting values from fitted model}
 \usage{
-do_jitter(x, n = 1, use_fitted = TRUE, amount = NULL, cores = 1, seed, ...)
+do_jitter(
+  x,
+  n = 1,
+  use_fitted = TRUE,
+  return_models = TRUE,
+  amount = NULL,
+  cores = 1,
+  seed,
+  ...
+)
 }
 \arguments{
 \item{x}{\linkS4class{MSAassess} object returned by \code{\link[=fit_MSA]{fit_MSA()}}}
@@ -12,6 +21,8 @@ do_jitter(x, n = 1, use_fitted = TRUE, amount = NULL, cores = 1, seed, ...)
 \item{n}{Integer, number of jittered model runs}
 
 \item{use_fitted}{Logical, whether to jitter from estimated parameters (\code{TRUE}) or original starting values (\code{FALSE})}
+
+\item{return_models}{Logical, whether to return fitted models of the jitter runs}
 
 \item{amount}{Numeric or NULL, passed to \code{\link[base:jitter]{base::jitter()}}}
 
@@ -22,7 +33,8 @@ do_jitter(x, n = 1, use_fitted = TRUE, amount = NULL, cores = 1, seed, ...)
 \item{...}{Other arguments to pass to \code{\link[=fit_MSA]{fit_MSA()}}}
 }
 \value{
-List (length \code{n}) containing \linkS4class{MSAassess} objects
+If \code{return_models = TRUE}, a list (length \code{n}) containing \linkS4class{MSAassess} objects.
+Otherwise, a data frame of likelihood components made by \code{\link[=get_likelihood_components]{get_likelihood_components()}}
 }
 \description{
 Run additional model fits with jittered starting values.
