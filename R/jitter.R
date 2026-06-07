@@ -28,10 +28,16 @@ do_jitter <- function(x, n = 1, use_fitted = TRUE, return_models = TRUE, amount 
   if (!missing(seed)) set.seed(seed)
   jit <- lapply(seq_len(n), function(...) jitter(pars, amount = amount))
 
-  jitter_fn <- function(i, x, return_models, ...) {
-    x@obj$retape()
-    x@obj$par[] <- i
-    fit <- fit_MSA(x, ...)
+  jitter_fn <- function(i, fitted, return_models, ...) {
+
+    dat <- get_MSAdata(fitted)
+    parameters <- fitted@obj$env$parList(par = i)
+
+    map <- dat@Misc$map
+    random <- dat@Misc$random
+
+    fit <- fit_MSA(dat, parameters, map, random, do_sd = FALSE, silent = TRUE, ...)
+
     if (return_models) {
       return(fit)
     } else {
@@ -42,9 +48,9 @@ do_jitter <- function(x, n = 1, use_fitted = TRUE, return_models = TRUE, amount 
   if (cores > 1) {
     cl <- parallel::makeCluster(cores)
     on.exit(parallel::stopCluster(cl))
-    fits <- parLapplyLB(cl, X = jit, jitter_fn, x = x, return_models = return_models, ...)
+    fits <- parLapplyLB(cl, X = jit, jitter_fn, fitted = x, return_models = return_models, ...)
   } else {
-    fits <- lapply(cl, X = jit, jitter_fn, x = x, return_models = return_models, ...)
+    fits <- lapply(cl, X = jit, jitter_fn, fitted = x, return_models = return_models, ...)
   }
 
   if (return_models) {
@@ -57,23 +63,7 @@ do_jitter <- function(x, n = 1, use_fitted = TRUE, return_models = TRUE, amount 
     return(out)
   }
 
-  #dat <- get_MSAdata(x)
-  #parameters <- x@obj$env$parList(par = pars)
-  #random <- x@obj$env$random
-  #map <- x@obj$env$map
-  #if (length(map)) {
-  #  map_dim <- lapply(names(map), function(i) {
-  #    dim_i <- dim(parameters[[i]])
-  #    if (length(dim_i)) {
-  #      array(map[[i]], dim_i)
-  #    } else {
-  #      map[[i]]
-  #    }
-  #  }) |>
-  #    structure(names = names(map))
-  #} else {
-  #  map_dim <- list()
-  #}
+
 #
   #init <- fit_MSA(
   #  dat,
