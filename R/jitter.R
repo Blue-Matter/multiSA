@@ -54,7 +54,7 @@ do_jitter <- function(x, n = 1, use_fitted = TRUE, return_models = TRUE, amount 
   }
 
   if (return_models) {
-    return(fit)
+    return(fits)
   } else {
     out <- cbind(
       data.frame(Run = 1:n),
