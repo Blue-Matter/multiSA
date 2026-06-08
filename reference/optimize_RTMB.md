@@ -1,7 +1,7 @@
 # Optimize RTMB model
 
-A convenient function that fits a RTMB model and calculates standard
-errors.
+A convenient function to fit a RTMB model with
+[`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html)
 
 ## Usage
 
@@ -33,13 +33,11 @@ optimize_RTMB(
 
 - restart:
 
-  Integer, the maximum number of additional attempts to fit the model.
-  See details.
+  Deprecated.
 
 - do_sd:
 
-  Logical, whether to calculate standard errors through
-  [`get_sdreport()`](https://blue-matter.github.io/multiSA/reference/get_sdreport.md)
+  Deprecated.
 
 - control:
 
@@ -62,27 +60,8 @@ optimize_RTMB(
 
 ## Value
 
-A named list: "opt" is the output of
-[`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html) and "SD" is the
-output of
-[`get_sdreport()`](https://blue-matter.github.io/multiSA/reference/get_sdreport.md)
-
-## Details
-
-Argument `restart` allows for recursive model fitting to obtain
-convergence, through the following procedure:
-
-1.  Optimize model with
-    [`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html).
-
-2.  Determine convergence, defined by
-    [`RTMB::sdreport()`](https://rdrr.io/pkg/RTMB/man/TMB-interface.html)
-    by whether the Cholesky decomposition of the covariance matrix is
-    possible.
-
-3.  If convergence is not achieved, jitter parameter estimates with
-    multiplicative factor `rlnorm(mean = 0, sd = 1e-3)` and return to
-    step 1.
+A named list, output of
+[`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html)
 
 ## See also
 

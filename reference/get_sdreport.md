@@ -1,7 +1,8 @@
 # Calculate standard errors
 
 A wrapper function to return standard errors. Various numerical
-techniques are employed to obtain a positive-definite covariance matrix.
+techniques are employed to obtain a positive-definite covariance matrix
+in marginal cases.
 
 ## Usage
 
