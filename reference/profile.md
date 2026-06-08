@@ -141,7 +141,9 @@ Second, `fits` contains a list of the `MSAassess` objects if
 `return_models = TRUE`.
 
 `get_likelihood_components()` returns a data.frame of the components to
-the objective function (log-likelihoods, log-priors, etc.)
+the objective function (log-likelihoods, log-priors, etc.) as well as
+some diagnostic information: maximum gradient (`maxgrad`) and
+convergence (`conv`)
 
 The accompanying plot function returns a line plot for a 1-dimensional
 profile or a contour plot for a two dimensional profile. Will plot the
