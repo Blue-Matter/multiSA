@@ -136,31 +136,25 @@ conv_mat <- function(x, na) {
 
 #' Optimize RTMB model
 #'
-#' A convenient function that fits a RTMB model and calculates standard errors.
+#' A convenient function to fit a RTMB model with [stats::nlminb()]
 #'
 #' @param obj The list returned by [RTMB::MakeADFun()]
 #' @param hessian Logical, whether to pass the Hessian function `obj$he` to [stats::nlminb()]. Only used if
 #' there are no random effects in the model.
-#' @param restart Integer, the maximum number of additional attempts to fit the model. See details.
-#' @param do_sd Logical, whether to calculate standard errors through [get_sdreport()]
+#' @param restart Deprecated.
+#' @param do_sd Deprecated.
 #' @param control List of options passed to [stats::nlminb()]
 #' @param lower Lower bounds of parameters passed to [stats::nlminb()]
 #' @param upper Upper bounds of parameters passed to [stats::nlminb()]
 #' @param silent Logical, whether to report progress to console
-#' @return A named list: "opt" is the output of [stats::nlminb()] and "SD" is the output of [get_sdreport()]
-#' @details
-#' Argument `restart` allows for recursive model fitting to obtain convergence, through the following procedure:
-#' 1. Optimize model with [stats::nlminb()].
-#' 2. Determine convergence, defined by [RTMB::sdreport()] by whether the Cholesky decomposition of the covariance matrix is possible.
-#' 3. If convergence is not achieved, jitter parameter estimates with multiplicative factor `rlnorm(mean = 0, sd = 1e-3)` and return to step 1.
-#' @importFrom stats nlminb rnorm
+#' @return A named list, output of [stats::nlminb()]
+#' @importFrom stats nlminb
 #' @seealso [get_sdreport()]
 #' @keywords internal
 #' @export
 optimize_RTMB <- function(obj, hessian = FALSE, restart = 0, do_sd = TRUE,
                           control = list(iter.max = 2e+05, eval.max = 4e+05),
                           lower = -Inf, upper = Inf, silent = FALSE) {
-  restart <- as.integer(restart)
 
   if (is.null(obj$env$random) && hessian) {
     h <- obj$he
@@ -176,25 +170,16 @@ optimize_RTMB <- function(obj, hessian = FALSE, restart = 0, do_sd = TRUE,
   )
   if (!silent) message_info("Final gradient is ", round(max(abs(obj$gr(obj$env$last.par.best))), 5))
 
-  if (do_sd) {
-    SD <- get_sdreport(obj, silent = silent)
-
-    if (!SD$pdHess && restart > 0) {
-      if (!is.character(opt)) obj$par <- opt$par * exp(rnorm(length(opt$par), 0, 1e-3))
-      Recall(obj, hessian, restart - 1, do_sd, control, lower, upper, silent)
-    } else {
-      return(list(opt = opt, SD = SD))
-    }
-  } else {
-    return(list(opt = opt, SD = NULL))
-  }
+  return(opt)
 }
 
+# Check that hessian is positive-definite
 check_h <- function(h) {
   L <- try(chol(h), silent = TRUE)
   !is.character(L)
 }
 
+# Check that hessian could be marginally positive-definite: abs(det(h)) < tol
 marginal_h <- function(h, tol = 0.1) {
   det_h <- determinant(h)
   !is.na(det_h$modulus) && det_h$modulus < log(tol)
@@ -203,7 +188,7 @@ marginal_h <- function(h, tol = 0.1) {
 #' Calculate standard errors
 #'
 #' A wrapper function to return standard errors. Various numerical techniques are employed to obtain
-#' a positive-definite covariance matrix.
+#' a positive-definite covariance matrix in marginal cases.
 #' @inheritParams optimize_RTMB
 #' @param par.fixed Numeric vector of parameters from which to calculate covariance matrix
 #' @param getReportCovariance Logical, passed to [RTMB::sdreport()]
@@ -229,7 +214,7 @@ get_sdreport <- function(obj, par.fixed = obj$env$last.par.best, getReportCovari
   if (is.null(obj$env$random)) {
     if (!silent) message_info("Calculating standard errors with hessian from obj$he()..")
     h <- obj$he(par.fixed)
-    if (check_h(h) || !marginal_h(h)) { # If positive-definite, otherwise set h = NULL
+    if (check_h(h) || !marginal_h(h)) { # If positive-definite or not marginal, otherwise set h = NULL
       res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
                       getReportCovariance = getReportCovariance, ...)
     } else {
@@ -248,7 +233,7 @@ get_sdreport <- function(obj, par.fixed = obj$env$last.par.best, getReportCovari
                     getReportCovariance = getReportCovariance, ...)
   }
 
-  if ((!res$pdHess && marginal_h(h)) && requireNamespace("numDeriv", quietly = TRUE)) {
+  if (!res$pdHess && marginal_h(h) && requireNamespace("numDeriv", quietly = TRUE)) {
     if (!silent) {
       message_oops("Hessian is not positive-definite.")
       message_info("Calculating standard errors with hessian from numDeriv::jacobian()..")

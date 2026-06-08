@@ -76,14 +76,14 @@ fit_MSA <- function(x, parameters, map = list(), random = NULL,
   M <- new("MSAassess", obj = obj)
 
   if (run_model) {
-    m <- optimize_RTMB(M@obj, do_sd = do_sd, control = control, silent = silent)
-    if (is.character(m$opt)) {
-      message_oops("Error message from optimization:\n", m$opt)
+    opt <- optimize_RTMB(M@obj, do_sd = do_sd, control = control, silent = silent)
+    if (is.character(opt)) {
+      message_oops("Error message from optimization:\n", opt)
     } else {
-      M@opt <- m$opt
+      M@opt <- opt
     }
-    if (do_sd) M@SD <- m$SD
   }
+  if (do_sd) M@SD <- get_sdreport(obj, silent = silent)
 
   if (report) {
     if (!silent) message("Generating report list..")

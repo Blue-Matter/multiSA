@@ -21,9 +21,9 @@ optimize_RTMB(
 \item{hessian}{Logical, whether to pass the Hessian function \code{obj$he} to \code{\link[stats:nlminb]{stats::nlminb()}}. Only used if
 there are no random effects in the model.}
 
-\item{restart}{Integer, the maximum number of additional attempts to fit the model. See details.}
+\item{restart}{Deprecated.}
 
-\item{do_sd}{Logical, whether to calculate standard errors through \code{\link[=get_sdreport]{get_sdreport()}}}
+\item{do_sd}{Deprecated.}
 
 \item{control}{List of options passed to \code{\link[stats:nlminb]{stats::nlminb()}}}
 
@@ -34,18 +34,10 @@ there are no random effects in the model.}
 \item{silent}{Logical, whether to report progress to console}
 }
 \value{
-A named list: "opt" is the output of \code{\link[stats:nlminb]{stats::nlminb()}} and "SD" is the output of \code{\link[=get_sdreport]{get_sdreport()}}
+A named list, output of \code{\link[stats:nlminb]{stats::nlminb()}}
 }
 \description{
-A convenient function that fits a RTMB model and calculates standard errors.
-}
-\details{
-Argument \code{restart} allows for recursive model fitting to obtain convergence, through the following procedure:
-\enumerate{
-\item Optimize model with \code{\link[stats:nlminb]{stats::nlminb()}}.
-\item Determine convergence, defined by \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}} by whether the Cholesky decomposition of the covariance matrix is possible.
-\item If convergence is not achieved, jitter parameter estimates with multiplicative factor \code{rlnorm(mean = 0, sd = 1e-3)} and return to step 1.
-}
+A convenient function to fit a RTMB model with \code{\link[stats:nlminb]{stats::nlminb()}}
 }
 \seealso{
 \code{\link[=get_sdreport]{get_sdreport()}}

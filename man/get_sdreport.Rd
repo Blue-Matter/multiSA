@@ -28,7 +28,7 @@ Object returned by \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}. A correla
 }
 \description{
 A wrapper function to return standard errors. Various numerical techniques are employed to obtain
-a positive-definite covariance matrix.
+a positive-definite covariance matrix in marginal cases.
 }
 \details{
 In marginal cases where the determinant of the Hessian matrix is less than 0.1, several steps are utilized to
