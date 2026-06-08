@@ -84,6 +84,7 @@ fixed values of \code{p1} and \code{p2}. Other columns:
 Second, \code{fits} contains a list of the \code{MSAassess} objects if \code{return_models = TRUE}.
 
 \code{get_likelihood_components()} returns a data.frame of the components to the objective function (log-likelihoods, log-priors, etc.)
+as well as some diagnostic information: maximum gradient (\code{maxgrad}) and convergence (\code{conv})
 
 The accompanying plot function returns a line plot for a 1-dimensional profile or a contour plot for a two
 dimensional profile. Will plot the negative log likelihood or negative log prior (better fit with lower values).

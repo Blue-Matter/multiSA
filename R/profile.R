@@ -179,6 +179,7 @@ profile_fn <- function(vals, fitted, pars, use_fitted = TRUE, return_models = TR
 
 #' @name profile
 #' @returns `get_likelihood_components()` returns a data.frame of the components to the objective function (log-likelihoods, log-priors, etc.)
+#' as well as some diagnostic information: maximum gradient (`maxgrad`) and convergence (`conv`)
 #' @export
 get_likelihood_components <- function(fitted) {
 
@@ -200,6 +201,11 @@ get_likelihood_components <- function(fitted) {
   } else {
     out$objective <- NA_real_
   }
+  out$maxgrad <- max(abs(fitted@obj$gr(fitted@obj$env$last.par.best)))
+
+  out$conv <- NA
+  conv <- try(fitted@SD$pdHess, silent = TRUE)
+  if (is.logical(conv)) out$conv <- conv
 
   do.call(data.frame, out)
 }

@@ -36,7 +36,7 @@ do_jitter <- function(x, n = 1, use_fitted = TRUE, return_models = TRUE, amount 
     map <- dat@Misc$map
     random <- dat@Misc$random
 
-    fit <- fit_MSA(dat, parameters, map, random, do_sd = FALSE, silent = TRUE, ...)
+    fit <- fit_MSA(dat, parameters, map, random, silent = TRUE, ...)
 
     if (return_models) {
       return(fit)
