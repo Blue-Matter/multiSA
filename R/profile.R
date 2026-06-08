@@ -201,7 +201,10 @@ get_likelihood_components <- function(fitted) {
   } else {
     out$objective <- NA_real_
   }
-  out$maxgrad <- max(abs(fitted@obj$gr(fitted@obj$env$last.par.best)))
+
+  maxgrad <- try(max(abs(fitted@SD$gradient.fixed)), silent = TRUE)
+  if (is.character(maxgrad)) maxgrad <- max(abs(fitted@obj$gr(fitted@obj$env$last.par.best)))
+  out$maxgrad <- maxgrad
 
   out$conv <- NA
   conv <- try(fitted@SD$pdHess, silent = TRUE)
