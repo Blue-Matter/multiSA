@@ -49,7 +49,8 @@ a positive-definite covariance matrix in marginal cases.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_sdreport</span><span class="op">(</span></span>
 <span>  <span class="va">obj</span>,</span>
-<span>  par.fixed <span class="op">=</span> <span class="va">obj</span><span class="op">$</span><span class="va">env</span><span class="op">$</span><span class="va">last.par.best</span>,</span>
+<span>  <span class="va">par.fixed</span>,</span>
+<span>  exact <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  getReportCovariance <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -65,7 +66,11 @@ a positive-definite covariance matrix in marginal cases.</p>
 
 
 <dt id="arg-par-fixed">par.fixed<a class="anchor" aria-label="anchor" href="#arg-par-fixed"></a></dt>
-<dd><p>Numeric vector of parameters from which to calculate covariance matrix</p></dd>
+<dd><p>Numeric vector of parameters from which to calculate covariance matrix. Optional</p></dd>
+
+
+<dt id="arg-exact">exact<a class="anchor" aria-label="anchor" href="#arg-exact"></a></dt>
+<dd><p>Logical, whether to use autodiff or finite-difference approximation for the hessian. See details.</p></dd>
 
 
 <dt id="arg-getreportcovariance">getReportCovariance<a class="anchor" aria-label="anchor" href="#arg-getreportcovariance"></a></dt>
@@ -82,16 +87,19 @@ a positive-definite covariance matrix in marginal cases.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Object returned by <code><a href="https://rdrr.io/pkg/RTMB/man/TMB-interface.html" class="external-link">RTMB::sdreport()</a></code>. A correlation matrix is generated and stored in: <code>get_sdreport(obj)$env$corr.fixed</code></p>
+    <p>Object returned by <code><a href="https://rdrr.io/pkg/RTMB/man/TMB-interface.html" class="external-link">RTMB::sdreport()</a></code>.</p>
+<p>A correlation matrix is generated and stored in: <code>get_sdreport(obj)$env$corr.fixed</code></p>
+<p>The hessian is stored in <code>get_sdreport(obj)$env$hessian</code></p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>In marginal cases where the determinant of the Hessian matrix is less than 0.1, several steps are utilized to
-obtain a positive-definite covariance matrix, in the following order:</p><ol><li><p>Invert hessian returned by <code>h &lt;- obj@he(obj$env.last.par.best)</code> (skipped in models with random effects)</p></li>
-<li><p>Invert hessian returned by <code>h &lt;- stats::optimHess(obj$env.last.par.best, obj$fn, obj$gr)</code></p></li>
-<li><p>Invert hessian returned by <code>h &lt;- numDeriv::jacobian(obj$gr, obj$env.last.par.best)</code></p></li>
-<li><p>Calculate covariance matrix from <code>chol2inv(chol(h))</code></p></li>
-</ol></div>
+    <p>Uses <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optimHess()</a></code> if <code>exact = FALSE</code>.
+Autodiff with <code>exact = TRUE</code> is only available for TMB models without random effects, but is also memory-intensive.</p>
+<p>In numerically marginal cases where the determinant of the Hessian matrix is less than 0.1, the function will attempt
+to calculate the hessian with <code><a href="https://rdrr.io/pkg/numDeriv/man/jacobian.html" class="external-link">numDeriv::jacobian()</a></code> and the gradient from TMB.</p>
+<p>Finally, in other marginal cases where <code><a href="https://rdrr.io/r/base/chol.html" class="external-link">chol()</a></code> identifies a positive-definite Hessian but <code><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve()</a></code> fails to
+invert the matrix, the covariance matrix will be updated with <code>chol2inv(chol(h))</code></p>
+    </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

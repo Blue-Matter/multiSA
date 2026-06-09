@@ -9,7 +9,8 @@ in marginal cases.
 ``` r
 get_sdreport(
   obj,
-  par.fixed = obj$env$last.par.best,
+  par.fixed,
+  exact = FALSE,
   getReportCovariance = FALSE,
   silent = FALSE,
   ...
@@ -25,7 +26,13 @@ get_sdreport(
 
 - par.fixed:
 
-  Numeric vector of parameters from which to calculate covariance matrix
+  Numeric vector of parameters from which to calculate covariance
+  matrix. Optional
+
+- exact:
+
+  Logical, whether to use autodiff or finite-difference approximation
+  for the hessian. See details.
 
 - getReportCovariance:
 
@@ -45,23 +52,27 @@ get_sdreport(
 ## Value
 
 Object returned by
-[`RTMB::sdreport()`](https://rdrr.io/pkg/RTMB/man/TMB-interface.html). A
-correlation matrix is generated and stored in:
+[`RTMB::sdreport()`](https://rdrr.io/pkg/RTMB/man/TMB-interface.html).
+
+A correlation matrix is generated and stored in:
 `get_sdreport(obj)$env$corr.fixed`
+
+The hessian is stored in `get_sdreport(obj)$env$hessian`
 
 ## Details
 
-In marginal cases where the determinant of the Hessian matrix is less
-than 0.1, several steps are utilized to obtain a positive-definite
-covariance matrix, in the following order:
+Uses [`stats::optimHess()`](https://rdrr.io/r/stats/optim.html) if
+`exact = FALSE`. Autodiff with `exact = TRUE` is only available for TMB
+models without random effects, but is also memory-intensive.
 
-1.  Invert hessian returned by `h <- obj@he(obj$env.last.par.best)`
-    (skipped in models with random effects)
+In numerically marginal cases where the determinant of the Hessian
+matrix is less than 0.1, the function will attempt to calculate the
+hessian with
+[`numDeriv::jacobian()`](https://rdrr.io/pkg/numDeriv/man/jacobian.html)
+and the gradient from TMB.
 
-2.  Invert hessian returned by
-    `h <- stats::optimHess(obj$env.last.par.best, obj$fn, obj$gr)`
-
-3.  Invert hessian returned by
-    `h <- numDeriv::jacobian(obj$gr, obj$env.last.par.best)`
-
-4.  Calculate covariance matrix from `chol2inv(chol(h))`
+Finally, in other marginal cases where
+[`chol()`](https://rdrr.io/r/base/chol.html) identifies a
+positive-definite Hessian but
+[`solve()`](https://rdrr.io/r/base/solve.html) fails to invert the
+matrix, the covariance matrix will be updated with `chol2inv(chol(h))`
