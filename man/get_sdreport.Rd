@@ -6,7 +6,8 @@
 \usage{
 get_sdreport(
   obj,
-  par.fixed = obj$env$last.par.best,
+  par.fixed,
+  exact = FALSE,
   getReportCovariance = FALSE,
   silent = FALSE,
   ...
@@ -15,7 +16,9 @@ get_sdreport(
 \arguments{
 \item{obj}{The list returned by \code{\link[RTMB:TMB-interface]{RTMB::MakeADFun()}}}
 
-\item{par.fixed}{Numeric vector of parameters from which to calculate covariance matrix}
+\item{par.fixed}{Numeric vector of parameters from which to calculate covariance matrix. Optional}
+
+\item{exact}{Logical, whether to use autodiff or finite-difference approximation for the hessian. See details.}
 
 \item{getReportCovariance}{Logical, passed to \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}}
 
@@ -24,19 +27,23 @@ get_sdreport(
 \item{...}{Other arguments to \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}} besides \verb{par.fixed, hessian.fixed, getReportCovariance}}
 }
 \value{
-Object returned by \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}. A correlation matrix is generated and stored in: \code{get_sdreport(obj)$env$corr.fixed}
+Object returned by \code{\link[RTMB:TMB-interface]{RTMB::sdreport()}}.
+
+A correlation matrix is generated and stored in: \code{get_sdreport(obj)$env$corr.fixed}
+
+The hessian is stored in \code{get_sdreport(obj)$env$hessian}
 }
 \description{
 A wrapper function to return standard errors. Various numerical techniques are employed to obtain
 a positive-definite covariance matrix in marginal cases.
 }
 \details{
-In marginal cases where the determinant of the Hessian matrix is less than 0.1, several steps are utilized to
-obtain a positive-definite covariance matrix, in the following order:
-\enumerate{
-\item Invert hessian returned by \code{h <- obj@he(obj$env.last.par.best)} (skipped in models with random effects)
-\item Invert hessian returned by \code{h <- stats::optimHess(obj$env.last.par.best, obj$fn, obj$gr)}
-\item Invert hessian returned by \code{h <- numDeriv::jacobian(obj$gr, obj$env.last.par.best)}
-\item Calculate covariance matrix from \code{chol2inv(chol(h))}
-}
+Uses \code{\link[stats:optim]{stats::optimHess()}} if \code{exact = FALSE}.
+Autodiff with \code{exact = TRUE} is only available for TMB models without random effects, but is also memory-intensive.
+
+In numerically marginal cases where the determinant of the Hessian matrix is less than 0.1, the function will attempt
+to calculate the hessian with \code{numDeriv::jacobian()} and the gradient from TMB.
+
+Finally, in other marginal cases where \code{\link[=chol]{chol()}} identifies a positive-definite Hessian but \code{\link[=solve]{solve()}} fails to
+invert the matrix, the covariance matrix will be updated with \code{chol2inv(chol(h))}
 }

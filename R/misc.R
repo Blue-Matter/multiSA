@@ -190,57 +190,59 @@ marginal_h <- function(h, tol = 0.1) {
 #' A wrapper function to return standard errors. Various numerical techniques are employed to obtain
 #' a positive-definite covariance matrix in marginal cases.
 #' @inheritParams optimize_RTMB
-#' @param par.fixed Numeric vector of parameters from which to calculate covariance matrix
+#' @param par.fixed Numeric vector of parameters from which to calculate covariance matrix. Optional
+#' @param exact Logical, whether to use autodiff or finite-difference approximation for the hessian. See details.
 #' @param getReportCovariance Logical, passed to [RTMB::sdreport()]
 #' @param silent Logical, whether to report progress to console. See details.
 #' @param ... Other arguments to [RTMB::sdreport()] besides `par.fixed, hessian.fixed, getReportCovariance`
 #' @details
-#' In marginal cases where the determinant of the Hessian matrix is less than 0.1, several steps are utilized to
-#' obtain a positive-definite covariance matrix, in the following order:
-#' 1. Invert hessian returned by `h <- obj@he(obj$env.last.par.best)` (skipped in models with random effects)
-#' 2. Invert hessian returned by `h <- stats::optimHess(obj$env.last.par.best, obj$fn, obj$gr)`
-#' 3. Invert hessian returned by `h <- numDeriv::jacobian(obj$gr, obj$env.last.par.best)`
-#' 4. Calculate covariance matrix from `chol2inv(chol(h))`
+#' Uses [stats::optimHess()] if `exact = FALSE`.
+#' Autodiff with `exact = TRUE` is only available for TMB models without random effects, but is also memory-intensive.
+#'
+#' In numerically marginal cases where the determinant of the Hessian matrix is less than 0.1, the function will attempt
+#' to calculate the hessian with `numDeriv::jacobian()` and the gradient from TMB.
+#'
+#' Finally, in other marginal cases where [chol()] identifies a positive-definite Hessian but [solve()] fails to
+#' invert the matrix, the covariance matrix will be updated with `chol2inv(chol(h))`
 #' @return
-#' Object returned by [RTMB::sdreport()]. A correlation matrix is generated and stored in: `get_sdreport(obj)$env$corr.fixed`
+#' Object returned by [RTMB::sdreport()].
+#'
+#' A correlation matrix is generated and stored in: `get_sdreport(obj)$env$corr.fixed`
+#'
+#' The hessian is stored in `get_sdreport(obj)$env$hessian`
 #' @importFrom stats optimHess
 #' @export
-get_sdreport <- function(obj, par.fixed = obj$env$last.par.best, getReportCovariance = FALSE, silent = FALSE, ...) {
-  #old_comparison <- TapeConfig()["comparison"]
-  #on.exit(TapeConfig(comparison = old_comparison), add = TRUE)
-  #TapeConfig(comparison = "tape")
+get_sdreport <- function(obj, par.fixed, exact = FALSE, getReportCovariance = FALSE, silent = FALSE, ...) {
+  if (missing(par.fixed)) {
+    par.fixed <- obj$env$last.par.best
+    if (!is.null(obj$env$random)) par.fixed <- par.fixed[-obj$env$random]
+  }
 
-
-  if (is.null(obj$env$random)) {
+  if (exact && is.null(obj$env$random)) {
     if (!silent) message_info("Calculating standard errors with hessian from obj$he()..")
     h <- obj$he(par.fixed)
-    if (check_h(h) || !marginal_h(h)) { # If positive-definite or not marginal, otherwise set h = NULL
-      res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
-                      getReportCovariance = getReportCovariance, ...)
-    } else {
-      h <- NULL
-    }
-    if (!silent && !check_h(h)) message_oops("Hessian is not positive-definite.")
   } else {
-    par.fixed <- par.fixed[-obj$env$random]
-    h <- NULL
-  }
-
-  if (is.null(h)) {
     if (!silent) message_info("Calculating standard errors with hessian from stats::optimHess()..")
     h <- optimHess(par.fixed, obj$fn, obj$gr)
-    res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
-                    getReportCovariance = getReportCovariance, ...)
   }
+  res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
+                  getReportCovariance = getReportCovariance, ...)
 
-  if (!res$pdHess && marginal_h(h) && requireNamespace("numDeriv", quietly = TRUE)) {
-    if (!silent) {
-      message_oops("Hessian is not positive-definite.")
-      message_info("Calculating standard errors with hessian from numDeriv::jacobian()..")
+  if (!res$pdHess) {
+    if (!silent) message_oops("Hessian is not positive-definite.")
+
+    if (marginal_h(h) && requireNamespace("numDeriv", quietly = TRUE)) {
+      if (!silent) message_info("Calculating standard errors with hessian from numDeriv::jacobian()..")
+      h <- numDeriv::jacobian(obj$gr, par.fixed)
+      h <- 0.5 * (h + t(h)) # glmmTMB does this
+
+      if (check_det(h)) {
+        res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
+                        getReportCovariance = getReportCovariance, ...)
+      } else if (!silent) {
+        message_oops("Hessian is not positive-definite.")
+      }
     }
-    h <- numDeriv::jacobian(obj$gr, par.fixed)
-    res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
-                    getReportCovariance = getReportCovariance, ...)
   }
 
   if (any(is.na(res$cov.fixed)) && res$pdHess) {
