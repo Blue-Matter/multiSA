@@ -76,14 +76,30 @@ fit_MSA <- function(x, parameters, map = list(), random = NULL,
   M <- new("MSAassess", obj = obj)
 
   if (run_model) {
+    if (!silent) time <- proc.time()
+
     opt <- optimize_RTMB(M@obj, do_sd = do_sd, control = control, silent = silent)
+
+    if (!silent) {
+      time_fit <- c(proc.time() - time)["elapsed"]
+      message_info("Run time: ", floor(time_fit/60), " minutes, ", round(time_fit %% 60), " seconds")
+    }
     if (is.character(opt)) {
       message_oops("Error message from optimization:\n", opt)
     } else {
       M@opt <- opt
     }
   }
-  if (do_sd) M@SD <- get_sdreport(obj, silent = silent)
+  if (do_sd) {
+    if (!silent) time <- proc.time()
+
+    M@SD <- get_sdreport(obj, silent = silent)
+
+    if (!silent) {
+      time_fit <- c(proc.time() - time)["elapsed"]
+      message_info("Run time: ", floor(time_fit/60), " minutes, ", round(time_fit %% 60), " seconds")
+    }
+  }
 
   if (report) {
     if (!silent) message("Generating report list..")
