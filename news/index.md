@@ -23,6 +23,14 @@
 - Add
   [`do_jitter()`](https://blue-matter.github.io/multiSA/reference/do_jitter.md)
   function
+- Clean up various internal functions:
+  [`like_comp()`](https://blue-matter.github.io/multiSA/reference/like_comp.md),
+  [`optimize_RTMB()`](https://blue-matter.github.io/multiSA/reference/optimize_RTMB.md),
+  [`get_sdreport()`](https://blue-matter.github.io/multiSA/reference/get_sdreport.md)
+- Export
+  [`get_likelihood_components()`](https://blue-matter.github.io/multiSA/reference/profile.md)
+- Reporet fitting time in
+  [`fit_MSA()`](https://blue-matter.github.io/multiSA/reference/fit_MSA.md)
 
 ## multiSA 0.2.0
 
