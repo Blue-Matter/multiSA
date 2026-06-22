@@ -952,7 +952,7 @@ update_report <- function(r, MSAdata) {
                                  pred = tagpred_ymarrs[yy, m, aa, rf, , s], type = Dtag@tag_like,
                                  N = Dtag@tagN_ymars[yy, m, aa, rf, s], theta = Dtag@tagtheta_s[s],
                                  stdev = Dtag@tagstdev_s[s])
-              } else if (inherits(pred, "advector")) {
+              } else if (inherits(tagpred_ymarrs, "advector")) {
                 val <- advector(0)
               } else {
                 val <- 0

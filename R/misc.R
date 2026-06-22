@@ -236,7 +236,7 @@ get_sdreport <- function(obj, par.fixed, exact = FALSE, getReportCovariance = FA
       h <- numDeriv::jacobian(obj$gr, par.fixed)
       h <- 0.5 * (h + t(h)) # glmmTMB does this
 
-      if (check_det(h)) {
+      if (check_h(h)) {
         res <- sdreport(obj, par.fixed = par.fixed, hessian.fixed = h,
                         getReportCovariance = getReportCovariance, ...)
       } else if (!silent) {

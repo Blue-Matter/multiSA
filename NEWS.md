@@ -10,6 +10,9 @@
 - Use parallel package functions instead of snowfall for parallel computation with profiling and retrospectives
 - Fix indexing with predictions of stock composition by coercing a vector of 1's and 0's to boolean
 - Add `do_jitter()` function
+- Clean up various internal functions: `like_comp()`, `optimize_RTMB()`, `get_sdreport()`
+- Export `get_likelihood_components()`
+- Reporet fitting time in `fit_MSA()`
 
 ## multiSA 0.2.0
 
