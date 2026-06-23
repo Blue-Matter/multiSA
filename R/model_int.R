@@ -593,15 +593,15 @@ calc_eqdist <- function(x, nm = dim(x)[1], nr = dim(x)[2], start = rep(1/nr, nr)
   N[1, m_start, ] <- start
 
   if (nm > m_start) {
-    for (m in seq(m_start + 1, nm)) N[1, m, ] <- colSums(N[1, m-1, ] * x[m, , ])
+    for (m in seq(m_start + 1, nm)) N[1, m, ] <- colSums(N[1, m-1, ] * x[m-1, , ])
   }
-  for (i in seq(2, nit - 1)) {
-    N[i, 1, ] <- colSums(N[i-1, nm, ] * x[1, , ])
+  for (i in seq(2, nit)) {
+    N[i, 1, ] <- colSums(N[i-1, nm, ] * x[nm, , ])
     if (nm > 1) {
-      for (m in 2:nm) N[i, m, ] <- colSums(N[i, m-1, ] * x[m, , ])
+      for (m in 2:nm) N[i, m, ] <- colSums(N[i, m-1, ] * x[m-1, , ])
     }
   }
-  return(matrix(N[nit-1, , ], nm, nr))
+  return(matrix(N[nit, , ], nm, nr))
 }
 
 #' Predict the probability of CKMR kinship pairs

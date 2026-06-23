@@ -1,4 +1,8 @@
 
+## multiSA 0.4.0
+
+- Update `calc_eqdist()` where movement is indexed within the same season as stock distribution (previously applied to previous seasonal time step)
+
 ## multiSA 0.3.0
 
 - Use the potentially faster default pipe `|>` instead of magittr's pipe `%>%`
