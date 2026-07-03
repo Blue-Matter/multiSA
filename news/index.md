@@ -1,6 +1,12 @@
 # Changelog
 
+## multiSA 0.4.1
+
+- Minor check for lambda factors for stock composition
+
 ## multiSA 0.4.0
+
+CRAN release: 2026-06-27
 
 - Update
   [`calc_eqdist()`](https://blue-matter.github.io/multiSA/reference/calc_eqdist.md)
