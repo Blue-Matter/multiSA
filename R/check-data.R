@@ -435,7 +435,7 @@ check_Dfishery <- function(Dfishery, Dstock, Dmodel, silent = FALSE) {
       Dfishery@lambdaSC_f <- rep(1, dim_SC[4])
     } else if (length(Dfishery@lambdaSC_f) == 1) {
       Dfishery@lambdaSC_f <- rep(Dfishery@lambdaSC_f, dim_SC[4])
-    } else {
+    } else if (length(Dfishery@lambdaSC_f) != dim_SC[4]) {
       stop("Vector ", ch, "@lambdaSC_f needs to be length ", dim_SC[4])
     }
   }

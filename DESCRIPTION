@@ -1,10 +1,10 @@
 Package: multiSA
 Title: Multi-Stock Assessment
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: 
     person("Quang", "Huynh", , "quang@bluematterscience.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7835-4376"))
-Date: 2026-06-22
+Date: 2026-07-03
 Maintainer: Quang Huynh <quang@bluematterscience.com>
 Description: Implementation of a next-generation, multi-stock age-structured fisheries assessment model. 
   'multiSA' is intended for use in mixed fisheries where stock composition can not be readily identified in 

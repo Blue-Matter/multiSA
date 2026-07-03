@@ -1,4 +1,8 @@
 
+## multiSA 0.4.1
+
+- Minor check for lambda factors for stock composition
+
 ## multiSA 0.4.0
 
 - Update `calc_eqdist()` where movement is indexed within the same season as stock distribution (previously applied to previous seasonal time step)
