@@ -576,7 +576,7 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
       Dsurvey@delta_i <- rep(0, ni)
     } else if (length(Dsurvey@delta_i) == 1) {
       Dsurvey@delta_i <- rep(Dsurvey@delta_i, ni)
-    } else if(length(Dsurvey@delta_i) != ni) {
+    } else if (length(Dsurvey@delta_i) != ni) {
       stop("Vector ", ch, "@delta_i needs to be length ", ni)
     }
   }
@@ -668,7 +668,7 @@ check_Dtag <- function(Dtag, Dmodel, silent = FALSE) {
       Dtag@lambdaTag_s <- rep(1, ns)
     } else if (length(Dtag@lambdaTag_s) == 1) {
       Dtag@lambdaTag_s <- rep(Dtag@lambdaTag_s, ns)
-    } else {
+    } else if (length(Dtag@lambdaTag_s != ns)) {
       stop("Vector ", ch, "@lambdaTag_s needs to be length ", ns)
     }
   } else { # Sets up movement estimation
