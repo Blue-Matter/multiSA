@@ -2,7 +2,7 @@ Description,Equation
 "Equilibrium catch (abundance, age)","$C^{Neq}_{m,a,f,r,s} = \dfrac{F^{\textrm{eq}}_{m,a,f,r,s}}{Z^{\textrm{eq}}_{m,a,r,s}} (1 - \exp(-Z^{\textrm{eq}}_{y,m,a,r,s})) N^{\textrm{eq}}_{m,a,r,s}$"
 Equilibrium catch (biomass),"$C^{Beq}_{m,f,r,s} = \sum_a w^F_{y=1,m,a,f,s} C^{Neq}_{m,a,f,r,s}$"
 "Catch (abundance, age)","$C^N_{y,m,a,f,r,s} = \dfrac{F_{y,m,a,f,r,s}}{Z_{y,m,a,r,s}} (1 - \exp(-Z_{y,m,a,r,s})) N_{y,m,a,r,s}$"
-"Catch (abundance, length)","$C^N_{y,m,l,f,r,s} = \sum_a C^N_{y,m,a,f,r,s} \textrm{Pr}(\ell\mid a)_{y,m,s}$"
+"Catch (abundance, length)","$C^N_{y,m,l,f,r,s} = \sum_a C^N_{y,m,a,f,r,s} \times s_{\ell,f} \textrm{Pr}(\ell\mid a)_{y,m,s}$"
 Catch (biomass),"$C^B_{y,m,f,r,s} = \sum_a w^F_{y,m,a,f,s} C^N_{y,m,a,f,r,s}$"
 Total biomass,"$B_{y,m,r,s} = \sum_a w_{y,m,a,s} N_{y,m,a,r,s}$"
 Vulnerable biomass,"$V_{y,m,r,s} = \sum_a s_{y,m,a,f,s} w^F_{y,m,a,f,s} N_{y,m,a,r,s}$"

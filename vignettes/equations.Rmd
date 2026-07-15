@@ -115,6 +115,7 @@ knitr::kable(like)
 
 Potential distributions for the likelihoods of composition data, which are presented as proportions, and the predicted mean and variance. 
 $N$ is the sample size for each composition vector and $\theta$ is a tuning parameter for the Dirichlet-multinomial distribution, both provided as user inputs. 
+For lognormal and logitnormal likelihoods, $\sigma$ is a user-provided variance term.
 $N$ is unique to each vector observation, e.g., age composition by season, fleet, and region while $\theta$ is unique to fleet or survey.
 
 ```{r like-comp, echo = FALSE}

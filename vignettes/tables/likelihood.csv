@@ -9,4 +9,4 @@ Index at length,"$p^{IN}_{y,m,\ell,i}$","$\sum_s \hat{I}^N_{y,m,\ell,i,s}/\sum_\
 Stock composition,"$p^{SC}_{y,m,a,f,r,s}$","$\hat{C}^N_{y,m,a,f,r,s}/\sum_s \hat{C}^N_{y,m,a,f,r,s}$",Composition,See next table
 Parent-offspring pairs,"$p^{POP}_{y,t,a,s}$","$\hat{p}^{POP}_{y,t,a,s}$",Binomial,$N\hat{p}^{POP}(1 - \hat{p}^{POP})$
 Half-sibling pairs,"$p^{HSP}_{i,j,s}$","$\hat{p}^{HSP}_{i,j,s}$",Binomial,$N\hat{p}^{HSP}(1 - \hat{p}^{HSP})$
-Tag,TBD,,,
+Tag,"$p^{mov}_{y,m,a,r,r',s}$","$\hat{mov}_{y,m,a,r,r',s}$",Multinomial,See next table
