@@ -135,13 +135,13 @@ The following equations project the population forward in time.
 | Initial abundance | $`N_{y=1,m=1,a,r,s} = R_{\textrm{eq},s}\exp(x^{\textrm{Req}}_{a,s}) \times \textrm{NPR}^{\textrm{eq}}_{m=1,a,r,s}`$ | 5.4 |
 | Fishing mortality by time, age, fleet, region, stock | $`F_{y,m,a,f,r,s} = q^F_{f,s}s_{y,m,a,f,s}F_{y,m,f,r}`$ | 5.5 |
 | Total mortality (instantaneous per season) | $`Z_{y,m,a,r,s} = \Delta_m M_{y,a,s} + \sum_f F_{y,m,a,f,r,s}`$ | 5.6 |
-| Seasonal abundance without incoming recruitment (after survival and movement) | $`N_{y,m,a,r',s} = \sum_r N_{y,m-1,a,r,s}\exp(-Z_{y,m-1,a,r,s}) \textrm{mov}_{y,m,a,r,r',s}`$ | 5.7 |
+| Seasonal abundance without incoming recruitment (after survival and movement) | $`N_{y,m,a,r',s} = \sum_r N_{y,m-1,a,r,s}\exp(-Z_{y,m-1,a,r,s}) \textrm{mov}_{y,m-1,a,r,r',s}`$ | 5.7 |
 | Potential spawners (PS) | $`N^{\textrm{PS}}_{y,a,r,s} = N_{y,m = m_\textrm{sp},a,r,s}\exp(-\Delta_\textrm{sp}Z_{y,m=m_\textrm{sp},a,r,s})m_{y,a,s}`$ | 5.8 |
 | Active spawners | $`N^{\textrm{S}}_{y,a,r,s} = N^{\textrm{PS}}_{y,m = m_{\textrm{sp}},a,r,s}\times n_{r,s}`$ | 5.9 |
 | Spawning output | $`S_{y,r,s} = \sum_a N^{\textrm{S}}_{y,a,r,s} f_{y,a,s}`$ | 5.10 |
-| Recruitment: Beverton-Holt | $`R_{y,s} = \dfrac{\alpha_s \sum_r S_{y,r,s}}{1 + \beta_s \sum_r S_{y,r,s}}\exp(x^R_{y,s})`$ | 5.11 |
-| Recruitment: Ricker | $`R_{y,s} = \alpha_s \sum_r S_{y,r,s} \exp(-\beta_s \times \sum_r S_{y,r,s})\exp(x^R_{y,s})`$ | 5.12 |
-| Seasonal abundance (incoming recruitment and advancing age class when $`m = m_{\textrm{rec}}`$) | $`N_{y,m,a,r',s} = \begin{cases} R_{y,s} \textrm{mov}_{y,m,1,r,r',s} & a = 1\\ \sum_r N_{y,m-1,a-1,r,s}\exp(-Z_{y,m-1,a-1,r,s}) \textrm{mov}_{y,m,a,r,r',s} & a = 2, \ldots, A-1\\ \sum_{a'=A-1}^A\sum_r N_{y,m-1,a',r,s}\exp(-Z_{y,m-1,a',r,s})\textrm{mov}_{y,m,a,r,r',s} & a = A\end{cases}`$ | 5.13 |
+| Recruitment: Beverton-Holt | $`R_{y,s} = \dfrac{\alpha_s \sum_r S_{y,r,s}}{1 + \beta_s \sum_r S_{y,r,s}}\exp(x^R_{y,s} - 0.5(\sigma^R_s)^2)`$ | 5.11 |
+| Recruitment: Ricker | $`R_{y,s} = \alpha_s \sum_r S_{y,r,s} \exp(-\beta_s \times \sum_r S_{y,r,s})\exp(x^R_{y,s} - 0.5(\sigma^R_s)^2)`$ | 5.12 |
+| Seasonal abundance (incoming recruitment and advancing age class when $`m = m_{\textrm{rec}}`$) | $`N_{y,m,a,r',s} = \begin{cases} R_{y,s}& a = 0\\ \sum_r N_{y,m-1,a-1,r,s}\exp(-Z_{y,m-1,a-1,r,s}) \textrm{mov}_{y,m-1,a-1,r,r',s} & a = 1, \ldots, A-1\\ \sum_{a'=A-1}^A\sum_r N_{y,m-1,a',r,s}\exp(-Z_{y,m-1,a',r,s})\textrm{mov}_{y,m-1,a',r,r',s} & a = A\end{cases}`$ | 5.13 |
 
 ## Report variables
 
@@ -173,7 +173,7 @@ for reporting.
 | Equilibrium catch (abundance, age) | $`C^{Neq}_{m,a,f,r,s} = \dfrac{F^{\textrm{eq}}_{m,a,f,r,s}}{Z^{\textrm{eq}}_{m,a,r,s}} (1 - \exp(-Z^{\textrm{eq}}_{y,m,a,r,s})) N^{\textrm{eq}}_{m,a,r,s}`$ | 6.1 |
 | Equilibrium catch (biomass) | $`C^{Beq}_{m,f,r,s} = \sum_a w^F_{y=1,m,a,f,s} C^{Neq}_{m,a,f,r,s}`$ | 6.2 |
 | Catch (abundance, age) | $`C^N_{y,m,a,f,r,s} = \dfrac{F_{y,m,a,f,r,s}}{Z_{y,m,a,r,s}} (1 - \exp(-Z_{y,m,a,r,s})) N_{y,m,a,r,s}`$ | 6.3 |
-| Catch (abundance, length) | $`C^N_{y,m,l,f,r,s} = \sum_a C^N_{y,m,a,f,r,s} \textrm{Pr}(\ell\mid a)_{y,m,s}`$ | 6.4 |
+| Catch (abundance, length) | $`C^N_{y,m,l,f,r,s} = \sum_a C^N_{y,m,a,f,r,s} \times s_{\ell,f} \textrm{Pr}(\ell\mid a)_{y,m,s}`$ | 6.4 |
 | Catch (biomass) | $`C^B_{y,m,f,r,s} = \sum_a w^F_{y,m,a,f,s} C^N_{y,m,a,f,r,s}`$ | 6.5 |
 | Total biomass | $`B_{y,m,r,s} = \sum_a w_{y,m,a,s} N_{y,m,a,r,s}`$ | 6.6 |
 | Vulnerable biomass | $`V_{y,m,r,s} = \sum_a s_{y,m,a,f,s} w^F_{y,m,a,f,s} N_{y,m,a,r,s}`$ | 6.7 |
@@ -219,22 +219,24 @@ comparisons ($`N`$).
 | Stock composition | $`p^{SC}_{y,m,a,f,r,s}`$ | $`\hat{C}^N_{y,m,a,f,r,s}/\sum_s \hat{C}^N_{y,m,a,f,r,s}`$ | Composition | See next table | 7.8 |
 | Parent-offspring pairs | $`p^{POP}_{y,t,a,s}`$ | $`\hat{p}^{POP}_{y,t,a,s}`$ | Binomial | $`N\hat{p}^{POP}(1 - \hat{p}^{POP})`$ | 7.9 |
 | Half-sibling pairs | $`p^{HSP}_{i,j,s}`$ | $`\hat{p}^{HSP}_{i,j,s}`$ | Binomial | $`N\hat{p}^{HSP}(1 - \hat{p}^{HSP})`$ | 7.10 |
-| Tag | TBD |  |  |  | 7.11 |
+| Tag | $`p^{mov}_{y,m,a,r,r',s}`$ | $`\hat{mov}_{y,m,a,r,r',s}`$ | Multinomial | See next table | 7.11 |
 
 Potential distributions for the likelihoods of composition data, which
 are presented as proportions, and the predicted mean and variance. $`N`$
 is the sample size for each composition vector and $`\theta`$ is a
 tuning parameter for the Dirichlet-multinomial distribution, both
-provided as user inputs. $`N`$ is unique to each vector observation,
-e.g., age composition by season, fleet, and region while $`\theta`$ is
-unique to fleet or survey.
+provided as user inputs. For lognormal and logitnormal likelihoods,
+$`\sigma`$ is a user-provided variance term. $`N`$ is unique to each
+vector observation, e.g., age composition by season, fleet, and region
+while $`\theta`$ is unique to fleet or survey.
 
 | Distribution | Mean | Variance | Number |
 |:---|:---|:---|:---|
 | Multinomial | $`N\hat{p}`$ | $`N\hat{p}(1-\hat{p})`$ | 8.1 |
 | Dirichlet-multinomial (Type 1) | $`N\hat{p}`$ | $`N\hat{p}(1-\hat{p})\dfrac{N+\theta N}{1+\theta N}`$ | 8.2 |
 | Dirichlet-multinomial (Type 2) | $`N\hat{p}`$ | $`N\hat{p}(1-\hat{p})\dfrac{N+\theta}{1+\theta}`$ | 8.3 |
-| Lognormal (summed across positive bins) | $`\log(\hat{p})`$ | $`\hat{p}^{-1}`$ | 8.4 |
+| Lognormal | $`\log(\hat{p})`$ | $`\hat{p}^{-1}`$ or $`\sigma`$ | 8.4 |
+| Logitnormal | $`\log\left(\frac{\hat{p}}{\hat{1-p}}\right)`$ | $`\sigma`$ | 8.5 |
 
 ### Priors
 
@@ -242,8 +244,8 @@ Prior distributions for various parameters are described here.
 
 | Description | Distribution | Equation | Number |
 |:---|:---|:---|:---|
-| Deviations from the equilibrium age structure | Lognormal | $`x^{\textrm{Req}}_{a,s} \sim N(-0.5 (\sigma^R_s)^2, \sigma^R_s)`$ | 9.1 |
-| Recruitment deviates | Lognormal | $`x^R_{y,s} \sim N(-0.5 (\sigma^R_s)^2, \sigma^R_s)`$ | 9.2 |
+| Deviations from the equilibrium age structure | Lognormal | $`x^{\textrm{Req}}_{a,s} \sim N(0, \sigma^R_s)`$ | 9.1 |
+| Recruitment deviates | Lognormal | $`x^R_{y,s} \sim N(0, \sigma^R_s)`$ | 9.2 |
 
 ### Penalty function
 
