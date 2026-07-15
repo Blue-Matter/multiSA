@@ -571,7 +571,7 @@ plot_seli <- function(fit, i = 1, figure = TRUE) {
     output$name <- iname
   } else {
 
-    age_sel <- grepl("age", sel_i) || sel_i %in% c("B", "SB")
+    age_sel <- grepl("age", sel_i) || sel_i %in% c("B", "SB", "total", "mature")
     len_sel <- grepl("length", sel_i) || all(!is.na(fit@report$sel_li[, i]))
 
     if (!age_sel && len_sel) {

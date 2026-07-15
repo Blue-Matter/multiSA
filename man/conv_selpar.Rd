@@ -86,8 +86,8 @@ Options for argument \code{type} include:
 \item functional forms with respect to length: \verb{"logistic_length", "dome_length"}
 \item functional forms with respect to age: \verb{"logistic_age", "dome_age"}
 \item for surveys, an integer (\code{f}) to map index selectivity at age to fleet \code{f} (will be coerced to integer)
-\item \code{"SB"} to fix to maturity at age schedule
-\item \code{"B"} to fix selectivity to 1 for all ages
+\item \code{"mature"} to fix to maturity at age schedule (\code{"SB"} is also acceptable for backwards compatibility)
+\item \code{"total"} to fix selectivity to 1 for all ages (\code{"B"} is also acceptable for backwards compatibility)
 \item \code{"length_x_y"} to specify selectivity to 1 between lengths \code{x} and \code{y} (example: \code{"length_20_50"})
 \item \code{"age_x_y"} to specify selectivity to 1 between age \code{x} and \code{y} (example: \code{"age_2_4"})
 \item for surveys, \code{"f_x_y"} uses selectivity values from fleet \code{f} between bins \code{x} and \code{y}

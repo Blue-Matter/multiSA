@@ -19,8 +19,8 @@
 #' - functional forms with respect to length: `"logistic_length", "dome_length"`
 #' - functional forms with respect to age: `"logistic_age", "dome_age"`
 #' - for surveys, an integer (`f`) to map index selectivity at age to fleet `f` (will be coerced to integer)
-#' - `"SB"` to fix to maturity at age schedule
-#' - `"B"` to fix selectivity to 1 for all ages
+#' - `"mature"` to fix to maturity at age schedule (`"SB"` is also acceptable for backwards compatibility)
+#' - `"total"` to fix selectivity to 1 for all ages (`"B"` is also acceptable for backwards compatibility)
 #' - `"length_x_y"` to specify selectivity to 1 between lengths `x` and `y` (example: `"length_20_50"`)
 #' - `"age_x_y"` to specify selectivity to 1 between age `x` and `y` (example: `"age_2_4"`)
 #' - for surveys, `"f_x_y"` uses selectivity values from fleet `f` between bins `x` and `y`
@@ -181,9 +181,9 @@ calc_fsel_age <- function(sel_len, LAK, type, sel_par, sel_block = seq(1, length
       amin <- as.numeric(sel_char[2])
       amax <- as.numeric(sel_char[3])
       v <- ifelse(a >= amin & a <= amax, 1, 0)
-    } else if (type[f] == "SB") {
+    } else if (type[f] %in% c("SB", "mature")) {
       v <- mat
-    } else if (type[f] == "B") {
+    } else if (type[f] %in% c("B", "total")) {
       v <- rep(1, length(a))
     } else if (type[f] == "free") {
       v <- plogis(sel_par[, f])

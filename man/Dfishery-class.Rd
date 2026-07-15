@@ -37,7 +37,7 @@ observed catch with the dimension following the underscore, following this templ
 \item{\code{CAAtheta_f}}{Catch at age dispersion parameter if using the Dirichlet-multinomial likelihood. Default set to 1.}
 \item{\code{CALtheta_f}}{Catch at length dispersion parameter if using the Dirichlet-multinomial likelihood. Default set to 1.}
 \item{\code{sel_block_yf}}{Index of dummy fleets to model time blocks of selectivity}
-\item{\code{sel_f}}{Character vector of the functional form for selectivity. Choose between: \verb{"logistic_length", "dome_length", "logistic_age", "dome_age", "SB", "B"}}
+\item{\code{sel_f}}{Character vector of the functional form for selectivity for each fleet. See \code{type} argument in \code{\link[=conv_selpar]{conv_selpar()}} for all options, for example, \verb{"logistic_length", "dome_length", "logistic_age", "dome_age", "total", "mature"}}
 \item{\code{Cinit_mfr}}{Equilibrium seasonal catch prior to the first year. One way to initialize the abundance at the start of the first year
 in the model. Default of zero.}
 \item{\code{SC_ymafrs}}{Stock composition data.}
