@@ -158,8 +158,8 @@ or population parameters (e.g, mature or total biomass).</p></li>
     <p>Options for argument <code>type</code> include:</p><ul><li><p>functional forms with respect to length: <code>"logistic_length", "dome_length"</code></p></li>
 <li><p>functional forms with respect to age: <code>"logistic_age", "dome_age"</code></p></li>
 <li><p>for surveys, an integer (<code>f</code>) to map index selectivity at age to fleet <code>f</code> (will be coerced to integer)</p></li>
-<li><p><code>"SB"</code> to fix to maturity at age schedule</p></li>
-<li><p><code>"B"</code> to fix selectivity to 1 for all ages</p></li>
+<li><p><code>"mature"</code> to fix to maturity at age schedule (<code>"SB"</code> is also acceptable for backwards compatibility)</p></li>
+<li><p><code>"total"</code> to fix selectivity to 1 for all ages (<code>"B"</code> is also acceptable for backwards compatibility)</p></li>
 <li><p><code>"length_x_y"</code> to specify selectivity to 1 between lengths <code>x</code> and <code>y</code> (example: <code>"length_20_50"</code>)</p></li>
 <li><p><code>"age_x_y"</code> to specify selectivity to 1 between age <code>x</code> and <code>y</code> (example: <code>"age_2_4"</code>)</p></li>
 <li><p>for surveys, <code>"f_x_y"</code> uses selectivity values from fleet <code>f</code> between bins <code>x</code> and <code>y</code>
@@ -221,7 +221,7 @@ input matrices (<code>sel_len[, 2]</code> or <code>sel_par[, 2]</code>).</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

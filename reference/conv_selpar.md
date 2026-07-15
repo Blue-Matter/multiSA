@@ -126,9 +126,11 @@ Options for argument `type` include:
 - for surveys, an integer (`f`) to map index selectivity at age to fleet
   `f` (will be coerced to integer)
 
-- `"SB"` to fix to maturity at age schedule
+- `"mature"` to fix to maturity at age schedule (`"SB"` is also
+  acceptable for backwards compatibility)
 
-- `"B"` to fix selectivity to 1 for all ages
+- `"total"` to fix selectivity to 1 for all ages (`"B"` is also
+  acceptable for backwards compatibility)
 
 - `"length_x_y"` to specify selectivity to 1 between lengths `x` and `y`
   (example: `"length_20_50"`)

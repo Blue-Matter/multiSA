@@ -3,6 +3,9 @@
 ## multiSA 0.4.1
 
 - Minor check for lambda factors for stock composition
+- Update selectivity names, using ‘total’ and ‘mature’ instead of ‘B’
+  and ‘SB’, respectively. For good practice, units are not necessarily
+  in biomass.
 
 ## multiSA 0.4.0
 

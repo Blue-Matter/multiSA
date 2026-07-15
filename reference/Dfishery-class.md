@@ -83,9 +83,11 @@ with the dimension following the underscore, following this template:
 
 - `sel_f`:
 
-  Character vector of the functional form for selectivity. Choose
-  between:
-  `"logistic_length", "dome_length", "logistic_age", "dome_age", "SB", "B"`
+  Character vector of the functional form for selectivity for each
+  fleet. See `type` argument in
+  [`conv_selpar()`](https://blue-matter.github.io/multiSA/reference/conv_selpar.md)
+  for all options, for example,
+  `"logistic_length", "dome_length", "logistic_age", "dome_age", "total", "mature"`
 
 - `Cinit_mfr`:
 
