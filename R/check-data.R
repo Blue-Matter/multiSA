@@ -107,6 +107,7 @@ check_Dmodel <- function(Dmodel, Dstock, nf, silent = FALSE) {
     Dmodel@condition <- "F"
     if (!silent) message("Setting ", ch, "@condition = F")
   }
+  Dmodel@condition <- match.arg(Dmodel@condition, choices = c("F", "catch"))
   if (Dmodel@condition == "catch" && !length(Dmodel@nitF)) {
     if (!silent) message("Setting ", ch, "@nitF to 5")
     Dmodel@nitF <- 5
@@ -139,8 +140,9 @@ check_Dmodel <- function(Dmodel, Dstock, nf, silent = FALSE) {
       stop("dim(", ch, "@pbc_rdev_ys) should be ", c(Dmodel@ny, Dmodel@ns) |> paste(collapse = ", "))
     }
   }
+
+  na_init <- ifelse(Dmodel@nm > 1 && Dstock@m_advanceage > 1, Dmodel@na, Dmodel@na-1)
   if (!length(Dmodel@pbc_initrdev_as)) {
-    na_init <- ifelse(Dstock@m_advanceage > 1, Dmodel@na, Dmodel@na-1)
     Dmodel@pbc_initrdev_as <- matrix(1, na_init, Dmodel@ns)
   } else if (length(Dmodel@pbc_initrdev_as) == 1) {
     Dmodel@pbc_initrdev_as <- matrix(Dmodel@pbc_initrdev_as, na_init, Dmodel@ns)
@@ -150,7 +152,6 @@ check_Dmodel <- function(Dmodel, Dstock, nf, silent = FALSE) {
       stop("dim(", ch, "@pbc_initrdev_as) should be ", c(na_init, Dmodel@ns) |> paste(collapse = ", "))
     }
   }
-
 
   return(Dmodel)
 }
