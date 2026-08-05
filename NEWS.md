@@ -1,8 +1,9 @@
 
-## multiSA 0.4.1
+## multiSA 0.5.0
 
 - Minor check for lambda factors for stock composition
 - Update selectivity names, using 'total' and 'mature' instead of 'B' and 'SB', respectively. For good practice, units are not necessarily in biomass.
+- Add option to fix index catchability in `Dsurvey@qest_i`
 
 ## multiSA 0.4.0
 

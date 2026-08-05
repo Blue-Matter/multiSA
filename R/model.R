@@ -746,7 +746,14 @@ update_report <- function(r, MSAdata) {
         })
       }
     }
-    q_i <- sapply(1:ni, function(i) calc_q(Iobs_ymi[, , i], B = VI_ymi[, , i]))
+    q_i <- sapply(1:ni, function(i) {
+      q_fixed <- suppressWarnings(as.numeric(Dsurvey@qest_i[i]))
+      if (!is.na(q_fixed)) {
+        AD(q_fixed)
+      } else {
+        calc_q(Iobs_ymi[, , i], B = VI_ymi[, , i])
+      }
+    })
     I_ymi[] <- sapply2(1:ni, function(i) q_i[i] * VI_ymi[, , i])
 
     Iobs_ymi <- OBS(Iobs_ymi)

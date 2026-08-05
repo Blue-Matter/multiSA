@@ -13,7 +13,8 @@
 #' \item{`IALtheta_i`}{Numeric vector, index length composition dispersion parameter if using the Dirichlet-multinomial likelihood}
 #' \item{`samp_irs`}{Boolean array that specifies the regions and stocks sampled by the index. `samp[i, r, s]` indicates whether index `i` operates in region `r` and catches stock `s`.}
 #' \item{`sel_i`}{Character vector, functional forms for selectivity. See `"type"` argument in [conv_selpar()] for options.}
-#' \item{`delta_i`}{Numeric vector, The elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., `(1 - exp(-Z))/Z`.}
+#' \item{`delta_i`}{Numeric vector, the elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., `(1 - exp(-Z))/Z`.}
+#' \item{`qest_i`}{Vector, either a character `"est"` to allow the model to estimate the catchability for index `i` (default) or a numeric to fix the parameter.}
 #' \item{`lambdaI_i`}{Likelihood weight (by survey) for the indices. Default is 1.}
 #' \item{`lambdaIAA_i`}{Likelihood weight (by fleet) for the index age composition. Default is 1.}
 #' \item{`lambdaIAL_i`}{Likelihood weight (by fleet) for the index length composition. Default is 1.}

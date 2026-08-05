@@ -580,6 +580,13 @@ check_Dsurvey <- function(Dsurvey, Dmodel, silent = FALSE) {
     } else if (length(Dsurvey@delta_i) != ni) {
       stop("Vector ", ch, "@delta_i needs to be length ", ni)
     }
+
+    if (!length(Dsurvey@qest_i)) {
+      Dsurvey@qest_i <- rep("est", ni)
+    } else if (length(Dsurvey@qest_i) != ni) {
+      stop("Vector ", ch, "@qest_i needs to be length ", ni)
+    }
+
   }
 
   return(Dsurvey)

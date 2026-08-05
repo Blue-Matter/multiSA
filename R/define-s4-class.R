@@ -1,6 +1,6 @@
 
 
-#' @importFrom methods slot setClass setMethod setOldClass slot<-
+#' @importFrom methods slot setClass setMethod setOldClass slot<- setClassUnion
 #' @importFrom utils packageVersion
 init_fn <- function(.Object, dots = list()) {
   if (length(dots)) {
@@ -12,6 +12,8 @@ init_fn <- function(.Object, dots = list()) {
 
   return(.Object)
 }
+
+setClassUnion("num.char", c("numeric", "character"))
 
 #' Dmodel S4 object
 #' @template MSAdata-template
@@ -64,7 +66,7 @@ setClass(
   slots = c(ni = "numeric", Iobs_ymi = "array", Isd_ymi = "array", unit_i = "character",
             IAAobs_ymai = "array", IALobs_ymli = "array",
             icomp_like = "character", IAAN_ymi = "array", IALN_ymi = "array", IAAtheta_i = "numeric", IALtheta_i = "numeric",
-            samp_irs = "array", sel_i = "vector", delta_i = "numeric",
+            samp_irs = "array", sel_i = "vector", delta_i = "numeric", qest_i = "num.char",
             lambdaI_i = "numeric", lambdaIAA_i = "numeric", lambdaIAL_i = "numeric")
 )
 
