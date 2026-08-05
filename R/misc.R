@@ -256,8 +256,7 @@ get_sdreport <- function(obj, par.fixed, exact = FALSE, getReportCovariance = FA
   res$env$corr.fixed <- cov2cor(res$cov.fixed) |> round(3) |>
     structure(dimnames = list(fixed.names, fixed.names))
 
-  res$env$hessian <- round(h, 3) |>
-    structure(dimnames = list(fixed.names, fixed.names))
+  res$env$hessian <- structure(h, dimnames = list(fixed.names, fixed.names))
 
   return(res)
 }

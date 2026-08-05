@@ -229,7 +229,7 @@ setMethod("report", signature(object = "MSAassess"),
               rmd_split[[hessian_ind]] <- c(
                 "### Hessian",
                 "```{r hessian}",
-                "as.data.frame(x@SD$env$hessian)",
+                "as.data.frame(round(x@SD$env$hessian, 4))",
                 "```",
                 ""
               )
