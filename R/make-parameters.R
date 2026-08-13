@@ -175,55 +175,122 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
   }
 
   if (is.null(p$sel_pf)) {
-    nb <- unique(as.numeric(Dfishery@sel_block_yf))
-    p$sel_pf <- sapply(nb, function(b) {
+    nb <- unique(as.numeric(Dfishery@sel_block_yf)) |> sort()
+
+    if (length(Dfishery@CALobs_ymlfr)) {
+      CAL_lb <- sapply(nb, function(b) {
+        out <- rep(0, nl)
+        sel_b <- Dfishery@sel_f[b]
+
+        if (grepl("length", sel_b)) {
+          out[] <- sapply2(1:nf, function(f) {
+            sapply2(1:ny, function(y) {
+              out <- rep(0, nl)
+              if (Dfishery@sel_block_yf[y, f] == b) {
+                vec_lrm <- sapply2(1:nm, function(m) {
+                  sapply(1:nr, function(r) {
+                    obs <- Dfishery@CALobs_ymlfr[y, m, , f, r]
+                    if (sum(obs, na.rm = TRUE)) {
+                      if (length(Dfishery@CALN_ymfr)) {
+                        out <- Dfishery@CALN_ymfr[y, m, f, r] * obs/sum(obs, na.rm = TRUE)
+                      } else {
+                        out <- obs
+                      }
+                    } else {
+                      out <- rep(0, nl)
+                    }
+                    return(out)
+                  })
+                })
+                out[] <- apply(vec_lrm, 1, sum)
+              }
+              return(out)
+            })
+          }) |> apply(1, sum)
+        }
+        return(out)
+      })
+    } else {
+      CAL_lb <- matrix(0, nl, nb)
+    }
+
+    if (length(Dfishery@CAAobs_ymafr)) {
+      CAA_ab <- sapply(nb, function(b) {
+        out <- rep(0, na)
+        sel_b <- Dfishery@sel_f[b]
+
+        if (grepl("age", sel_b)) {
+          out[] <- sapply2(1:nf, function(f) {
+            sapply(1:ny, function(y) {
+              out <- rep(0, na)
+              if (Dfishery@sel_block_yf[y, f] == b) {
+                vec_arm <- sapply2(1:nm, function(m) {
+                  sapply(1:nr, function(r) {
+                    obs <- Dfishery@CAAobs_ymafr[y, m, , f, r]
+                    if (sum(obs, na.rm = TRUE)) {
+                      if (length(Dfishery@CAAN_ymfr)) {
+                        out <- Dfishery@CAAN_ymfr[y, m, f, r] * obs/sum(obs, na.rm = TRUE)
+                      } else {
+                        out <- obs
+                      }
+                    } else {
+                      out <- rep(0, na)
+                    }
+                    return(out)
+                  })
+                })
+                out[] <- apply(vec_arm, 1, sum)
+              }
+              return(out)
+            })
+          }) |> apply(1, sum)
+        }
+        return(out)
+      })
+    } else {
+      CAA_ab <- matrix(0, na, nb)
+    }
+
+    sel_pars <- sapply(nb, function(b) { # For reporting
+      val <- rep(NA_real_, 2)
       sel_b <- Dfishery@sel_f[b]
+      if (grepl("length", sel_b) && sum(CAL_lb[, b])) {
+        full_sel <- min(Dmodel@lmid[which.max(CAL_lb[, b])], 0.94 * max(Dmodel@lmid))
+        sel5 <- approx(cumsum(CAL_lb[, b]/sum(CAL_lb[, b])), Dmodel@lmid, 0.05)$y
+      } else if (grepl("age", sel_b) && sum(CAA_ab[, b])) {
+        age <- seq(1, na) - 1
+        full_sel <- min(age[which.max(CAA_ab[, b])], 0.99 * max(age))
+        sel5 <- approx(cumsum(CAA_ab[, b])/sum(CAA_ab[, b]), age, 0.05)$y
+      }
+      val[1] <- full_sel
+      val[2] <- sel5
+      return(val)
+    })
+
+    p$sel_pf <- sapply(nb, function(b) {
       val <- numeric(3)
-      f_yb <- Dfishery@sel_block_yf == b
-      if (grepl("length", sel_b) && length(Dfishery@CALobs_ymlfr)) {
-        CAL <- sapply2(1:nf, function(f) {
-          sapply(1:ny, function(y) {
-            if (f_yb[y, f]) {
-              apply(Dfishery@CALobs_ymlfr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
-            } else {
-              rep(0, nl)
-            }
-          })
-        }) |> apply(1, sum)
 
-        if (sum(CAL)) {
-          LFS <- min(Dmodel@lmid[which.max(CAL)], 0.75 * max(Dmodel@lmid))
-          L5 <- approx(cumsum(CAL)/sum(CAL), Dmodel@lmid, 0.05)$y
-          if (is.na(L5) || L5 > 0.99 * LFS) L5 <- 0.5 * LFS
+      sel_b <- Dfishery@sel_f[b]
+      if (grepl("length", sel_b) && sum(CAL_lb[, b])) {
+        LFS <- min(Dmodel@lmid[which.max(CAL_lb[, b])], 0.94 * max(Dmodel@lmid))
+        L5 <- approx(cumsum(CAL_lb[, b]/sum(CAL_lb[, b])), Dmodel@lmid, 0.05)$y
+        if (is.na(L5) || L5 > 0.99 * LFS) L5 <- 0.5 * LFS
 
-          sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(Dmodel@lmid)))
-          val[2] <- log(sigma_asc)
-          val[1] <- qlogis(LFS/max(0.95 * Dmodel@lmid))
-          if (grepl("dome", sel_b)) val[3] <- val[2]
-        }
-      } else if (grepl("age", sel_b) && length(Dfishery@CAAobs_ymafr)) {
-        CAA <- sapply2(1:nf, function(f) {
-          sapply(1:ny, function(y) {
-            if (f_yb[y, f]) {
-              apply(Dfishery@CAAobs_ymafr[y, , , f, , drop = FALSE], 3, sum, na.rm = TRUE)
-            } else {
-              rep(0, na)
-            }
-          })
-        }) |> apply(1, sum)
+        sigma_asc <- min(0.5 * (LFS - L5), 0.5 * diff(range(Dmodel@lmid)))
+        val[2] <- log(sigma_asc)
+        val[1] <- qlogis(LFS/(0.95 * max(Dmodel@lmid)))
+        if (grepl("dome", sel_b)) val[3] <- val[2]
 
-        if (sum(CAA)) {
-          age <- 1:na
-          AFS <- min(age[which.max(CAA)], 0.75 * max(age))
-          A5 <- approx(cumsum(CAA)/sum(CAA), age, 0.05)$y
-          if (is.na(A5) || A5 > 0.99 * AFS) A5 <- 0.5 * AFS
+      } else if (grepl("age", sel_b) && sum(CAA_ab[, b])) {
+        age <- seq(1, na) - 1
+        AFS <- min(age[which.max(CAA_ab[, b])], 0.99 * max(age))
+        A5 <- approx(cumsum(CAA_ab[, b])/sum(CAA_ab[, b]), age, 0.05)$y
+        if (is.na(A5) || A5 > 0.99 * AFS) A5 <- 0.5 * AFS
 
-          sigma_asc <- min((AFS - A5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(age)))
-          val[2] <- log(sigma_asc)
-          val[1] <- qlogis(AFS/max(age))
-          if (grepl("dome", sel_b)) val[3] <- val[2]
-        }
-
+        sigma_asc <- min(0.5 * (AFS - A5), 0.5 * diff(range(age)))
+        val[2] <- log(sigma_asc)
+        val[1] <- qlogis(AFS/max(age))
+        if (grepl("dome", sel_b)) val[3] <- val[2]
       }
       if (all(!val)) {
         # Apical sel halfway between 0 and max age/length
@@ -245,25 +312,55 @@ make_parameters <- function(MSAdata, start = list(), map = list(),
       sel_i <- Dsurvey@sel_i[i]
       val <- numeric(3)
       if (grepl("length", sel_i) && length(Dsurvey@IALobs_ymli)) {
-
-        IAL <- apply(Dsurvey@IALobs_ymli[, , , i, drop = FALSE], 3, sum)
+        if (length(Dsurvey@IALN_ymi) && sum(Dsurvey@IALN_ymi[, , i])) {
+          IAL <- sapply2(1:ny, function(y) {
+            sapply(1:nm, function(m) {
+              obs <- Dsurvey@IALobs_ymli[y, m, , i]
+              Dsurvey@IALN_ymi[y, m, i] * obs/sum(obs, na.rm = TRUE)
+            })
+          }) |> apply(1, sum)
+        } else {
+          IAL <- apply(Dsurvey@IALobs_ymli[, , , i, drop = FALSE], 3, sum)
+        }
 
         if (sum(IAL)) {
-          LFS <- min(Dmodel@lmid[which.max(IAL)], 0.75 * max(Dmodel@lmid))
+          LFS <- min(Dmodel@lmid[which.max(IAL)], 0.9 * max(Dmodel@lmid))
           L5 <- approx(cumsum(IAL)/sum(IAL), Dmodel@lmid, 0.05)$y
+          if (is.na(L5) || L5 > 0.99 * LFS) L5 <- 0.5 * LFS
 
-          if (L5 < LFS) {
-            sigma_asc <- min((LFS - L5)/sqrt(-2 * log(0.05)), 0.25 * diff(range(Dmodel@lmid)))
-            val[2] <- log(sigma_asc)
-            val[1] <- qlogis(LFS/max(0.95 * Dmodel@lmid))
-            if (grepl("dome", sel_i)) val[3] <- val[2]
-          }
+          sigma_asc <- min(0.5 * (LFS - L5), 0.25 * diff(range(Dmodel@lmid)))
+          val[2] <- log(sigma_asc)
+          val[1] <- qlogis(min(0.95, LFS/max(Dmodel@lmid)))
+          if (grepl("dome", sel_i)) val[3] <- val[2]
+        }
+      } else if (grepl("age", sel_i) && length(Dsurvey@IAAobs_ymai)) {
+        if (length(Dsurvey@IAAN_ymi) && sum(Dsurvey@IAAN_ymi[, , i])) {
+          IAA <- sapply2(1:ny, function(y) {
+            sapply(1:nm, function(m) {
+              obs <- Dsurvey@IAAobs_ymai[y, m, , i]
+              Dsurvey@IAAN_ymi[y, m, i] * obs/sum(obs, na.rm = TRUE)
+            })
+          }) |> apply(1, sum)
+        } else {
+          IAA <- apply(Dsurvey@IAAobs_ymai[, , , i, drop = FALSE], 3, sum)
+        }
+
+        if (sum(IAA)) {
+          age <- seq(1, na) - 1
+          AFS <- min(age[which.max(IAA)], 0.99 * max(age))
+          A5 <- approx(cumsum(IAA)/sum(IAA), Dmodel@lmid, 0.05)$y
+          if (is.na(A5) || A5 > 0.99 * AFS) A5 <- 0.5 * AFS
+
+          sigma_asc <- min(0.5 * (AFS - A5), 0.5 * diff(range(age)))
+          val[2] <- log(sigma_asc)
+          val[1] <- qlogis(AFS/max(age))
+          if (grepl("dome", sel_i)) val[3] <- val[2]
         }
       }
       if (all(!val)) {
         # Apical sel halfway between 0 and max age/length
         # Sloping ascending selectivity limbs (25% of max age or three length bins)
-
+        val[1] <- 0
         sel_limb <- if (grepl("length", sel_i)) log(3 * min(diff(Dmodel@lmid))) else log(0.25 * Dmodel@na)
         val[2] <- sel_limb
         if (grepl("dome", sel_i)) val[3] <- sel_limb
