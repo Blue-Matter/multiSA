@@ -89,10 +89,16 @@ with the dimension following the underscore, following this template:
 
 - `delta_i`:
 
-  Numeric vector, The elapsed fraction of time in the seasonal time step
+  Numeric vector, the elapsed fraction of time in the seasonal time step
   (between 0 - 1) when the index samples the population. Set to a
   negative number (-1) to sample over the duration of the timestep,
   i.e., `(1 - exp(-Z))/Z`.
+
+- `qest_i`:
+
+  Vector, either a character `"est"` to allow the model to estimate the
+  catchability for index `i` (default) or a numeric to fix the
+  parameter.
 
 - `lambdaI_i`:
 

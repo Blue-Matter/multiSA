@@ -9,7 +9,7 @@ Dmodel, Dstock, Dfishery, Dsurvey DCKMR, and Dtag, where the D- prefix denotes a
 
     <a class="navbar-brand me-2" href="../index.html">multiSA</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,10 @@ observed catch with the dimension following the underscore, following this templ
 <dd><p>Character vector, functional forms for selectivity. See <code>"type"</code> argument in <code><a href="conv_selpar.html">conv_selpar()</a></code> for options.</p></dd>
 
 <dt><code>delta_i</code></dt>
-<dd><p>Numeric vector, The elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., <code>(1 - exp(-Z))/Z</code>.</p></dd>
+<dd><p>Numeric vector, the elapsed fraction of time in the seasonal time step (between 0 - 1) when the index samples the population. Set to a negative number (-1) to sample over the duration of the timestep, i.e., <code>(1 - exp(-Z))/Z</code>.</p></dd>
+
+<dt><code>qest_i</code></dt>
+<dd><p>Vector, either a character <code>"est"</code> to allow the model to estimate the catchability for index <code>i</code> (default) or a numeric to fix the parameter.</p></dd>
 
 <dt><code>lambdaI_i</code></dt>
 <dd><p>Likelihood weight (by survey) for the indices. Default is 1.</p></dd>
