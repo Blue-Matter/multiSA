@@ -876,7 +876,8 @@ update_report <- function(r, MSAdata) {
         sapply2(1:nrow(Dfishery@SC_aa), function(aa) {
           sapply(1:nm, function(m) {
             sapply(y_like, function(y) {
-              Cobs <- sum(Cobs_ymfr[y, m, ff, r])
+              fvec <- as.logical(Dfishery@SC_ff[ff, ])
+              Cobs <- sum(Cobs_ymfr[y, m, fvec, r])
               like_comp(obs = (Cobs > 1e-8) * SC_ymafrs[y, m, aa, ff, r, ],
                         pred = SCpred_ymafrs[y, m, aa, ff, r, ], type = Dfishery@SC_like,
                         N = Dfishery@SCN_ymafr[y, m, aa, ff, r], theta = Dfishery@SCtheta_f[ff],

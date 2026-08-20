@@ -75,43 +75,72 @@ plot_index <- function(fit, i = 1, zoom = FALSE, figure = TRUE) {
 
   iname <- Dlabel@index[i]
 
-  iobs <- apply(dat@Dsurvey@Iobs_ymi[, , i, drop = FALSE], 1:2, identity)
-  isd <- apply(dat@Dsurvey@Isd_ymi[, , i, drop = FALSE], 1:2, identity)
-  mobs <- seq(1, nm)[apply(iobs, 2, function(i) any(!is.na(i)))]
-  mind <- rep(1:nm, length(year))
+  iobs <- dat@Dsurvey@Iobs_ymi[, , i, drop = FALSE]
+  isd <- dat@Dsurvey@Isd_ymi[, , i, drop = FALSE]
 
-  ipred <- apply(fit@report$I_ymi[, , i, drop = FALSE], 1:2, identity)
+  ni_plot <- length(i)
+
+  ipred <- fit@report$I_ymi[, , i, drop = FALSE]
 
   year <- make_yearseason(year, nm)
   ipred <- collapse_yearseason(ipred)
   iobs <- collapse_yearseason(iobs)
   isd <- collapse_yearseason(isd)
 
-  ind <- !is.na(iobs)
+  ind_all <- apply(iobs, 1, function(x) !all(is.na(x)))
 
   output <- NULL
-
-  if (sum(ind)) {
-    if (zoom) {
-      mz <- mind == mobs
-
-      year <- year[ind & mz]
-      ipred <- ipred[ind & mz]
-      iobs <- iobs[ind & mz]
-      isd <- isd[ind & mz]
-    }
-
+  if (any(!is.na(iobs))) {
     iupper <- exp(log(iobs) + 1.96 * isd)
     ilower <- exp(log(iobs) - 1.96 * isd)
 
-    if (figure) {
-      plot(year, iobs, xlab = "Year", ylab = iname, type = "p", pch = 16,
-           ylim = c(0, 1.1) * range(ipred, iupper, na.rm = TRUE), zero_line = TRUE)
-      arrows(year, y0 = ilower, y1 = iupper, length = 0)
-      lines(year, ipred, lwd = 2, col = 2, type = ifelse(length(year) > 10, "l", "o"))
-    }
+    output <- lapply(1:ni_plot, function(ii) {
+      .output <- data.frame(
+        year = year, obs = iobs[, ii], pred = ipred[, ii], lwr = ilower[, ii], upr = iupper[, ii], name = iname[ii]
+      )
+      if (zoom) {
+        iobs <- apply(dat@Dsurvey@Iobs_ymi[, , i[ii], drop = FALSE], 1:2, identity)
+        mobs <- seq(1, nm)[apply(iobs, 2, function(i) any(!is.na(i)))]
+        mind <- rep(1:nm, length(year))
+        ind <- mind == mobs
+      } else {
+        ind <- rep(TRUE, nrow(.output))
+      }
+      .output[ind, ]
+    })
+    output <- do.call(rbind, output)
 
-    output <- data.frame(year = year, obs = iobs, pred = ipred, lwr = ilower, upr = iupper, name = iname)
+    if (figure) {
+      irange <- lapply(1:ni_plot, function(ii) {
+        data.frame(year = range(year[ind_all]), y = c(0, 1.1) * max(iupper[, ii], ipred[, ii], na.rm = TRUE), name = iname[ii])
+      })
+      irange <- do.call(rbind, irange)
+
+      tinyplot(
+        irange$year, irange$y,
+        facet = irange$name, facet.args = list(free = TRUE),
+        type = "n", grid = TRUE,
+        xlab = "Year",  ylab = "Index"
+      )
+      tinyplot(
+        output$year, output$pred,
+        facet = output$name, facet.args = list(free = TRUE),
+        type = "l", col = "red",
+        add = TRUE
+      )
+      tinyplot(
+        output$year, output$obs,
+        facet = output$name, facet.args = list(free = TRUE),
+        ymin = output$lwr, ymax = output$upr,
+        type = "pointrange", pch = 16,
+        add = TRUE
+      )
+
+      #plot(year, iobs, xlab = "Year", ylab = iname, type = "p", pch = 16,
+      #     ylim = c(0, 1.1) * range(ipred, iupper, na.rm = TRUE), zero_line = TRUE)
+      #arrows(year, y0 = ilower, y1 = iupper, length = 0)
+      #lines(year, ipred, lwd = 2, col = 2, type = ifelse(length(year) > 10, "l", "o"))
+    }
   }
 
   invisible(output)
@@ -198,12 +227,14 @@ plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
 #' @details
 #' - `plot_CAL` plots the catch at length
 #' @export
-plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
+plot_CAL <- function(fit, f, r, agg = FALSE, do_mean = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
   output <- NULL
+  if (missing(f)) f <- 1:dat@Dfishery@nf
+  if (missing(r)) r <- 1:dat@Dmodel@nr
 
   if (sum(dat@Dfishery@CALN_ymfr, na.rm = TRUE)) {
-    N <- apply(dat@Dfishery@CALN_ymfr[, , f, r, drop = FALSE], 1:2, identity) |> t() |> as.numeric()
+    N <- dat@Dfishery@CALN_ymfr[, , f, r, drop = FALSE]
     N[is.na(N)] <- 0
 
     if (any(N > 0)) {
@@ -213,51 +244,143 @@ plot_CAL <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
       year <- Dlabel@year
       year <- make_yearseason(year, nm)
 
-      pred <- apply(fit@report$CN_ymlfrs[, , , f, r, , drop = FALSE], 1:3, sum)
-      pred <- collapse_yearseason(pred) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
+      pred <- apply(fit@report$CN_ymlfrs[, , , f, r, , drop = FALSE], 1:5, sum)
+      pred <- collapse_yearseason(pred) |> apply(c(1, 3, 4), function(x) x/sum(x, na.rm = TRUE)) |> aperm(c(2, 1, 3, 4))
       pred[is.na(pred)] <- 0
 
-      obs <- apply(dat@Dfishery@CALobs_ymlfr[, , , f, r, drop = FALSE], 1:3, identity)
-      obs <- collapse_yearseason(obs) |> apply(1, function(x) x/sum(x, na.rm = TRUE)) |> t()
+      obs <- dat@Dfishery@CALobs_ymlfr[, , , f, r, drop = FALSE]
+      obs <- collapse_yearseason(obs) |> apply(c(1, 3, 4), function(x) x/sum(x, na.rm = TRUE)) |> aperm(c(2, 1, 3, 4))
 
-      include <- rowSums(obs, na.rm = TRUE) > 0
       if (do_mean) {
-        mpred <- apply(pred, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
-        mobs <- apply(obs, 1, function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
+        mpred <- apply(pred, c(1, 3, 4), function(w) weighted.mean(x = dat@Dmodel@lmid, w = w)) |>
+          structure(dimnames = list(year = year, fleet = dat@Dlabel@fleet[f], region = dat@Dlabel@region[r])) |>
+          reshape2::melt(value.name = "pred")
+        mobs <- apply(obs, c(1, 3, 4), function(w) weighted.mean(x = dat@Dmodel@lmid, w = w)) |>
+          structure(dimnames = list(year = year, fleet = dat@Dlabel@fleet[f], region = dat@Dlabel@region[r])) |>
+          reshape2::melt(value.name = "obs")
+
+        output <- merge(mpred, mobs)
 
         if (figure) {
-          ylim <- c(0.9, 1.1) * range(c(mobs, mpred), na.rm = TRUE)
 
-          plot(year[include], mobs[include], xlab = "Year", ylab = "Mean length", pch = 1, type = "o", ylim = ylim)
-          lines(year[include], mpred[include], col = 2, lwd = 2)
+          mrange <- lapply(1:nf_plot, function(ff) {
+            .m <- lapply(1:nr_plot, function(rr) {
+              .output <- output[output$fleet == dat@Dlabel@fleet[ff] & output$region == dat@Dlabel@region[rr], ]
+              if (nrow(.output)) {
+                data.frame(
+                  year = range(year),
+                  y = c(0.9, 1.1) * range(.output$obs, .output$pred, na.rm = TRUE),
+                  fleet = dat@Dlabel@fleet[ff],
+                  region = dat@Dlabel@region[rr]
+                )
+              } else {
+                data.frame()
+              }
+            })
+            do.call(rbind, .m)
+          })
+          mrange <- do.call(rbind, mrange)
+
+          tinyplot(
+            mrange$year, mrange$y,
+            facet = paste(mrange$fleet, mrange$region, sep = ", "), facet.args = list(free = TRUE),
+            type = "n", grid = TRUE,
+            xlab = "Year", ylab = "Mean length"
+          )
+
+          out_dat <- output[!is.na(output$obs), ]
+          tinyplot(
+            out_dat$year, out_dat$obs,
+            facet = paste(out_dat$fleet, out_dat$region, sep = ", "),
+            facet.args = list(free = TRUE),
+            type = "o",
+            add = TRUE
+          )
+
+          out_pred <- output[!is.na(output$pred), ]
+          tinyplot(
+            out_pred$year, out_pred$pred,
+            facet = paste(out_pred$fleet, out_pred$region, sep = ", "), facet.args = list(free = TRUE),
+            type = "l", col = "red", lwd = 2, add = TRUE
+          )
         }
 
-        output <- data.frame(
-          year = year,
-          pred = mpred,
-          obs = mobs,
-          fleet = dat@Dlabel@fleet[f],
-          region = dat@Dlabel@region[r]
-        )
 
       } else {
-        if (figure) {
-          plot_composition(obs[include, , drop = FALSE], pred[include, , drop = FALSE], xval = dat@Dmodel@lmid,
-                           xlab = "Length", ylab = "Proportion",
-                           zval = year[include], N = N[include])
-        }
-
-        obs_df <- structure(obs, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) |>
+        obs_df <- structure(
+          obs,
+          dimnames = list(year = year, lmid = dat@Dmodel@lmid,
+                          fleet = dat@Dlabel@fleet[f], region = dat@Dlabel@region[r])
+        ) |>
           reshape2::melt(value.name = "obs")
-        pred_df <- structure(pred, dimnames = list(year = year, lmid = dat@Dmodel@lmid)) |>
+        pred_df <- structure(
+          pred,
+          dimnames = list(year = year, lmid = dat@Dmodel@lmid,
+                          fleet = dat@Dlabel@fleet[f], region = dat@Dlabel@region[r])
+        ) |>
           reshape2::melt(value.name = "pred")
-        N_df <- data.frame(
-          year = year,
-          fleet = dat@Dlabel@fleet[f],
-          region = dat@Dlabel@region[r],
-          N = N
-        )
+        N_df <- structure(
+          collapse_yearseason(N),
+          dimnames = list(year = year, fleet = dat@Dlabel@fleet[f], region = dat@Dlabel@region[r])
+        ) |>
+          reshape2::melt(value.name = "N")
+
         output <- merge(N_df, merge(obs_df, pred_df))
+
+        if (agg) {
+
+          .obs_agg <- aggregate(
+            output$N * output$obs, by = list(lmid = output$lmid, fleet = output$fleet),
+            FUN = sum, na.rm = TRUE
+          )
+          names(.obs_agg)[3] <- "obs"
+          .pred_agg <- aggregate(
+            output$N * output$pred, by = list(lmid = output$lmid, fleet = output$fleet),
+            FUN = sum, na.rm = TRUE
+          )
+          names(.pred_agg)[3] <- "pred"
+
+          output <- merge(.obs_agg, .pred_agg, sort = FALSE)
+
+          if (figure) {
+            frange <- lapply(unique(output$fleet), function(ff) {
+              .output <- output[output$fleet == ff, ]
+              data.frame(
+                lmid = range(output$lmid),
+                y = c(0, 1.1) * max(.output$obs, .output$pred, na.rm = TRUE),
+                fleet = ff
+              )
+            })
+            frange <- do.call(rbind, frange)
+            tinyplot(
+              frange$lmid, frange$y,
+              facet = frange$fleet, facet.args = list(free = TRUE),
+              type = "n",
+              xlab = "Length", ylab = "N"
+            )
+            tinyplot(
+              output$lmid, output$obs,
+              facet = output$fleet, facet.args = list(free = TRUE),
+              type = "area", pch = 16,
+              add = TRUE
+            )
+            tinyplot(
+              output$lmid, output$pred,
+              facet = output$fleet, facet.args = list(free = TRUE),
+              type = "l", col = 2, lwd = 3,
+              add = TRUE
+            )
+          }
+
+        } else if (figure) {
+
+          if (length(f) > 1 || length(r) > 1) stop("Specify one value each for f and r")
+
+          include <- apply(obs, 1, sum, na.rm = TRUE) > 0
+          plot_composition(obs[, f, r][include, drop = FALSE], pred[, f, r][include, drop = FALSE], xval = dat@Dmodel@lmid,
+                           xlab = "Length", ylab = "Proportion",
+                           zval = year[include], N = N[, f, r][include])
+        }
       }
     }
   }
