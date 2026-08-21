@@ -57,6 +57,8 @@ predicted values over all model years.}
 
 \item{do_mean}{Logical, whether to plot full compositions or time series of mean length or mean age}
 
+\item{agg}{Logical, whether to aggregate composition across all time steps}
+
 \item{ff}{Integer, indexes the aggregate fleet (for stock composition data)}
 
 \item{aa}{Integer, indexes the aggregate age class (for stock composition and tag data)}

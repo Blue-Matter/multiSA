@@ -224,14 +224,18 @@ plot_CAA <- function(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE) {
 
 #' @rdname plot-MSA-data
 #' @aliases plot_CAL
+#' @param agg Logical, whether to aggregate composition across all time steps
 #' @details
 #' - `plot_CAL` plots the catch at length
+#' @importFrom stats aggregate
 #' @export
 plot_CAL <- function(fit, f, r, agg = FALSE, do_mean = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
   output <- NULL
   if (missing(f)) f <- 1:dat@Dfishery@nf
   if (missing(r)) r <- 1:dat@Dmodel@nr
+  nf_plot <- length(f)
+  nr_plot <- length(r)
 
   if (sum(dat@Dfishery@CALN_ymfr, na.rm = TRUE)) {
     N <- dat@Dfishery@CALN_ymfr[, , f, r, drop = FALSE]
