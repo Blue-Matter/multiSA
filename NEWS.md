@@ -1,16 +1,16 @@
 
-## multiSA 0.5.0
+## Version 0.5.0
 
 - Update check for catch and lambda factors in predicted stock composition
 - Update selectivity names, using 'total' and 'mature' instead of 'B' and 'SB', respectively. For good practice, units are not necessarily in biomass.
 - Add option to fix index catchability in `Dsurvey@qest_i`
 - Update `plot_index()` to make facetted plots and `plot_CAL()` to plot aggregate length composition
 
-## multiSA 0.4.0
+## Version 0.4.0
 
 - Update `calc_eqdist()` where movement is indexed within the same season as stock distribution (previously applied to previous seasonal time step)
 
-## multiSA 0.3.0
+## Version 0.3.0
 
 - Use the potentially faster default pipe `|>` instead of magittr's pipe `%>%`
 - Fix movement indexing in `calc_population()` (model previously had a 1 season lag that was erroneous)
@@ -25,7 +25,7 @@
 - Export `get_likelihood_components()`
 - Reporet fitting time in `fit_MSA()`
 
-## multiSA 0.2.0
+## Version 0.2.0
 
 - New selectivity options: constant over size and age range, mapping a subset of length or age from fleet to index
 - Add `calc_init_population()` for spool-up in spatial or seasonal models
@@ -34,7 +34,7 @@
 - Update residual calculation for composition data
 - Fix predictions of tag transitions. Model previously had a 1 season lag that was erroneous. 
 
-## multiSA 0.1.1
+## Version 0.1.1
 
 - More robust max F check when `calc_F()` to prevent numerical overflow (check in log space rather than normal space)
 - Various checks for NA's in plotting functions
@@ -44,6 +44,6 @@
 - Properly dispatch S4 generics for `MSAassess` (previously used S3 methods)
 - Remove `stats::uniroot` import for compatibility with RTMB 1.9
 
-## multiSA 0.1.0 (alpha version)
+## Version 0.1.0
 
 - Initial CRAN release
