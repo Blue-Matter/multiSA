@@ -19,7 +19,7 @@ plot_index(fit, i = 1, zoom = FALSE, figure = TRUE)
 
 plot_CAA(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE)
 
-plot_CAL(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE)
+plot_CAL(fit, f, r, agg = TRUE, do_mean = FALSE, figure = TRUE)
 
 plot_IAA(fit, i = 1, do_mean = FALSE, figure = TRUE)
 

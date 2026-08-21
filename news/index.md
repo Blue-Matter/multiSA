@@ -2,11 +2,17 @@
 
 ## multiSA 0.5.0
 
-- Minor check for lambda factors for stock composition
+- Update check for catch and lambda factors in predicted stock
+  composition
 - Update selectivity names, using ‘total’ and ‘mature’ instead of ‘B’
   and ‘SB’, respectively. For good practice, units are not necessarily
   in biomass.
 - Add option to fix index catchability in `Dsurvey@qest_i`
+- Update
+  [`plot_index()`](https://blue-matter.github.io/multiSA/reference/plot-MSA-data.md)
+  to make facetted plots and
+  [`plot_CAL()`](https://blue-matter.github.io/multiSA/reference/plot-MSA-data.md)
+  to plot aggregate length composition
 
 ## multiSA 0.4.0
 
