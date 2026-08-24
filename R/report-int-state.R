@@ -355,11 +355,10 @@ plot_Rdev <- function(fit, s = 1, log = TRUE, figure = TRUE) {
       std <- numeric(length(x))
     }
 
+    upper <- x + 1.96 * std
+    lower <- x - 1.96 * std
 
     if (figure) {
-      upper <- x + 1.96 * std
-      lower <- x - 1.96 * std
-
       plot(year, x, xlab = "Year", ylab = "log Recruitment deviations", type = "o", pch = 16,
            ylim = range(lower, upper), lty = 3)
       arrows(x0 = year, y0 = lower, y1 = upper, length = 0)
@@ -380,6 +379,11 @@ plot_Rdev <- function(fit, s = 1, log = TRUE, figure = TRUE) {
     dev = x,
     stock = Dlabel@stock[s]
   )
+
+  if (log) {
+    output$lwr <- lower
+    output$upr <- upper
+  }
   invisible(output)
 }
 
