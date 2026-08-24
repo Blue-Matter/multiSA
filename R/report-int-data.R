@@ -71,7 +71,8 @@ plot_index <- function(fit, i = 1, zoom = FALSE, figure = TRUE) {
   dat <- get_MSAdata(fit)
   Dlabel <- dat@Dlabel
   year <- Dlabel@year
-  nm <- max(length(Dlabel@season), 1)
+  ny <- dat@Dmodel@ny
+  nm <- dat@Dmodel@nm
 
   iname <- Dlabel@index[i]
 
@@ -99,14 +100,13 @@ plot_index <- function(fit, i = 1, zoom = FALSE, figure = TRUE) {
         year = year, obs = iobs[, ii], pred = ipred[, ii], lwr = ilower[, ii], upr = iupper[, ii], name = iname[ii]
       )
       if (zoom) {
-        iobs <- apply(dat@Dsurvey@Iobs_ymi[, , i[ii], drop = FALSE], 1:2, identity)
-        mobs <- seq(1, nm)[apply(iobs, 2, function(i) any(!is.na(i)))]
-        mind <- rep(1:nm, length(year))
-        ind <- mind == mobs
+        mind <- rep(1:nm, ny)
+        mobs <- unique(mind[!is.na(.output$obs)])
+        ind <- mind %in% mobs
+        return(.output[ind, ])
       } else {
-        ind <- rep(TRUE, nrow(.output))
+        return(.output)
       }
-      .output[ind, ]
     })
     output <- do.call(rbind, output)
 
@@ -115,6 +115,9 @@ plot_index <- function(fit, i = 1, zoom = FALSE, figure = TRUE) {
         data.frame(year = range(year[ind_all]), y = c(0, 1.1) * max(iupper[, ii], ipred[, ii], na.rm = TRUE), name = iname[ii])
       })
       irange <- do.call(rbind, irange)
+
+      irange$name <- factor(irange$name, iname)
+      output$name <- factor(output$name, iname)
 
       tinyplot(
         irange$year, irange$y,
@@ -256,21 +259,35 @@ plot_CAL <- function(fit, f, r, agg = FALSE, do_mean = FALSE, figure = TRUE) {
       obs <- collapse_yearseason(obs) |> apply(c(1, 3, 4), function(x) x/sum(x, na.rm = TRUE)) |> aperm(c(2, 1, 3, 4))
 
       if (do_mean) {
-        mpred <- apply(pred, c(1, 3, 4), function(w) weighted.mean(x = dat@Dmodel@lmid, w = w)) |>
-          structure(dimnames = list(year = year, fleet = dat@Dlabel@fleet[f], region = dat@Dlabel@region[r])) |>
-          reshape2::melt(value.name = "pred")
-        mobs <- apply(obs, c(1, 3, 4), function(w) weighted.mean(x = dat@Dmodel@lmid, w = w)) |>
-          structure(dimnames = list(year = year, fleet = dat@Dlabel@fleet[f], region = dat@Dlabel@region[r])) |>
-          reshape2::melt(value.name = "obs")
+        mpred <- apply(pred, c(1, 3, 4), function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
+        mobs <- apply(obs, c(1, 3, 4), function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
+        Nobs <- apply(mobs, 2:3, sum, na.rm = TRUE)
 
-        output <- merge(mpred, mobs)
+        output <- lapply(1:nf_plot, function(ff) {
+          .m <- lapply(1:nr_plot, function(rr) {
+            .output <- output[output$fleet == dat@Dlabel@fleet[ff] & output$region == dat@Dlabel@region[rr], ]
+            if (Nobs[ff, rr]) {
+              data.frame(
+                year = year,
+                obs = mobs[, ff, rr],
+                pred = mpred[, ff, rr],
+                fleet = dat@Dlabel@fleet[ff],
+                region = dat@Dlabel@region[rr]
+              )
+            } else {
+              data.frame()
+            }
+          })
+          do.call(rbind, .m)
+        })
+        output <- do.call(rbind, output)
 
         if (figure) {
 
           mrange <- lapply(1:nf_plot, function(ff) {
             .m <- lapply(1:nr_plot, function(rr) {
-              .output <- output[output$fleet == dat@Dlabel@fleet[ff] & output$region == dat@Dlabel@region[rr], ]
-              if (nrow(.output)) {
+              if (Nobs[ff, rr]) {
+                .output <- output[output$fleet == dat@Dlabel@fleet[ff] & output$region == dat@Dlabel@region[rr], ]
                 data.frame(
                   year = range(year),
                   y = c(0.9, 1.1) * range(.output$obs, .output$pred, na.rm = TRUE),
