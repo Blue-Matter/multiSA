@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Plotting functions for data in MSA model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Blue-Matter/multiSA/blob/master/R/report-int-data.R" class="external-link"><code>R/report-int-data.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Blue-Matter/multiSA/blob/dev/R/report-int-data.R" class="external-link"><code>R/report-int-data.R</code></a></small>
       <div class="d-none name"><code>plot-MSA-data.Rd</code></div>
     </div>
 
@@ -57,7 +57,7 @@
 <span></span>
 <span><span class="fu">plot_CAA</span><span class="op">(</span><span class="va">fit</span>, f <span class="op">=</span> <span class="fl">1</span>, r <span class="op">=</span> <span class="fl">1</span>, do_mean <span class="op">=</span> <span class="cn">FALSE</span>, figure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">plot_CAL</span><span class="op">(</span><span class="va">fit</span>, <span class="va">f</span>, <span class="va">r</span>, agg <span class="op">=</span> <span class="cn">TRUE</span>, do_mean <span class="op">=</span> <span class="cn">FALSE</span>, figure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">plot_CAL</span><span class="op">(</span><span class="va">fit</span>, <span class="va">f</span>, <span class="va">r</span>, agg <span class="op">=</span> <span class="cn">FALSE</span>, do_mean <span class="op">=</span> <span class="cn">FALSE</span>, figure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">plot_IAA</span><span class="op">(</span><span class="va">fit</span>, i <span class="op">=</span> <span class="fl">1</span>, do_mean <span class="op">=</span> <span class="cn">FALSE</span>, figure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -111,6 +111,10 @@ predicted values over all model years.</p></dd>
 
 <dt id="arg-do-mean">do_mean<a class="anchor" aria-label="anchor" href="#arg-do-mean"></a></dt>
 <dd><p>Logical, whether to plot full compositions or time series of mean length or mean age</p></dd>
+
+
+<dt id="arg-agg">agg<a class="anchor" aria-label="anchor" href="#arg-agg"></a></dt>
+<dd><p>Logical, whether to aggregate composition across all time steps</p></dd>
 
 
 <dt id="arg-ff">ff<a class="anchor" aria-label="anchor" href="#arg-ff"></a></dt>

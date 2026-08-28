@@ -1,6 +1,6 @@
 # Changelog
 
-## multiSA 0.5.0
+## Version 0.5.0
 
 - Update check for catch and lambda factors in predicted stock
   composition
@@ -14,7 +14,7 @@
   [`plot_CAL()`](https://blue-matter.github.io/multiSA/reference/plot-MSA-data.md)
   to plot aggregate length composition
 
-## multiSA 0.4.0
+## Version 0.4.0
 
 CRAN release: 2026-06-27
 
@@ -23,7 +23,7 @@ CRAN release: 2026-06-27
   where movement is indexed within the same season as stock distribution
   (previously applied to previous seasonal time step)
 
-## multiSA 0.3.0
+## Version 0.3.0
 
 CRAN release: 2026-06-22
 
@@ -57,7 +57,7 @@ CRAN release: 2026-06-22
 - Reporet fitting time in
   [`fit_MSA()`](https://blue-matter.github.io/multiSA/reference/fit_MSA.md)
 
-## multiSA 0.2.0
+## Version 0.2.0
 
 CRAN release: 2026-05-22
 
@@ -73,7 +73,7 @@ CRAN release: 2026-05-22
 - Fix predictions of tag transitions. Model previously had a 1 season
   lag that was erroneous.
 
-## multiSA 0.1.1
+## Version 0.1.1
 
 CRAN release: 2026-03-20
 
@@ -92,7 +92,7 @@ CRAN release: 2026-03-20
 - Remove [`stats::uniroot`](https://rdrr.io/r/stats/uniroot.html) import
   for compatibility with RTMB 1.9
 
-## multiSA 0.1.0 (alpha version)
+## Version 0.1.0
 
 CRAN release: 2026-02-03
 

@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/Blue-Matter/multiSA/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/Blue-Matter/multiSA/blob/dev/DESCRIPTION)
 
 Huynh Q (2026). *multiSA: Multi-Stock Assessment*. R package version
 0.5.0, <https://blue-matter.github.io/multiSA/>.

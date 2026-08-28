@@ -19,7 +19,7 @@ plot_index(fit, i = 1, zoom = FALSE, figure = TRUE)
 
 plot_CAA(fit, f = 1, r = 1, do_mean = FALSE, figure = TRUE)
 
-plot_CAL(fit, f, r, agg = TRUE, do_mean = FALSE, figure = TRUE)
+plot_CAL(fit, f, r, agg = FALSE, do_mean = FALSE, figure = TRUE)
 
 plot_IAA(fit, i = 1, do_mean = FALSE, figure = TRUE)
 
@@ -76,6 +76,10 @@ plot_tagmov(fit, s = 1, yy = 1, aa = 1, figure = TRUE)
 
   Logical, whether to plot full compositions or time series of mean
   length or mean age
+
+- agg:
+
+  Logical, whether to aggregate composition across all time steps
 
 - ff:
 
