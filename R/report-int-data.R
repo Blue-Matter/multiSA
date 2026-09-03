@@ -258,6 +258,8 @@ plot_CAL <- function(fit, f, r, agg = FALSE, do_mean = FALSE, figure = TRUE) {
       obs <- dat@Dfishery@CALobs_ymlfr[, , , f, r, drop = FALSE]
       obs <- collapse_yearseason(obs) |> apply(c(1, 3, 4), function(x) x/sum(x, na.rm = TRUE)) |> aperm(c(2, 1, 3, 4))
 
+      N <- collapse_yearseason(N)
+
       if (do_mean) {
         mpred <- apply(pred, c(1, 3, 4), function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
         mobs <- apply(obs, c(1, 3, 4), function(w) weighted.mean(x = dat@Dmodel@lmid, w = w))
@@ -341,7 +343,7 @@ plot_CAL <- function(fit, f, r, agg = FALSE, do_mean = FALSE, figure = TRUE) {
         ) |>
           reshape2::melt(value.name = "pred")
         N_df <- structure(
-          collapse_yearseason(N),
+          N,
           dimnames = list(year = year, fleet = dat@Dlabel@fleet[f], region = dat@Dlabel@region[r])
         ) |>
           reshape2::melt(value.name = "N")
@@ -398,9 +400,13 @@ plot_CAL <- function(fit, f, r, agg = FALSE, do_mean = FALSE, figure = TRUE) {
           if (length(f) > 1 || length(r) > 1) stop("Specify one value each for f and r")
 
           include <- apply(obs, 1, sum, na.rm = TRUE) > 0
-          plot_composition(obs[, f, r][include, drop = FALSE], pred[, f, r][include, drop = FALSE], xval = dat@Dmodel@lmid,
-                           xlab = "Length", ylab = "Proportion",
-                           zval = year[include], N = N[, f, r][include])
+          plot_composition(
+            matrix(obs[include, , , ], sum(include), dat@Dmodel@nl),
+            matrix(pred[include, , , ], sum(include), dat@Dmodel@nl),
+            xval = dat@Dmodel@lmid,
+            xlab = "Length", ylab = "Proportion",
+            zval = year[include], N = as.numeric(N[include, , ])
+          )
         }
       }
     }
