@@ -97,7 +97,7 @@ plot_index <- function(fit, i = 1, zoom = FALSE, figure = TRUE) {
 
     output <- lapply(1:ni_plot, function(ii) {
       .output <- data.frame(
-        year = year, obs = iobs[, ii], pred = ipred[, ii], lwr = ilower[, ii], upr = iupper[, ii], name = iname[ii]
+        year = year, obs = iobs[, ii], pred = ipred[, ii], sd = isd[, ii], lwr = ilower[, ii], upr = iupper[, ii], name = iname[ii]
       )
       if (zoom) {
         mind <- rep(1:nm, ny)
@@ -138,11 +138,6 @@ plot_index <- function(fit, i = 1, zoom = FALSE, figure = TRUE) {
         type = "pointrange", pch = 16,
         add = TRUE
       )
-
-      #plot(year, iobs, xlab = "Year", ylab = iname, type = "p", pch = 16,
-      #     ylim = c(0, 1.1) * range(ipred, iupper, na.rm = TRUE), zero_line = TRUE)
-      #arrows(year, y0 = ilower, y1 = iupper, length = 0)
-      #lines(year, ipred, lwd = 2, col = 2, type = ifelse(length(year) > 10, "l", "o"))
     }
   }
 
