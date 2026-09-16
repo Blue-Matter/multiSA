@@ -738,9 +738,9 @@ update_report <- function(r, MSAdata) {
           na = na, nr = nr, ns = ns, ni = ni, samp = Dsurvey@samp_irs, delta = Dsurvey@delta_i
         )
         VI_ymi[y, m, ] <- sapply(1:ni, function(i) {
-          ff <- suppressWarnings(as.integer(dat@Dsurvey@sel_i[i]))
+          ff <- suppressWarnings(as.integer(Dsurvey@sel_i[i]))
           if (is.na(ff)) {
-            sel_char <- strsplit(dat@Dsurvey@sel_i[i], "_")[[1]]
+            sel_char <- strsplit(Dsurvey@sel_i[i], "_")[[1]]
             ff <- suppressWarnings(as.integer(sel_char[1]))
           }
           q_s <- if (is.na(ff)) rep(1, ns) else q_fs[ff, ]
